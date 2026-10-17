@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build:lambda
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "~1.15"
+      - run: terraform fmt -check -recursive infra
+      - name: terraform validate
+        run: |
+          for stack in infra/bootstrap infra/env/dev infra/github; do
+            terraform -chdir="$stack" init -backend=false -input=false
+            terraform -chdir="$stack" validate
+          done
+
+  evals:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_EVAL_ROLE_ARN }}
+          aws-region: eu-west-1
+      - name: Load the Anthropic key from SSM
+        run: |
+          key=$(aws ssm get-parameter --name /clearframe/dev/anthropic-api-key \
+            --with-decryption --query Parameter.Value --output text)
+          echo "::add-mask::$key"
+          echo "ANTHROPIC_API_KEY=$key" >> "$GITHUB_ENV"
+
+      - name: Run evals (fails on any rights violation or error)
+        run: pnpm eval
+      - name: Publish the report
+        if: always()
+        run: cat evals/reports/latest-with-rule.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: eval-report
+          path: evals/reports/latest-with-rule.*
