@@ -1,7 +1,7 @@
-variable "github_repo" {
-  description = "owner/name of the only repository whose workflows may assume the CI roles."
+variable "github_sub_prefix" {
+  description = "OIDC subject prefix of the only repository whose workflows may assume the CI roles. It carries the owner and repository ids, so a re-created repo with the same name does not match. Read it with: gh api repos/OWNER/REPO/actions/oidc/customization/sub"
   type        = string
-  default     = "fabio-carucci/clearframe-agent"
+  default     = "repo:fabio-carucci@148774237/clearframe-agent@1423156499"
 }
 
 variable "workload_prefix" {
