@@ -15,14 +15,9 @@ export interface UsageRequest {
   date: string;
 }
 
-export type RightsDecision =
-  | { allowed: true }
-  | { allowed: false; reasons: RightsViolation[] };
+export type RightsDecision = { allowed: true } | { allowed: false; reasons: RightsViolation[] };
 
-export function checkTrainingRights(
-  license: License,
-  usage: UsageRequest,
-): RightsDecision {
+export function checkTrainingRights(license: License, usage: UsageRequest): RightsDecision {
   if (!IsoDateSchema.safeParse(usage.date).success) {
     throw new Error(`Invalid usage date: ${JSON.stringify(usage.date)}`);
   }
@@ -37,10 +32,7 @@ export function checkTrainingRights(
     reasons.push("TERRITORY_NOT_LICENSED");
   }
 
-  if (
-    license.expiresAt !== null &&
-    new Date(usage.date) >= new Date(license.expiresAt)
-  ) {
+  if (license.expiresAt !== null && new Date(usage.date) >= new Date(license.expiresAt)) {
     reasons.push("LICENSE_EXPIRED");
   }
 

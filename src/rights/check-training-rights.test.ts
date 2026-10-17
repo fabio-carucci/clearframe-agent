@@ -68,7 +68,11 @@ describe("checkTrainingRights", () => {
   });
 
   it("reports every violation at once, in a stable order", () => {
-    const broken: License = { trainingAllowed: false, territories: ["JP"], expiresAt: "2026-01-01" };
+    const broken: License = {
+      trainingAllowed: false,
+      territories: ["JP"],
+      expiresAt: "2026-01-01",
+    };
     expect(checkTrainingRights(broken, usage)).toEqual({
       allowed: false,
       reasons: ["TRAINING_NOT_ALLOWED", "TERRITORY_NOT_LICENSED", "LICENSE_EXPIRED"],

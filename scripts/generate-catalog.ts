@@ -1,5 +1,10 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { CATALOG_SEED, REFERENCE_DATE, TERRITORY_POOLS, generateCatalog } from "../src/catalog/generate";
+import {
+  CATALOG_SEED,
+  REFERENCE_DATE,
+  TERRITORY_POOLS,
+  generateCatalog,
+} from "../src/catalog/generate";
 import { CatalogSchema, type Clip } from "../src/catalog/schema";
 
 const DATA_DIR = new URL("../data/", import.meta.url);
@@ -22,8 +27,14 @@ const licenseStatus = (clip: Clip) => {
 };
 
 console.log(`Wrote ${catalog.length} clips to data/catalog.json (seed ${CATALOG_SEED})\n`);
-console.log("By genre:", countBy((clip) => clip.genre));
-console.log("By language:", countBy((clip) => clip.language));
+console.log(
+  "By genre:",
+  countBy((clip) => clip.genre),
+);
+console.log(
+  "By language:",
+  countBy((clip) => clip.language),
+);
 console.log("By license status:", countBy(licenseStatus));
 console.log(
   "Clean Spanish outdoor sports clips <= 30s:",

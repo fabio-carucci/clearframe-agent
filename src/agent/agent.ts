@@ -1,7 +1,4 @@
-import {
-  type AnthropicLanguageModelOptions,
-  anthropic,
-} from "@ai-sdk/anthropic";
+import { type AnthropicLanguageModelOptions, anthropic } from "@ai-sdk/anthropic";
 import { ToolLoopAgent, isStepCount } from "ai";
 import { createAddToManifestTool } from "./add-to-manifest";
 import { isTokenBudgetExceeded } from "./budget";

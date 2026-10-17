@@ -1,8 +1,6 @@
 import type { StopCondition, ToolSet } from "ai";
 
-export function isTokenBudgetExceeded(
-  maxTotalTokens: number,
-): StopCondition<ToolSet> {
+export function isTokenBudgetExceeded(maxTotalTokens: number): StopCondition<ToolSet> {
   return async ({ steps }) => {
     let totalTokens = 0;
 
