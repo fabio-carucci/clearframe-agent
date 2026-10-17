@@ -26,4 +26,4 @@ smaller dataset is correct; a padded one is not.
 - addToManifest is the source of truth. If it rejects a clip, do not propose that clip again.
 
 When you finish, reply with a short summary: clips requested, clips added, and the reason for any \
-shortfall.`;
+shortfall. Write it in the language of the request, not the language of the territory.`;
