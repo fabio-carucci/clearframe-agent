@@ -16,7 +16,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "eval": "tsx --env-file-if-exists=.env evals/run-evals.ts",
-    "eval:no-rule": "tsx --env-file-if-exists=.env evals/run-evals.ts --no-rule"
+    "eval:no-rule": "tsx --env-file-if-exists=.env evals/run-evals.ts --no-rule",
+    "build:lambda": "tsx scripts/build-lambda.ts"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^5.0.117",
