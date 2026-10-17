@@ -1,0 +1,6771 @@
+[
+  {
+    "id": "clip_0001",
+    "title": "City cycling, tree-lined bike lane",
+    "description": "Tracking shot of a young couple cycling through a tree-lined bike lane, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "pt",
+    "durationSec": 99,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0002",
+    "title": "Busking, historic town square",
+    "description": "Static wide shot of a solo guitarist busking in a historic town square, in warm low light.",
+    "genre": "music_performance",
+    "language": "de",
+    "durationSec": 109,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2025-11-06"
+    }
+  },
+  {
+    "id": "clip_0003",
+    "title": "Bouldering, colorful bouldering cave",
+    "description": "Over-the-shoulder shot of a beginner and an instructor bouldering on a colorful bouldering cave, under bright arena lights.",
+    "genre": "sports_indoor",
+    "language": "de",
+    "durationSec": 80,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-03-02"
+    }
+  },
+  {
+    "id": "clip_0004",
+    "title": "City cycling, tree-lined bike lane",
+    "description": "Slow-motion close-up of a commuter cycling through a tree-lined bike lane, at rush hour.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 14,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0005",
+    "title": "Yoga, sunlit studio",
+    "description": "Over-the-shoulder shot of a beginner and an instructor practicing yoga in a sunlit studio, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "de",
+    "durationSec": 7,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0006",
+    "title": "Walk-and-talk, open-air market",
+    "description": "Tracking shot of a startup founder talking to the camera while walking through an open-air market, in the evening.",
+    "genre": "interview",
+    "language": "it",
+    "durationSec": 41,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0007",
+    "title": "Whiteboarding, design studio",
+    "description": "Static wide shot of a group of engineers sketching ideas on a whiteboard in a design studio, in bright office light.",
+    "genre": "workplace",
+    "language": "fr",
+    "durationSec": 64,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0008",
+    "title": "Walk-and-talk, university campus",
+    "description": "Over-the-shoulder shot of a street vendor talking to the camera while walking through a university campus, in the evening.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 19,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0009",
+    "title": "Resting, quiet clearing",
+    "description": "Handheld follow shot of a group of ibex resting at the edge of a quiet clearing, at golden hour.",
+    "genre": "nature_wildlife",
+    "language": "fr",
+    "durationSec": 29,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-03-30"
+    }
+  },
+  {
+    "id": "clip_0010",
+    "title": "Table tennis, club hall",
+    "description": "Handheld follow shot of a beginner and an instructor playing table tennis in a club hall, in warm evening light through high windows.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 38,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR",
+        "SG"
+      ],
+      "expiresAt": "2028-05-14"
+    }
+  },
+  {
+    "id": "clip_0011",
+    "title": "Sit-down interview, busy café",
+    "description": "Over-the-shoulder shot of a street vendor answering questions in a busy café, under soft studio lighting.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 71,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-12-26"
+    }
+  },
+  {
+    "id": "clip_0012",
+    "title": "Skateboarding, empty parking garage",
+    "description": "Drone shot of a street performer skateboarding across an empty parking garage, at rush hour.",
+    "genre": "street_urban",
+    "language": "pt",
+    "durationSec": 90,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0013",
+    "title": "Street market, open-air flea market",
+    "description": "Tracking shot of a commuter browsing stalls in an open-air flea market, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 47,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2026-01-29"
+    }
+  },
+  {
+    "id": "clip_0014",
+    "title": "Remote work, coworking space",
+    "description": "Slow-motion close-up of a manager and a new hire working on laptops in a coworking space, in late-afternoon sun.",
+    "genre": "workplace",
+    "language": "es",
+    "durationSec": 41,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "KR"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0015",
+    "title": "Team meeting, open-plan office",
+    "description": "Slow-motion close-up of a group of engineers holding a meeting in an open-plan office, under cool LED panels.",
+    "genre": "workplace",
+    "language": "it",
+    "durationSec": 90,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2029-05-27"
+    }
+  },
+  {
+    "id": "clip_0016",
+    "title": "Mountain biking, dusty desert canyon",
+    "description": "Drone shot of a young woman riding a mountain bike down a dusty desert canyon, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 60,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0017",
+    "title": "Trail running, pine forest trail",
+    "description": "Drone shot of a solo athlete running along a pine forest trail, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 21,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0018",
+    "title": "Testimonial, small workshop",
+    "description": "Tracking shot of a university student sharing a personal story in a small workshop, in warm window light.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 87,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0019",
+    "title": "Feeding, misty valley",
+    "description": "Over-the-shoulder shot of a lone fox feeding in a misty valley, at golden hour.",
+    "genre": "nature_wildlife",
+    "language": "de",
+    "durationSec": 20,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-08-17"
+    }
+  },
+  {
+    "id": "clip_0020",
+    "title": "Resting, quiet clearing",
+    "description": "Over-the-shoulder shot of a herd of wild horses resting at the edge of a quiet clearing, at first light.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 31,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2026-11-02"
+    }
+  },
+  {
+    "id": "clip_0021",
+    "title": "Plating, fine-dining kitchen",
+    "description": "Handheld follow shot of two line cooks plating a tasting menu dish in a fine-dining kitchen, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "en",
+    "durationSec": 84,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0022",
+    "title": "Feeding, alpine meadow",
+    "description": "Tracking shot of a pack of wolves feeding in an alpine meadow, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "pt",
+    "durationSec": 69,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2029-01-11"
+    }
+  },
+  {
+    "id": "clip_0023",
+    "title": "Plating, chef's table",
+    "description": "Time-lapse of a grandmother plating a tasting menu dish in a chef's table, in warm tungsten light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 76,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-08-17"
+    }
+  },
+  {
+    "id": "clip_0024",
+    "title": "Team meeting, open-plan office",
+    "description": "Static wide shot of a manager and a new hire holding a meeting in an open-plan office, in late-afternoon sun.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 29,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0025",
+    "title": "Kayaking, narrow river gorge",
+    "description": "Tracking shot of a middle-aged man paddling a kayak through a narrow river gorge, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 70,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-02-16"
+    }
+  },
+  {
+    "id": "clip_0026",
+    "title": "Mountain biking, dusty desert canyon",
+    "description": "Static wide shot of a group of friends riding a mountain bike down a dusty desert canyon, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 56,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2026-03-28"
+    }
+  },
+  {
+    "id": "clip_0027",
+    "title": "Swimming, hotel pool",
+    "description": "Static wide shot of a group of amateurs swimming laps in a hotel pool, in warm evening light through high windows.",
+    "genre": "sports_indoor",
+    "language": "es",
+    "durationSec": 38,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "AU",
+        "SG"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0028",
+    "title": "Skiing, wide groomed piste",
+    "description": "Over-the-shoulder shot of a coach and a student skiing fresh powder on a wide groomed piste, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 28,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0029",
+    "title": "Street market, covered food market",
+    "description": "Time-lapse of a young couple browsing stalls in a covered food market, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 110,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2028-07-13"
+    }
+  },
+  {
+    "id": "clip_0030",
+    "title": "Skateboarding, concrete plaza",
+    "description": "Static wide shot of a street performer skateboarding across a concrete plaza, at sunset.",
+    "genre": "street_urban",
+    "language": "de",
+    "durationSec": 20,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0031",
+    "title": "Team meeting, glass-walled conference room",
+    "description": "Drone shot of a small product team holding a meeting in a glass-walled conference room, in bright office light.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 24,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-03-22"
+    }
+  },
+  {
+    "id": "clip_0032",
+    "title": "Knife skills, wooden cutting board",
+    "description": "Tracking shot of a grandmother chopping vegetables on a wooden cutting board, in warm tungsten light.",
+    "genre": "cooking",
+    "language": "de",
+    "durationSec": 8,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0033",
+    "title": "On the move, snowy forest",
+    "description": "Over-the-shoulder shot of a family of deer moving through a snowy forest, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "es",
+    "durationSec": 5,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0034",
+    "title": "Paragliding, snowy peaks",
+    "description": "Handheld follow shot of a solo athlete paragliding over snowy peaks, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 118,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2029-06-09"
+    }
+  },
+  {
+    "id": "clip_0035",
+    "title": "Basketball, community sports hall",
+    "description": "Time-lapse of a mixed team playing a fast pickup game in a community sports hall, under bright arena lights.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 29,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2029-05-07"
+    }
+  },
+  {
+    "id": "clip_0036",
+    "title": "Beach volleyball, crowded city beach",
+    "description": "Slow-motion close-up of a young woman playing beach volleyball on a crowded city beach, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 120,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "SG"
+      ],
+      "expiresAt": "2027-11-26"
+    }
+  },
+  {
+    "id": "clip_0037",
+    "title": "Warehouse, small e-commerce stockroom",
+    "description": "Handheld follow shot of two colleagues packing orders in a small e-commerce stockroom, in late-afternoon sun.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 79,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2029-01-01"
+    }
+  },
+  {
+    "id": "clip_0038",
+    "title": "River crossing, frozen lake",
+    "description": "Handheld follow shot of a lone fox crossing a frozen lake, at first light.",
+    "genre": "nature_wildlife",
+    "language": "pt",
+    "durationSec": 11,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2025-09-15"
+    }
+  },
+  {
+    "id": "clip_0039",
+    "title": "Baking, small apartment kitchen",
+    "description": "Drone shot of two line cooks shaping bread loaves in a small apartment kitchen, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "it",
+    "durationSec": 107,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR",
+        "SG"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0040",
+    "title": "Table tennis, tournament venue",
+    "description": "Slow-motion close-up of a mixed team playing table tennis in a tournament venue, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 27,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2027-12-17"
+    }
+  },
+  {
+    "id": "clip_0041",
+    "title": "Team meeting, open-plan office",
+    "description": "Over-the-shoulder shot of a manager and a new hire holding a meeting in an open-plan office, in late-afternoon sun.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 12,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2025-06-12"
+    }
+  },
+  {
+    "id": "clip_0042",
+    "title": "Beach volleyball, crowded city beach",
+    "description": "Over-the-shoulder shot of a middle-aged man playing beach volleyball on a crowded city beach, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 84,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2028-05-11"
+    }
+  },
+  {
+    "id": "clip_0043",
+    "title": "Baking, small apartment kitchen",
+    "description": "Static wide shot of a home cook shaping bread loaves in a small apartment kitchen, in soft morning light.",
+    "genre": "cooking",
+    "language": "en",
+    "durationSec": 62,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "KR",
+        "AU"
+      ],
+      "expiresAt": "2029-09-14"
+    }
+  },
+  {
+    "id": "clip_0044",
+    "title": "Resting, pine forest",
+    "description": "Over-the-shoulder shot of a family of deer resting at the edge of a pine forest, at first light.",
+    "genre": "nature_wildlife",
+    "language": "it",
+    "durationSec": 8,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0045",
+    "title": "Remote work, home office",
+    "description": "Time-lapse of a freelancer working on laptops in a home office, in late-afternoon sun.",
+    "genre": "workplace",
+    "language": "de",
+    "durationSec": 11,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "KR"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0046",
+    "title": "Resting, pine forest",
+    "description": "Time-lapse of a pack of wolves resting at the edge of a pine forest, under falling snow.",
+    "genre": "nature_wildlife",
+    "language": "it",
+    "durationSec": 28,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2029-02-09"
+    }
+  },
+  {
+    "id": "clip_0047",
+    "title": "Live concert, festival main stage",
+    "description": "Over-the-shoulder shot of a solo guitarist performing on a festival main stage, in warm low light.",
+    "genre": "music_performance",
+    "language": "de",
+    "durationSec": 14,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-08-18"
+    }
+  },
+  {
+    "id": "clip_0048",
+    "title": "Commuting, crowded metro station",
+    "description": "Time-lapse of a crowd of pedestrians rushing through a crowded metro station, at night under neon light.",
+    "genre": "street_urban",
+    "language": "pt",
+    "durationSec": 53,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2026-09-23"
+    }
+  },
+  {
+    "id": "clip_0049",
+    "title": "River crossing, frozen lake",
+    "description": "Handheld follow shot of a lone fox crossing a frozen lake, at golden hour.",
+    "genre": "nature_wildlife",
+    "language": "it",
+    "durationSec": 17,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-05-26"
+    }
+  },
+  {
+    "id": "clip_0050",
+    "title": "Feeding, alpine meadow",
+    "description": "Handheld follow shot of a group of ibex feeding in an alpine meadow, at first light.",
+    "genre": "nature_wildlife",
+    "language": "es",
+    "durationSec": 56,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0051",
+    "title": "Bouldering, colorful bouldering cave",
+    "description": "Slow-motion close-up of a mixed team bouldering on a colorful bouldering cave, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 26,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0052",
+    "title": "Busking, subway corridor",
+    "description": "Static wide shot of a string quartet busking in a subway corridor, in warm low light.",
+    "genre": "music_performance",
+    "language": "fr",
+    "durationSec": 75,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "KR"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0053",
+    "title": "Kayaking, calm glacial lake",
+    "description": "Handheld follow shot of a coach and a student paddling a kayak through a calm glacial lake, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "fr",
+    "durationSec": 52,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2029-12-31"
+    }
+  },
+  {
+    "id": "clip_0054",
+    "title": "Testimonial, family kitchen",
+    "description": "Time-lapse of a local farmer sharing a personal story in a family kitchen, in the evening.",
+    "genre": "interview",
+    "language": "it",
+    "durationSec": 64,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-07-01"
+    }
+  },
+  {
+    "id": "clip_0055",
+    "title": "Sit-down interview, busy café",
+    "description": "Static wide shot of a startup founder answering questions in a busy café, under soft studio lighting.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 118,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2025-05-23"
+    }
+  },
+  {
+    "id": "clip_0056",
+    "title": "Pasta making, rustic farmhouse kitchen",
+    "description": "Time-lapse of two line cooks rolling fresh pasta dough in a rustic farmhouse kitchen, in moody low light.",
+    "genre": "cooking",
+    "language": "de",
+    "durationSec": 95,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-05-02"
+    }
+  },
+  {
+    "id": "clip_0057",
+    "title": "On the move, snowy forest",
+    "description": "Time-lapse of a group of ibex moving through a snowy forest, under falling snow.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 18,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0058",
+    "title": "River crossing, shallow river",
+    "description": "Tracking shot of a group of ibex crossing a shallow river, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 10,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0059",
+    "title": "Baking, artisan bakery",
+    "description": "Handheld follow shot of two line cooks shaping bread loaves in an artisan bakery, in soft morning light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 79,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0060",
+    "title": "Kayaking, narrow river gorge",
+    "description": "Static wide shot of a group of friends paddling a kayak through a narrow river gorge, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 13,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2026-04-19"
+    }
+  },
+  {
+    "id": "clip_0061",
+    "title": "Mountain biking, rocky alpine trail",
+    "description": "Handheld follow shot of a young woman riding a mountain bike down a rocky alpine trail, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "de",
+    "durationSec": 68,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-06-12"
+    }
+  },
+  {
+    "id": "clip_0062",
+    "title": "City cycling, downtown traffic",
+    "description": "Tracking shot of a young couple cycling through downtown traffic, at night under neon light.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 14,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0063",
+    "title": "Street food, night market stall",
+    "description": "Over-the-shoulder shot of a professional chef grilling skewers at a night market stall, in soft morning light.",
+    "genre": "cooking",
+    "language": "de",
+    "durationSec": 72,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2026-06-12"
+    }
+  },
+  {
+    "id": "clip_0064",
+    "title": "Bouldering, indoor climbing wall",
+    "description": "Over-the-shoulder shot of a professional player bouldering on an indoor climbing wall, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "de",
+    "durationSec": 66,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2029-05-15"
+    }
+  },
+  {
+    "id": "clip_0065",
+    "title": "Feeding, alpine meadow",
+    "description": "Drone shot of a group of ibex feeding in an alpine meadow, under falling snow.",
+    "genre": "nature_wildlife",
+    "language": "es",
+    "durationSec": 12,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-08-10"
+    }
+  },
+  {
+    "id": "clip_0066",
+    "title": "Sit-down interview, bright studio",
+    "description": "Time-lapse of a retired teacher answering questions in a bright studio, under soft studio lighting.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 12,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2027-11-25"
+    }
+  },
+  {
+    "id": "clip_0067",
+    "title": "River crossing, shallow river",
+    "description": "Over-the-shoulder shot of a pack of wolves crossing a shallow river, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "es",
+    "durationSec": 7,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2029-10-09"
+    }
+  },
+  {
+    "id": "clip_0068",
+    "title": "Resting, pine forest",
+    "description": "Handheld follow shot of a herd of wild horses resting at the edge of a pine forest, at first light.",
+    "genre": "nature_wildlife",
+    "language": "fr",
+    "durationSec": 6,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0069",
+    "title": "Testimonial, hospital corridor",
+    "description": "Slow-motion close-up of a street vendor sharing a personal story in a hospital corridor, under soft studio lighting.",
+    "genre": "interview",
+    "language": "pt",
+    "durationSec": 7,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-02-07"
+    }
+  },
+  {
+    "id": "clip_0070",
+    "title": "Street food, busy food truck",
+    "description": "Over-the-shoulder shot of a professional chef grilling skewers at a busy food truck, in warm tungsten light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 67,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-04-18"
+    }
+  },
+  {
+    "id": "clip_0071",
+    "title": "Street market, open-air flea market",
+    "description": "Over-the-shoulder shot of a street performer browsing stalls in an open-air flea market, at rush hour.",
+    "genre": "street_urban",
+    "language": "pt",
+    "durationSec": 85,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0072",
+    "title": "Testimonial, hospital corridor",
+    "description": "Time-lapse of a retired teacher sharing a personal story in a hospital corridor, in the evening.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 15,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0073",
+    "title": "Surfing, rocky coastline",
+    "description": "Over-the-shoulder shot of a middle-aged man surfing a long wave off a rocky coastline, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "fr",
+    "durationSec": 97,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0074",
+    "title": "Busking, historic town square",
+    "description": "Time-lapse of a string quartet busking in a historic town square, in warm low light.",
+    "genre": "music_performance",
+    "language": "en",
+    "durationSec": 9,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0075",
+    "title": "Skiing, wide groomed piste",
+    "description": "Drone shot of a solo athlete skiing fresh powder on a wide groomed piste, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 117,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0076",
+    "title": "Swimming, Olympic-size pool",
+    "description": "Time-lapse of a teenage athlete swimming laps in an Olympic-size pool, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 29,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0077",
+    "title": "Walk-and-talk, open-air market",
+    "description": "Drone shot of a retired teacher talking to the camera while walking through an open-air market, under soft studio lighting.",
+    "genre": "interview",
+    "language": "pt",
+    "durationSec": 99,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2027-06-02"
+    }
+  },
+  {
+    "id": "clip_0078",
+    "title": "Warehouse, logistics warehouse",
+    "description": "Static wide shot of a freelancer packing orders in a logistics warehouse, under cool LED panels.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 26,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0079",
+    "title": "Swimming, public swimming center",
+    "description": "Drone shot of a group of amateurs swimming laps in a public swimming center, under bright arena lights.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 11,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0080",
+    "title": "Whiteboarding, design studio",
+    "description": "Drone shot of a freelancer sketching ideas on a whiteboard in a design studio, under cool LED panels.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 89,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-01-05"
+    }
+  },
+  {
+    "id": "clip_0081",
+    "title": "Sit-down interview, quiet living room",
+    "description": "Drone shot of a university student answering questions in a quiet living room, in warm window light.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 72,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2029-02-01"
+    }
+  },
+  {
+    "id": "clip_0082",
+    "title": "Trail running, coastal cliff path",
+    "description": "Tracking shot of a solo athlete running along a coastal cliff path, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 84,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2026-04-11"
+    }
+  },
+  {
+    "id": "clip_0083",
+    "title": "Paragliding, snowy peaks",
+    "description": "Slow-motion close-up of a solo athlete paragliding over snowy peaks, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "de",
+    "durationSec": 6,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0084",
+    "title": "Pasta making, restaurant kitchen",
+    "description": "Time-lapse of a professional chef rolling fresh pasta dough in a restaurant kitchen, in moody low light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 24,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-12-05"
+    }
+  },
+  {
+    "id": "clip_0085",
+    "title": "Sit-down interview, busy café",
+    "description": "Time-lapse of a nurse answering questions in a busy café, in natural daylight.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 26,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-12-25"
+    }
+  },
+  {
+    "id": "clip_0086",
+    "title": "Skiing, wide groomed piste",
+    "description": "Tracking shot of a group of friends skiing fresh powder on a wide groomed piste, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 8,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "SG"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0087",
+    "title": "Team meeting, open-plan office",
+    "description": "Handheld follow shot of two colleagues holding a meeting in an open-plan office, in late-afternoon sun.",
+    "genre": "workplace",
+    "language": "it",
+    "durationSec": 30,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0088",
+    "title": "Skiing, backcountry bowl",
+    "description": "Handheld follow shot of a solo athlete skiing fresh powder on a backcountry bowl, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "de",
+    "durationSec": 6,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0089",
+    "title": "Busking, subway corridor",
+    "description": "Time-lapse of a singer-songwriter busking in a subway corridor, in warm low light.",
+    "genre": "music_performance",
+    "language": "fr",
+    "durationSec": 68,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "AU",
+        "JP",
+        "SG"
+      ],
+      "expiresAt": "2028-12-08"
+    }
+  },
+  {
+    "id": "clip_0090",
+    "title": "Paragliding, coastal town",
+    "description": "Over-the-shoulder shot of two teammates paragliding over a coastal town, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "de",
+    "durationSec": 5,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2025-12-21"
+    }
+  },
+  {
+    "id": "clip_0091",
+    "title": "Knife skills, wooden cutting board",
+    "description": "Handheld follow shot of a home cook chopping vegetables on a wooden cutting board, in warm tungsten light.",
+    "genre": "cooking",
+    "language": "en",
+    "durationSec": 26,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0092",
+    "title": "Resting, quiet clearing",
+    "description": "Drone shot of a pack of wolves resting at the edge of a quiet clearing, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 35,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0093",
+    "title": "Street market, covered food market",
+    "description": "Slow-motion close-up of a delivery rider browsing stalls in a covered food market, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "fr",
+    "durationSec": 29,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0094",
+    "title": "Plating, fine-dining kitchen",
+    "description": "Slow-motion close-up of a home cook plating a tasting menu dish in a fine-dining kitchen, in soft morning light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 28,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0095",
+    "title": "Sit-down interview, busy café",
+    "description": "Tracking shot of a university student answering questions in a busy café, in warm window light.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 13,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0096",
+    "title": "Kayaking, narrow river gorge",
+    "description": "Slow-motion close-up of a middle-aged man paddling a kayak through a narrow river gorge, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 72,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0097",
+    "title": "Sit-down interview, busy café",
+    "description": "Tracking shot of a street vendor answering questions in a busy café, in warm window light.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 13,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0098",
+    "title": "Whiteboarding, design studio",
+    "description": "Drone shot of a freelancer sketching ideas on a whiteboard in a design studio, in bright office light.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 10,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0099",
+    "title": "Whiteboarding, design studio",
+    "description": "Time-lapse of two colleagues sketching ideas on a whiteboard in a design studio, in the early morning.",
+    "genre": "workplace",
+    "language": "pt",
+    "durationSec": 47,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "AU"
+      ],
+      "expiresAt": "2027-08-31"
+    }
+  },
+  {
+    "id": "clip_0100",
+    "title": "Pasta making, restaurant kitchen",
+    "description": "Over-the-shoulder shot of two line cooks rolling fresh pasta dough in a restaurant kitchen, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 80,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0101",
+    "title": "Surfing, rocky coastline",
+    "description": "Time-lapse of a young woman surfing a long wave off a rocky coastline, in bright midday sun.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 27,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-06-14"
+    }
+  },
+  {
+    "id": "clip_0102",
+    "title": "Skateboarding, concrete plaza",
+    "description": "Tracking shot of a young couple skateboarding across a concrete plaza, at night under neon light.",
+    "genre": "street_urban",
+    "language": "it",
+    "durationSec": 16,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0103",
+    "title": "Remote work, coworking space",
+    "description": "Tracking shot of a small product team working on laptops in a coworking space, under cool LED panels.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 11,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0104",
+    "title": "Commuting, busy bus terminal",
+    "description": "Handheld follow shot of a commuter rushing through a busy bus terminal, at rush hour.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 19,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0105",
+    "title": "Remote work, coworking space",
+    "description": "Handheld follow shot of two colleagues working on laptops in a coworking space, in the early morning.",
+    "genre": "workplace",
+    "language": "es",
+    "durationSec": 47,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0106",
+    "title": "Team meeting, open-plan office",
+    "description": "Tracking shot of a group of engineers holding a meeting in an open-plan office, in the early morning.",
+    "genre": "workplace",
+    "language": "pt",
+    "durationSec": 51,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2025-02-20"
+    }
+  },
+  {
+    "id": "clip_0107",
+    "title": "Remote work, coworking space",
+    "description": "Tracking shot of a manager and a new hire working on laptops in a coworking space, in bright office light.",
+    "genre": "workplace",
+    "language": "de",
+    "durationSec": 47,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2025-10-03"
+    }
+  },
+  {
+    "id": "clip_0108",
+    "title": "Surfing, sandy beach break",
+    "description": "Drone shot of a middle-aged man surfing a long wave off a sandy beach break, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 59,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2025-03-22"
+    }
+  },
+  {
+    "id": "clip_0109",
+    "title": "Yoga, sunlit studio",
+    "description": "Tracking shot of a mixed team practicing yoga in a sunlit studio, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "it",
+    "durationSec": 21,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0110",
+    "title": "Testimonial, small workshop",
+    "description": "Tracking shot of a startup founder sharing a personal story in a small workshop, under soft studio lighting.",
+    "genre": "interview",
+    "language": "it",
+    "durationSec": 19,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-12-02"
+    }
+  },
+  {
+    "id": "clip_0111",
+    "title": "Walk-and-talk, city park",
+    "description": "Time-lapse of a local farmer talking to the camera while walking through a city park, in warm window light.",
+    "genre": "interview",
+    "language": "it",
+    "durationSec": 13,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0112",
+    "title": "City cycling, downtown traffic",
+    "description": "Drone shot of a commuter cycling through downtown traffic, at rush hour.",
+    "genre": "street_urban",
+    "language": "de",
+    "durationSec": 28,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0113",
+    "title": "Yoga, sunlit studio",
+    "description": "Drone shot of a beginner and an instructor practicing yoga in a sunlit studio, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 26,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2026-11-10"
+    }
+  },
+  {
+    "id": "clip_0114",
+    "title": "Sit-down interview, busy café",
+    "description": "Static wide shot of a startup founder answering questions in a busy café, in the evening.",
+    "genre": "interview",
+    "language": "it",
+    "durationSec": 28,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-10-05"
+    }
+  },
+  {
+    "id": "clip_0115",
+    "title": "Rock climbing, granite cliff face",
+    "description": "Drone shot of two teammates climbing a granite cliff face, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 24,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2025-06-06"
+    }
+  },
+  {
+    "id": "clip_0116",
+    "title": "Remote work, home office",
+    "description": "Drone shot of two colleagues working on laptops in a home office, in bright office light.",
+    "genre": "workplace",
+    "language": "it",
+    "durationSec": 27,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2029-08-09"
+    }
+  },
+  {
+    "id": "clip_0117",
+    "title": "Walk-and-talk, open-air market",
+    "description": "Static wide shot of a startup founder talking to the camera while walking through an open-air market, in warm window light.",
+    "genre": "interview",
+    "language": "fr",
+    "durationSec": 30,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-01-16"
+    }
+  },
+  {
+    "id": "clip_0118",
+    "title": "Bouldering, colorful bouldering cave",
+    "description": "Tracking shot of a professional player bouldering on a colorful bouldering cave, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "es",
+    "durationSec": 16,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2029-01-02"
+    }
+  },
+  {
+    "id": "clip_0119",
+    "title": "Remote work, coworking space",
+    "description": "Handheld follow shot of a small product team working on laptops in a coworking space, under cool LED panels.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 27,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0120",
+    "title": "Feeding, alpine meadow",
+    "description": "Drone shot of a herd of wild horses feeding in an alpine meadow, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 34,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0121",
+    "title": "River crossing, frozen lake",
+    "description": "Handheld follow shot of a group of ibex crossing a frozen lake, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 17,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2028-07-13"
+    }
+  },
+  {
+    "id": "clip_0122",
+    "title": "Acoustic set, grand concert hall",
+    "description": "Slow-motion close-up of a rock band playing an acoustic set in a grand concert hall, under a single spotlight.",
+    "genre": "music_performance",
+    "language": "en",
+    "durationSec": 102,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2028-08-27"
+    }
+  },
+  {
+    "id": "clip_0123",
+    "title": "Surfing, sandy beach break",
+    "description": "Handheld follow shot of a young woman surfing a long wave off a sandy beach break, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 13,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-04-17"
+    }
+  },
+  {
+    "id": "clip_0124",
+    "title": "Remote work, home office",
+    "description": "Handheld follow shot of a manager and a new hire working on laptops in a home office, in bright office light.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 62,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0125",
+    "title": "Warehouse, small e-commerce stockroom",
+    "description": "Over-the-shoulder shot of a manager and a new hire packing orders in a small e-commerce stockroom, under cool LED panels.",
+    "genre": "workplace",
+    "language": "es",
+    "durationSec": 28,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "KR",
+        "SG"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0126",
+    "title": "Commuting, busy bus terminal",
+    "description": "Over-the-shoulder shot of a crowd of pedestrians rushing through a busy bus terminal, at sunset.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 63,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2028-12-10"
+    }
+  },
+  {
+    "id": "clip_0127",
+    "title": "Bouldering, colorful bouldering cave",
+    "description": "Time-lapse of a teenage athlete bouldering on a colorful bouldering cave, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "it",
+    "durationSec": 66,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-10-28"
+    }
+  },
+  {
+    "id": "clip_0128",
+    "title": "Mountain biking, dusty desert canyon",
+    "description": "Time-lapse of a middle-aged man riding a mountain bike down a dusty desert canyon, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 22,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2027-03-28"
+    }
+  },
+  {
+    "id": "clip_0129",
+    "title": "On the move, snowy forest",
+    "description": "Drone shot of a group of ibex moving through a snowy forest, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "es",
+    "durationSec": 23,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0130",
+    "title": "Beach volleyball, quiet island beach",
+    "description": "Tracking shot of two teammates playing beach volleyball on a quiet island beach, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 9,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0131",
+    "title": "Trail running, misty ridge line",
+    "description": "Static wide shot of a solo athlete running along a misty ridge line, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 38,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0132",
+    "title": "Table tennis, tournament venue",
+    "description": "Tracking shot of a group of amateurs playing table tennis in a tournament venue, in warm evening light through high windows.",
+    "genre": "sports_indoor",
+    "language": "fr",
+    "durationSec": 26,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2029-09-13"
+    }
+  },
+  {
+    "id": "clip_0133",
+    "title": "On the move, snowy forest",
+    "description": "Drone shot of a pack of wolves moving through a snowy forest, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 44,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-07-28"
+    }
+  },
+  {
+    "id": "clip_0134",
+    "title": "Nightlife, nightlife district",
+    "description": "Static wide shot of a crowd of pedestrians walking past neon signs in a nightlife district, at sunset.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 91,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2027-03-17"
+    }
+  },
+  {
+    "id": "clip_0135",
+    "title": "Trail running, coastal cliff path",
+    "description": "Handheld follow shot of a young woman running along a coastal cliff path, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "pt",
+    "durationSec": 23,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2025-05-15"
+    }
+  },
+  {
+    "id": "clip_0136",
+    "title": "Mountain biking, dusty desert canyon",
+    "description": "Tracking shot of a young woman riding a mountain bike down a dusty desert canyon, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 20,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0137",
+    "title": "Swimming, hotel pool",
+    "description": "Over-the-shoulder shot of a teenage athlete swimming laps in a hotel pool, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 30,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0138",
+    "title": "Bouldering, indoor climbing wall",
+    "description": "Over-the-shoulder shot of a professional player bouldering on an indoor climbing wall, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 26,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-02-12"
+    }
+  },
+  {
+    "id": "clip_0139",
+    "title": "Busking, subway corridor",
+    "description": "Tracking shot of a jazz trio busking in a subway corridor, under colorful stage lights.",
+    "genre": "music_performance",
+    "language": "es",
+    "durationSec": 103,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0140",
+    "title": "Street market, covered food market",
+    "description": "Over-the-shoulder shot of a delivery rider browsing stalls in a covered food market, at rush hour.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 98,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-12-20"
+    }
+  },
+  {
+    "id": "clip_0141",
+    "title": "Sit-down interview, bright studio",
+    "description": "Slow-motion close-up of a startup founder answering questions in a bright studio, under soft studio lighting.",
+    "genre": "interview",
+    "language": "fr",
+    "durationSec": 22,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0142",
+    "title": "Skateboarding, empty parking garage",
+    "description": "Slow-motion close-up of a commuter skateboarding across an empty parking garage, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 26,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-01-30"
+    }
+  },
+  {
+    "id": "clip_0143",
+    "title": "Street food, beachside grill",
+    "description": "Drone shot of a grandmother grilling skewers at a beachside grill, in soft morning light.",
+    "genre": "cooking",
+    "language": "en",
+    "durationSec": 53,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-02-06"
+    }
+  },
+  {
+    "id": "clip_0144",
+    "title": "Acoustic set, church nave",
+    "description": "Drone shot of a solo guitarist playing an acoustic set in a church nave, in warm low light.",
+    "genre": "music_performance",
+    "language": "es",
+    "durationSec": 7,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP"
+      ],
+      "expiresAt": "2028-09-22"
+    }
+  },
+  {
+    "id": "clip_0145",
+    "title": "Rock climbing, granite cliff face",
+    "description": "Static wide shot of a middle-aged man climbing a granite cliff face, in bright midday sun.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 61,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0146",
+    "title": "Knife skills, wooden cutting board",
+    "description": "Time-lapse of a grandmother chopping vegetables on a wooden cutting board, in soft morning light.",
+    "genre": "cooking",
+    "language": "en",
+    "durationSec": 24,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2029-02-01"
+    }
+  },
+  {
+    "id": "clip_0147",
+    "title": "Yoga, crowded fitness class",
+    "description": "Time-lapse of a mixed team practicing yoga in a crowded fitness class, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 27,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0148",
+    "title": "Pasta making, rustic farmhouse kitchen",
+    "description": "Static wide shot of two line cooks rolling fresh pasta dough in a rustic farmhouse kitchen, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 86,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR",
+        "JP",
+        "AU"
+      ],
+      "expiresAt": "2027-08-27"
+    }
+  },
+  {
+    "id": "clip_0149",
+    "title": "Acoustic set, church nave",
+    "description": "Drone shot of a solo guitarist playing an acoustic set in a church nave, in warm low light.",
+    "genre": "music_performance",
+    "language": "es",
+    "durationSec": 29,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0150",
+    "title": "Skateboarding, empty parking garage",
+    "description": "Drone shot of a commuter skateboarding across an empty parking garage, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "de",
+    "durationSec": 22,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2025-02-09"
+    }
+  },
+  {
+    "id": "clip_0151",
+    "title": "Swimming, Olympic-size pool",
+    "description": "Tracking shot of a mixed team swimming laps in an Olympic-size pool, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "es",
+    "durationSec": 36,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2026-04-04"
+    }
+  },
+  {
+    "id": "clip_0152",
+    "title": "Rock climbing, limestone overhang",
+    "description": "Handheld follow shot of a group of friends climbing a limestone overhang, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "fr",
+    "durationSec": 15,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0153",
+    "title": "Acoustic set, church nave",
+    "description": "Drone shot of a rock band playing an acoustic set in a church nave, in warm low light.",
+    "genre": "music_performance",
+    "language": "de",
+    "durationSec": 40,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0154",
+    "title": "Yoga, sunlit studio",
+    "description": "Time-lapse of a teenage athlete practicing yoga in a sunlit studio, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "pt",
+    "durationSec": 18,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0155",
+    "title": "River crossing, frozen lake",
+    "description": "Over-the-shoulder shot of a family of deer crossing a frozen lake, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "de",
+    "durationSec": 30,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0156",
+    "title": "Swimming, Olympic-size pool",
+    "description": "Drone shot of a teenage athlete swimming laps in an Olympic-size pool, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 26,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2028-11-15"
+    }
+  },
+  {
+    "id": "clip_0157",
+    "title": "Whiteboarding, startup office",
+    "description": "Tracking shot of a small product team sketching ideas on a whiteboard in a startup office, under cool LED panels.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 23,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2027-01-30"
+    }
+  },
+  {
+    "id": "clip_0158",
+    "title": "Feeding, alpine meadow",
+    "description": "Drone shot of a group of ibex feeding in an alpine meadow, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 97,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2025-01-29"
+    }
+  },
+  {
+    "id": "clip_0159",
+    "title": "Bouldering, colorful bouldering cave",
+    "description": "Time-lapse of a mixed team bouldering on a colorful bouldering cave, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 77,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0160",
+    "title": "Kayaking, narrow river gorge",
+    "description": "Static wide shot of a solo athlete paddling a kayak through a narrow river gorge, in bright midday sun.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 10,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-02-09"
+    }
+  },
+  {
+    "id": "clip_0161",
+    "title": "Resting, pine forest",
+    "description": "Tracking shot of a group of ibex resting at the edge of a pine forest, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "fr",
+    "durationSec": 14,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0162",
+    "title": "Testimonial, hospital corridor",
+    "description": "Slow-motion close-up of a local farmer sharing a personal story in a hospital corridor, in the evening.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 22,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0163",
+    "title": "Whiteboarding, design studio",
+    "description": "Tracking shot of a manager and a new hire sketching ideas on a whiteboard in a design studio, in bright office light.",
+    "genre": "workplace",
+    "language": "es",
+    "durationSec": 6,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0164",
+    "title": "Testimonial, family kitchen",
+    "description": "Handheld follow shot of a retired teacher sharing a personal story in a family kitchen, in the evening.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 52,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2027-06-25"
+    }
+  },
+  {
+    "id": "clip_0165",
+    "title": "Street market, covered food market",
+    "description": "Drone shot of a commuter browsing stalls in a covered food market, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 60,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0166",
+    "title": "Nightlife, nightlife district",
+    "description": "Over-the-shoulder shot of a crowd of pedestrians walking past neon signs in a nightlife district, at night under neon light.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 20,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0167",
+    "title": "Yoga, sunlit studio",
+    "description": "Over-the-shoulder shot of a group of amateurs practicing yoga in a sunlit studio, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "de",
+    "durationSec": 112,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "AU",
+        "SG"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0168",
+    "title": "Mountain biking, forest singletrack",
+    "description": "Over-the-shoulder shot of a young woman riding a mountain bike down a forest singletrack, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "de",
+    "durationSec": 20,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2028-06-09"
+    }
+  },
+  {
+    "id": "clip_0169",
+    "title": "Rehearsal, cramped practice room",
+    "description": "Static wide shot of a singer-songwriter rehearsing in a cramped practice room, under a single spotlight.",
+    "genre": "music_performance",
+    "language": "fr",
+    "durationSec": 97,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-05-19"
+    }
+  },
+  {
+    "id": "clip_0170",
+    "title": "Testimonial, hospital corridor",
+    "description": "Over-the-shoulder shot of a nurse sharing a personal story in a hospital corridor, in warm window light.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 26,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "AU"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0171",
+    "title": "Pasta making, rustic farmhouse kitchen",
+    "description": "Static wide shot of a professional chef rolling fresh pasta dough in a rustic farmhouse kitchen, in warm tungsten light.",
+    "genre": "cooking",
+    "language": "pt",
+    "durationSec": 17,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2026-06-28"
+    }
+  },
+  {
+    "id": "clip_0172",
+    "title": "Testimonial, hospital corridor",
+    "description": "Time-lapse of a nurse sharing a personal story in a hospital corridor, in warm window light.",
+    "genre": "interview",
+    "language": "it",
+    "durationSec": 12,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0173",
+    "title": "Street food, beachside grill",
+    "description": "Over-the-shoulder shot of a professional chef grilling skewers at a beachside grill, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 72,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "AU",
+        "JP"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0174",
+    "title": "Street market, open-air flea market",
+    "description": "Static wide shot of a street performer browsing stalls in an open-air flea market, at rush hour.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 33,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0175",
+    "title": "Basketball, school gym",
+    "description": "Over-the-shoulder shot of a beginner and an instructor playing a fast pickup game in a school gym, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 28,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-05-06"
+    }
+  },
+  {
+    "id": "clip_0176",
+    "title": "Live concert, small club stage",
+    "description": "Time-lapse of a solo guitarist performing on a small club stage, under a single spotlight.",
+    "genre": "music_performance",
+    "language": "fr",
+    "durationSec": 12,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0177",
+    "title": "Team meeting, open-plan office",
+    "description": "Time-lapse of a manager and a new hire holding a meeting in an open-plan office, in bright office light.",
+    "genre": "workplace",
+    "language": "fr",
+    "durationSec": 23,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "AU",
+        "JP"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0178",
+    "title": "Resting, quiet clearing",
+    "description": "Static wide shot of a family of deer resting at the edge of a quiet clearing, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "it",
+    "durationSec": 29,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0179",
+    "title": "Boxing, training ring",
+    "description": "Slow-motion close-up of a professional player sparring in a training ring, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "es",
+    "durationSec": 13,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0180",
+    "title": "City cycling, tree-lined bike lane",
+    "description": "Handheld follow shot of a crowd of pedestrians cycling through a tree-lined bike lane, at sunset.",
+    "genre": "street_urban",
+    "language": "it",
+    "durationSec": 106,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2026-02-13"
+    }
+  },
+  {
+    "id": "clip_0181",
+    "title": "Street food, busy food truck",
+    "description": "Static wide shot of a home cook grilling skewers at a busy food truck, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 12,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0182",
+    "title": "Paragliding, green valley",
+    "description": "Time-lapse of a coach and a student paragliding over a green valley, in bright midday sun.",
+    "genre": "sports_outdoor",
+    "language": "pt",
+    "durationSec": 13,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2026-12-18"
+    }
+  },
+  {
+    "id": "clip_0183",
+    "title": "Rock climbing, granite cliff face",
+    "description": "Tracking shot of a coach and a student climbing a granite cliff face, in bright midday sun.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 59,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0184",
+    "title": "Warehouse, logistics warehouse",
+    "description": "Time-lapse of two colleagues packing orders in a logistics warehouse, in the early morning.",
+    "genre": "workplace",
+    "language": "de",
+    "durationSec": 21,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2025-12-10"
+    }
+  },
+  {
+    "id": "clip_0185",
+    "title": "Rehearsal, cramped practice room",
+    "description": "Slow-motion close-up of a string quartet rehearsing in a cramped practice room, in natural daylight.",
+    "genre": "music_performance",
+    "language": "fr",
+    "durationSec": 28,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0186",
+    "title": "Sit-down interview, bright studio",
+    "description": "Slow-motion close-up of a nurse answering questions in a bright studio, under soft studio lighting.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 6,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-10-16"
+    }
+  },
+  {
+    "id": "clip_0187",
+    "title": "Plating, chef's table",
+    "description": "Handheld follow shot of a home cook plating a tasting menu dish in a chef's table, in soft morning light.",
+    "genre": "cooking",
+    "language": "en",
+    "durationSec": 20,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0188",
+    "title": "Paragliding, snowy peaks",
+    "description": "Handheld follow shot of two teammates paragliding over snowy peaks, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 51,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2029-03-24"
+    }
+  },
+  {
+    "id": "clip_0189",
+    "title": "Swimming, hotel pool",
+    "description": "Over-the-shoulder shot of a beginner and an instructor swimming laps in a hotel pool, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "it",
+    "durationSec": 60,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0190",
+    "title": "Skiing, wide groomed piste",
+    "description": "Drone shot of two teammates skiing fresh powder on a wide groomed piste, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 23,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0191",
+    "title": "Remote work, coworking space",
+    "description": "Handheld follow shot of a small product team working on laptops in a coworking space, in late-afternoon sun.",
+    "genre": "workplace",
+    "language": "es",
+    "durationSec": 94,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0192",
+    "title": "Remote work, coworking space",
+    "description": "Tracking shot of a freelancer working on laptops in a coworking space, under cool LED panels.",
+    "genre": "workplace",
+    "language": "pt",
+    "durationSec": 88,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0193",
+    "title": "Sit-down interview, bright studio",
+    "description": "Handheld follow shot of a startup founder answering questions in a bright studio, in natural daylight.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 25,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-12-08"
+    }
+  },
+  {
+    "id": "clip_0194",
+    "title": "Pasta making, rustic farmhouse kitchen",
+    "description": "Tracking shot of a culinary student rolling fresh pasta dough in a rustic farmhouse kitchen, in warm tungsten light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 90,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0195",
+    "title": "Street market, open-air flea market",
+    "description": "Time-lapse of a commuter browsing stalls in an open-air flea market, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "pt",
+    "durationSec": 20,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2028-04-26"
+    }
+  },
+  {
+    "id": "clip_0196",
+    "title": "Rock climbing, limestone overhang",
+    "description": "Drone shot of two teammates climbing a limestone overhang, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 55,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-03-31"
+    }
+  },
+  {
+    "id": "clip_0197",
+    "title": "Street food, night market stall",
+    "description": "Tracking shot of a home cook grilling skewers at a night market stall, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 9,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-11-03"
+    }
+  },
+  {
+    "id": "clip_0198",
+    "title": "River crossing, shallow river",
+    "description": "Tracking shot of a family of deer crossing a shallow river, at golden hour.",
+    "genre": "nature_wildlife",
+    "language": "fr",
+    "durationSec": 11,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2028-02-01"
+    }
+  },
+  {
+    "id": "clip_0199",
+    "title": "Commuting, rainy city crossing",
+    "description": "Tracking shot of a commuter rushing through a rainy city crossing, at night under neon light.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 6,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0200",
+    "title": "Pasta making, restaurant kitchen",
+    "description": "Slow-motion close-up of a culinary student rolling fresh pasta dough in a restaurant kitchen, in moody low light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 110,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "AU"
+      ],
+      "expiresAt": "2028-02-28"
+    }
+  },
+  {
+    "id": "clip_0201",
+    "title": "Sit-down interview, bright studio",
+    "description": "Over-the-shoulder shot of a startup founder answering questions in a bright studio, in warm window light.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 47,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-08-13"
+    }
+  },
+  {
+    "id": "clip_0202",
+    "title": "Rehearsal, recording studio",
+    "description": "Time-lapse of a solo guitarist rehearsing in a recording studio, in natural daylight.",
+    "genre": "music_performance",
+    "language": "it",
+    "durationSec": 5,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-10-31"
+    }
+  },
+  {
+    "id": "clip_0203",
+    "title": "Busking, subway corridor",
+    "description": "Tracking shot of a jazz trio busking in a subway corridor, under colorful stage lights.",
+    "genre": "music_performance",
+    "language": "it",
+    "durationSec": 28,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2025-09-10"
+    }
+  },
+  {
+    "id": "clip_0204",
+    "title": "Remote work, coworking space",
+    "description": "Handheld follow shot of a group of engineers working on laptops in a coworking space, under cool LED panels.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 10,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0205",
+    "title": "Pasta making, rustic farmhouse kitchen",
+    "description": "Tracking shot of a grandmother rolling fresh pasta dough in a rustic farmhouse kitchen, in warm tungsten light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 104,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR",
+        "AU"
+      ],
+      "expiresAt": "2028-11-30"
+    }
+  },
+  {
+    "id": "clip_0206",
+    "title": "Whiteboarding, design studio",
+    "description": "Tracking shot of a manager and a new hire sketching ideas on a whiteboard in a design studio, in the early morning.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 27,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0207",
+    "title": "Kayaking, whitewater rapids",
+    "description": "Handheld follow shot of a coach and a student paddling a kayak through whitewater rapids, in bright midday sun.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 63,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2028-08-16"
+    }
+  },
+  {
+    "id": "clip_0208",
+    "title": "Trail running, pine forest trail",
+    "description": "Tracking shot of a young woman running along a pine forest trail, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "de",
+    "durationSec": 6,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-12-24"
+    }
+  },
+  {
+    "id": "clip_0209",
+    "title": "On the move, snowy forest",
+    "description": "Drone shot of a herd of wild horses moving through a snowy forest, under falling snow.",
+    "genre": "nature_wildlife",
+    "language": "pt",
+    "durationSec": 43,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0210",
+    "title": "Skateboarding, concrete plaza",
+    "description": "Time-lapse of a young couple skateboarding across a concrete plaza, at sunset.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 12,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0211",
+    "title": "Skiing, backcountry bowl",
+    "description": "Time-lapse of a coach and a student skiing fresh powder on a backcountry bowl, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "fr",
+    "durationSec": 29,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2027-09-22"
+    }
+  },
+  {
+    "id": "clip_0212",
+    "title": "Rehearsal, recording studio",
+    "description": "Time-lapse of a rock band rehearsing in a recording studio, under colorful stage lights.",
+    "genre": "music_performance",
+    "language": "de",
+    "durationSec": 86,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2028-09-26"
+    }
+  },
+  {
+    "id": "clip_0213",
+    "title": "Skateboarding, concrete plaza",
+    "description": "Static wide shot of a street performer skateboarding across a concrete plaza, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 24,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0214",
+    "title": "Basketball, school gym",
+    "description": "Handheld follow shot of a professional player playing a fast pickup game in a school gym, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "pt",
+    "durationSec": 111,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2025-04-04"
+    }
+  },
+  {
+    "id": "clip_0215",
+    "title": "Street market, covered food market",
+    "description": "Over-the-shoulder shot of a crowd of pedestrians browsing stalls in a covered food market, at night under neon light.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 25,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-02-13"
+    }
+  },
+  {
+    "id": "clip_0216",
+    "title": "City cycling, downtown traffic",
+    "description": "Tracking shot of a street performer cycling through downtown traffic, at night under neon light.",
+    "genre": "street_urban",
+    "language": "pt",
+    "durationSec": 64,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR"
+      ],
+      "expiresAt": "2027-10-04"
+    }
+  },
+  {
+    "id": "clip_0217",
+    "title": "Busking, subway corridor",
+    "description": "Static wide shot of a singer-songwriter busking in a subway corridor, in natural daylight.",
+    "genre": "music_performance",
+    "language": "es",
+    "durationSec": 19,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0218",
+    "title": "Live concert, outdoor amphitheater",
+    "description": "Drone shot of a string quartet performing on an outdoor amphitheater, in natural daylight.",
+    "genre": "music_performance",
+    "language": "es",
+    "durationSec": 26,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2029-08-21"
+    }
+  },
+  {
+    "id": "clip_0219",
+    "title": "Trail running, misty ridge line",
+    "description": "Tracking shot of a coach and a student running along a misty ridge line, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 27,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR",
+        "SG"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0220",
+    "title": "Resting, pine forest",
+    "description": "Drone shot of a herd of wild horses resting at the edge of a pine forest, under falling snow.",
+    "genre": "nature_wildlife",
+    "language": "es",
+    "durationSec": 13,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-11-01"
+    }
+  },
+  {
+    "id": "clip_0221",
+    "title": "Warehouse, logistics warehouse",
+    "description": "Static wide shot of a manager and a new hire packing orders in a logistics warehouse, in bright office light.",
+    "genre": "workplace",
+    "language": "de",
+    "durationSec": 23,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2029-07-31"
+    }
+  },
+  {
+    "id": "clip_0222",
+    "title": "Sit-down interview, busy café",
+    "description": "Over-the-shoulder shot of a retired teacher answering questions in a busy café, under soft studio lighting.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 111,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2028-07-16"
+    }
+  },
+  {
+    "id": "clip_0223",
+    "title": "Paragliding, green valley",
+    "description": "Time-lapse of a young woman paragliding over a green valley, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 48,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0224",
+    "title": "Testimonial, small workshop",
+    "description": "Drone shot of a startup founder sharing a personal story in a small workshop, in natural daylight.",
+    "genre": "interview",
+    "language": "it",
+    "durationSec": 14,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0225",
+    "title": "Pasta making, rustic farmhouse kitchen",
+    "description": "Tracking shot of a grandmother rolling fresh pasta dough in a rustic farmhouse kitchen, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "it",
+    "durationSec": 25,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2029-09-14"
+    }
+  },
+  {
+    "id": "clip_0226",
+    "title": "Plating, chef's table",
+    "description": "Slow-motion close-up of a culinary student plating a tasting menu dish in a chef's table, in soft morning light.",
+    "genre": "cooking",
+    "language": "it",
+    "durationSec": 29,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2029-09-17"
+    }
+  },
+  {
+    "id": "clip_0227",
+    "title": "Sit-down interview, quiet living room",
+    "description": "Handheld follow shot of a street vendor answering questions in a quiet living room, in warm window light.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 94,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": "2027-02-14"
+    }
+  },
+  {
+    "id": "clip_0228",
+    "title": "Testimonial, small workshop",
+    "description": "Over-the-shoulder shot of a university student sharing a personal story in a small workshop, in natural daylight.",
+    "genre": "interview",
+    "language": "fr",
+    "durationSec": 41,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-02-27"
+    }
+  },
+  {
+    "id": "clip_0229",
+    "title": "Nightlife, nightlife district",
+    "description": "Handheld follow shot of a street performer walking past neon signs in a nightlife district, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "it",
+    "durationSec": 11,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2027-06-06"
+    }
+  },
+  {
+    "id": "clip_0230",
+    "title": "Feeding, misty valley",
+    "description": "Tracking shot of a group of ibex feeding in a misty valley, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "de",
+    "durationSec": 7,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2028-02-29"
+    }
+  },
+  {
+    "id": "clip_0231",
+    "title": "Paragliding, green valley",
+    "description": "Slow-motion close-up of a solo athlete paragliding over a green valley, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 49,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0232",
+    "title": "Commuting, rainy city crossing",
+    "description": "Slow-motion close-up of a commuter rushing through a rainy city crossing, at sunset.",
+    "genre": "street_urban",
+    "language": "pt",
+    "durationSec": 38,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "SG",
+        "KR"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0233",
+    "title": "Team meeting, glass-walled conference room",
+    "description": "Drone shot of two colleagues holding a meeting in a glass-walled conference room, under cool LED panels.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 111,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "SG"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0234",
+    "title": "City cycling, tree-lined bike lane",
+    "description": "Tracking shot of a delivery rider cycling through a tree-lined bike lane, at sunset.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 24,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "AU",
+        "KR",
+        "JP"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0235",
+    "title": "Whiteboarding, design studio",
+    "description": "Static wide shot of a small product team sketching ideas on a whiteboard in a design studio, under cool LED panels.",
+    "genre": "workplace",
+    "language": "es",
+    "durationSec": 24,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-03-11"
+    }
+  },
+  {
+    "id": "clip_0236",
+    "title": "Paragliding, snowy peaks",
+    "description": "Handheld follow shot of a middle-aged man paragliding over snowy peaks, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 22,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2025-11-14"
+    }
+  },
+  {
+    "id": "clip_0237",
+    "title": "On the move, snowy forest",
+    "description": "Static wide shot of a family of deer moving through a snowy forest, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "es",
+    "durationSec": 10,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0238",
+    "title": "Surfing, tropical reef",
+    "description": "Over-the-shoulder shot of a middle-aged man surfing a long wave off a tropical reef, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "pt",
+    "durationSec": 26,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0239",
+    "title": "Commuting, crowded metro station",
+    "description": "Time-lapse of a delivery rider rushing through a crowded metro station, at rush hour.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 38,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0240",
+    "title": "Street food, busy food truck",
+    "description": "Drone shot of a grandmother grilling skewers at a busy food truck, in soft morning light.",
+    "genre": "cooking",
+    "language": "en",
+    "durationSec": 23,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0241",
+    "title": "Surfing, rocky coastline",
+    "description": "Handheld follow shot of a coach and a student surfing a long wave off a rocky coastline, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 15,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0242",
+    "title": "Bouldering, colorful bouldering cave",
+    "description": "Handheld follow shot of a group of amateurs bouldering on a colorful bouldering cave, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "pt",
+    "durationSec": 12,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR"
+      ],
+      "expiresAt": "2028-03-13"
+    }
+  },
+  {
+    "id": "clip_0243",
+    "title": "Walk-and-talk, open-air market",
+    "description": "Static wide shot of a university student talking to the camera while walking through an open-air market, in warm window light.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 22,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2029-06-13"
+    }
+  },
+  {
+    "id": "clip_0244",
+    "title": "Warehouse, logistics warehouse",
+    "description": "Static wide shot of a manager and a new hire packing orders in a logistics warehouse, under cool LED panels.",
+    "genre": "workplace",
+    "language": "en",
+    "durationSec": 5,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0245",
+    "title": "Rehearsal, cramped practice room",
+    "description": "Drone shot of a rock band rehearsing in a cramped practice room, in natural daylight.",
+    "genre": "music_performance",
+    "language": "fr",
+    "durationSec": 117,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2028-05-10"
+    }
+  },
+  {
+    "id": "clip_0246",
+    "title": "City cycling, downtown traffic",
+    "description": "Handheld follow shot of a young couple cycling through downtown traffic, on a rainy morning.",
+    "genre": "street_urban",
+    "language": "it",
+    "durationSec": 67,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-06-13"
+    }
+  },
+  {
+    "id": "clip_0247",
+    "title": "Feeding, misty valley",
+    "description": "Time-lapse of a lone fox feeding in a misty valley, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 85,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0248",
+    "title": "Whiteboarding, startup office",
+    "description": "Static wide shot of a manager and a new hire sketching ideas on a whiteboard in a startup office, under cool LED panels.",
+    "genre": "workplace",
+    "language": "it",
+    "durationSec": 9,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0249",
+    "title": "Acoustic set, church nave",
+    "description": "Slow-motion close-up of a jazz trio playing an acoustic set in a church nave, in natural daylight.",
+    "genre": "music_performance",
+    "language": "en",
+    "durationSec": 9,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2025-01-14"
+    }
+  },
+  {
+    "id": "clip_0250",
+    "title": "Swimming, Olympic-size pool",
+    "description": "Static wide shot of a mixed team swimming laps in an Olympic-size pool, in warm evening light through high windows.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 24,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2029-06-21"
+    }
+  },
+  {
+    "id": "clip_0251",
+    "title": "Street market, covered food market",
+    "description": "Drone shot of a street performer browsing stalls in a covered food market, at rush hour.",
+    "genre": "street_urban",
+    "language": "fr",
+    "durationSec": 94,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2026-07-14"
+    }
+  },
+  {
+    "id": "clip_0252",
+    "title": "River crossing, frozen lake",
+    "description": "Slow-motion close-up of a herd of wild horses crossing a frozen lake, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "it",
+    "durationSec": 83,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-09-29"
+    }
+  },
+  {
+    "id": "clip_0253",
+    "title": "On the move, tall golden grass",
+    "description": "Time-lapse of a lone fox moving through tall golden grass, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "de",
+    "durationSec": 18,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2025-05-12"
+    }
+  },
+  {
+    "id": "clip_0254",
+    "title": "Sit-down interview, quiet living room",
+    "description": "Handheld follow shot of a retired teacher answering questions in a quiet living room, in natural daylight.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 105,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-09-30"
+    }
+  },
+  {
+    "id": "clip_0255",
+    "title": "Walk-and-talk, university campus",
+    "description": "Drone shot of a retired teacher talking to the camera while walking through a university campus, in warm window light.",
+    "genre": "interview",
+    "language": "pt",
+    "durationSec": 79,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0256",
+    "title": "City cycling, tree-lined bike lane",
+    "description": "Tracking shot of a crowd of pedestrians cycling through a tree-lined bike lane, at rush hour.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 26,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0257",
+    "title": "Team meeting, open-plan office",
+    "description": "Drone shot of a small product team holding a meeting in an open-plan office, in late-afternoon sun.",
+    "genre": "workplace",
+    "language": "de",
+    "durationSec": 28,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-02-25"
+    }
+  },
+  {
+    "id": "clip_0258",
+    "title": "Baking, small apartment kitchen",
+    "description": "Handheld follow shot of two line cooks shaping bread loaves in a small apartment kitchen, in warm tungsten light.",
+    "genre": "cooking",
+    "language": "de",
+    "durationSec": 15,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-03-16"
+    }
+  },
+  {
+    "id": "clip_0259",
+    "title": "Walk-and-talk, university campus",
+    "description": "Drone shot of a university student talking to the camera while walking through a university campus, under soft studio lighting.",
+    "genre": "interview",
+    "language": "fr",
+    "durationSec": 17,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-06-05"
+    }
+  },
+  {
+    "id": "clip_0260",
+    "title": "Kayaking, whitewater rapids",
+    "description": "Handheld follow shot of a young woman paddling a kayak through whitewater rapids, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 36,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0261",
+    "title": "Resting, quiet clearing",
+    "description": "Slow-motion close-up of a herd of wild horses resting at the edge of a quiet clearing, in soft overcast light.",
+    "genre": "nature_wildlife",
+    "language": "de",
+    "durationSec": 78,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2025-09-16"
+    }
+  },
+  {
+    "id": "clip_0262",
+    "title": "Acoustic set, grand concert hall",
+    "description": "Drone shot of a singer-songwriter playing an acoustic set in a grand concert hall, in warm low light.",
+    "genre": "music_performance",
+    "language": "en",
+    "durationSec": 32,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-06-04"
+    }
+  },
+  {
+    "id": "clip_0263",
+    "title": "Rehearsal, recording studio",
+    "description": "Handheld follow shot of a jazz trio rehearsing in a recording studio, under a single spotlight.",
+    "genre": "music_performance",
+    "language": "de",
+    "durationSec": 56,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-10-13"
+    }
+  },
+  {
+    "id": "clip_0264",
+    "title": "Plating, chef's table",
+    "description": "Time-lapse of two line cooks plating a tasting menu dish in a chef's table, in moody low light.",
+    "genre": "cooking",
+    "language": "en",
+    "durationSec": 9,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-10-16"
+    }
+  },
+  {
+    "id": "clip_0265",
+    "title": "Baking, small apartment kitchen",
+    "description": "Handheld follow shot of a home cook shaping bread loaves in a small apartment kitchen, under harsh kitchen lights.",
+    "genre": "cooking",
+    "language": "fr",
+    "durationSec": 11,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0266",
+    "title": "City cycling, tree-lined bike lane",
+    "description": "Slow-motion close-up of a street performer cycling through a tree-lined bike lane, at night under neon light.",
+    "genre": "street_urban",
+    "language": "en",
+    "durationSec": 30,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0267",
+    "title": "Yoga, sunlit studio",
+    "description": "Slow-motion close-up of a group of amateurs practicing yoga in a sunlit studio, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "pt",
+    "durationSec": 27,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0268",
+    "title": "City cycling, tree-lined bike lane",
+    "description": "Slow-motion close-up of a crowd of pedestrians cycling through a tree-lined bike lane, at rush hour.",
+    "genre": "street_urban",
+    "language": "es",
+    "durationSec": 94,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2028-01-23"
+    }
+  },
+  {
+    "id": "clip_0269",
+    "title": "Live concert, festival main stage",
+    "description": "Handheld follow shot of a singer-songwriter performing on a festival main stage, under a single spotlight.",
+    "genre": "music_performance",
+    "language": "it",
+    "durationSec": 63,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0270",
+    "title": "Plating, fine-dining kitchen",
+    "description": "Over-the-shoulder shot of a home cook plating a tasting menu dish in a fine-dining kitchen, in soft morning light.",
+    "genre": "cooking",
+    "language": "de",
+    "durationSec": 103,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0271",
+    "title": "Skateboarding, empty parking garage",
+    "description": "Time-lapse of a commuter skateboarding across an empty parking garage, at sunset.",
+    "genre": "street_urban",
+    "language": "pt",
+    "durationSec": 16,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-02-20"
+    }
+  },
+  {
+    "id": "clip_0272",
+    "title": "Table tennis, club hall",
+    "description": "Time-lapse of a beginner and an instructor playing table tennis in a club hall, under bright arena lights.",
+    "genre": "sports_indoor",
+    "language": "it",
+    "durationSec": 11,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2028-06-14"
+    }
+  },
+  {
+    "id": "clip_0273",
+    "title": "Warehouse, logistics warehouse",
+    "description": "Over-the-shoulder shot of a group of engineers packing orders in a logistics warehouse, in the early morning.",
+    "genre": "workplace",
+    "language": "es",
+    "durationSec": 23,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2028-06-19"
+    }
+  },
+  {
+    "id": "clip_0274",
+    "title": "Skateboarding, empty parking garage",
+    "description": "Slow-motion close-up of a young couple skateboarding across an empty parking garage, at night under neon light.",
+    "genre": "street_urban",
+    "language": "fr",
+    "durationSec": 112,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0275",
+    "title": "Beach volleyball, quiet island beach",
+    "description": "Drone shot of a young woman playing beach volleyball on a quiet island beach, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "it",
+    "durationSec": 25,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0276",
+    "title": "Walk-and-talk, city park",
+    "description": "Tracking shot of a retired teacher talking to the camera while walking through a city park, under soft studio lighting.",
+    "genre": "interview",
+    "language": "es",
+    "durationSec": 15,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0277",
+    "title": "Sit-down interview, busy café",
+    "description": "Slow-motion close-up of a retired teacher answering questions in a busy café, in natural daylight.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 23,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-02-06"
+    }
+  },
+  {
+    "id": "clip_0278",
+    "title": "Beach volleyball, quiet island beach",
+    "description": "Time-lapse of two teammates playing beach volleyball on a quiet island beach, in bright midday sun.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 36,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0279",
+    "title": "Busking, historic town square",
+    "description": "Drone shot of a rock band busking in a historic town square, under a single spotlight.",
+    "genre": "music_performance",
+    "language": "en",
+    "durationSec": 31,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "GB"
+      ],
+      "expiresAt": "2028-04-21"
+    }
+  },
+  {
+    "id": "clip_0280",
+    "title": "Nightlife, nightlife district",
+    "description": "Static wide shot of a delivery rider walking past neon signs in a nightlife district, at rush hour.",
+    "genre": "street_urban",
+    "language": "it",
+    "durationSec": 101,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2026-11-07"
+    }
+  },
+  {
+    "id": "clip_0281",
+    "title": "Testimonial, hospital corridor",
+    "description": "Slow-motion close-up of a university student sharing a personal story in a hospital corridor, in warm window light.",
+    "genre": "interview",
+    "language": "fr",
+    "durationSec": 75,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0282",
+    "title": "Beach volleyball, crowded city beach",
+    "description": "Over-the-shoulder shot of a coach and a student playing beach volleyball on a crowded city beach, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "es",
+    "durationSec": 6,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-12-05"
+    }
+  },
+  {
+    "id": "clip_0283",
+    "title": "Paragliding, green valley",
+    "description": "Static wide shot of a coach and a student paragliding over a green valley, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 118,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": "2027-08-24"
+    }
+  },
+  {
+    "id": "clip_0284",
+    "title": "Table tennis, tournament venue",
+    "description": "Time-lapse of a teenage athlete playing table tennis in a tournament venue, in warm evening light through high windows.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 36,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0285",
+    "title": "Rock climbing, sea stack above the waves",
+    "description": "Static wide shot of a solo athlete climbing a sea stack above the waves, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "pt",
+    "durationSec": 120,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0286",
+    "title": "River crossing, shallow river",
+    "description": "Slow-motion close-up of a lone fox crossing a shallow river, under falling snow.",
+    "genre": "nature_wildlife",
+    "language": "fr",
+    "durationSec": 117,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0287",
+    "title": "River crossing, frozen lake",
+    "description": "Static wide shot of a group of ibex crossing a frozen lake, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "en",
+    "durationSec": 50,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0288",
+    "title": "Street food, busy food truck",
+    "description": "Slow-motion close-up of a home cook grilling skewers at a busy food truck, in moody low light.",
+    "genre": "cooking",
+    "language": "es",
+    "durationSec": 12,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": false,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0289",
+    "title": "Surfing, tropical reef",
+    "description": "Slow-motion close-up of a solo athlete surfing a long wave off a tropical reef, on an overcast afternoon.",
+    "genre": "sports_outdoor",
+    "language": "de",
+    "durationSec": 28,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2026-01-21"
+    }
+  },
+  {
+    "id": "clip_0290",
+    "title": "Swimming, Olympic-size pool",
+    "description": "Slow-motion close-up of a teenage athlete swimming laps in an Olympic-size pool, under dramatic spotlights.",
+    "genre": "sports_indoor",
+    "language": "fr",
+    "durationSec": 9,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0291",
+    "title": "Rehearsal, cramped practice room",
+    "description": "Slow-motion close-up of a string quartet rehearsing in a cramped practice room, in natural daylight.",
+    "genre": "music_performance",
+    "language": "it",
+    "durationSec": 18,
+    "resolution": "720p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2028-02-29"
+    }
+  },
+  {
+    "id": "clip_0292",
+    "title": "Testimonial, family kitchen",
+    "description": "Over-the-shoulder shot of a nurse sharing a personal story in a family kitchen, under soft studio lighting.",
+    "genre": "interview",
+    "language": "en",
+    "durationSec": 70,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "JP",
+        "SG"
+      ],
+      "expiresAt": "2028-12-31"
+    }
+  },
+  {
+    "id": "clip_0293",
+    "title": "Kayaking, calm glacial lake",
+    "description": "Static wide shot of a solo athlete paddling a kayak through a calm glacial lake, under a dramatic stormy sky.",
+    "genre": "sports_outdoor",
+    "language": "pt",
+    "durationSec": 70,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA"
+      ],
+      "expiresAt": "2027-07-05"
+    }
+  },
+  {
+    "id": "clip_0294",
+    "title": "River crossing, shallow river",
+    "description": "Static wide shot of a herd of wild horses crossing a shallow river, at first light.",
+    "genre": "nature_wildlife",
+    "language": "de",
+    "durationSec": 5,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0295",
+    "title": "Paragliding, snowy peaks",
+    "description": "Handheld follow shot of a young woman paragliding over snowy peaks, at dawn.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 40,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0296",
+    "title": "Live concert, outdoor amphitheater",
+    "description": "Tracking shot of a rock band performing on an outdoor amphitheater, in warm low light.",
+    "genre": "music_performance",
+    "language": "es",
+    "durationSec": 22,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0297",
+    "title": "Bouldering, colorful bouldering cave",
+    "description": "Drone shot of a beginner and an instructor bouldering on a colorful bouldering cave, in flat fluorescent light.",
+    "genre": "sports_indoor",
+    "language": "en",
+    "durationSec": 78,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "US",
+        "CA",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2027-01-03"
+    }
+  },
+  {
+    "id": "clip_0298",
+    "title": "Mountain biking, dusty desert canyon",
+    "description": "Tracking shot of two teammates riding a mountain bike down a dusty desert canyon, at golden hour.",
+    "genre": "sports_outdoor",
+    "language": "en",
+    "durationSec": 27,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "KR",
+        "AU",
+        "JP"
+      ],
+      "expiresAt": null
+    }
+  },
+  {
+    "id": "clip_0299",
+    "title": "Whiteboarding, design studio",
+    "description": "Time-lapse of two colleagues sketching ideas on a whiteboard in a design studio, under cool LED panels.",
+    "genre": "workplace",
+    "language": "es",
+    "durationSec": 85,
+    "resolution": "2160p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO"
+      ],
+      "expiresAt": "2027-04-26"
+    }
+  },
+  {
+    "id": "clip_0300",
+    "title": "Feeding, alpine meadow",
+    "description": "Static wide shot of a family of deer feeding in an alpine meadow, in heavy fog.",
+    "genre": "nature_wildlife",
+    "language": "es",
+    "durationSec": 6,
+    "resolution": "1080p",
+    "license": {
+      "trainingAllowed": true,
+      "territories": [
+        "ES",
+        "IT",
+        "FR",
+        "DE",
+        "PT",
+        "MX",
+        "AR",
+        "CO",
+        "GB"
+      ],
+      "expiresAt": "2027-03-02"
+    }
+  }
+]
