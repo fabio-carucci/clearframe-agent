@@ -31,7 +31,11 @@ variable "api_token_param" {
 variable "permissions_boundary_arn" {
   description = "Boundary attached to the agent role. The CI deploy role can only create roles that carry it."
   type        = string
-  default     = null
+
+  validation {
+    condition     = can(regex("^arn:aws:iam::[0-9]{12}:policy/.+$", var.permissions_boundary_arn))
+    error_message = "permissions_boundary_arn must be an IAM policy ARN; the agent role is never created without a boundary."
+  }
 }
 
 variable "embedding_model_id" {
