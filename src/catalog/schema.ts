@@ -23,11 +23,14 @@ export const ResolutionSchema = z.enum(RESOLUTIONS);
 /** ISO 3166-1 alpha-2 country code. */
 export const TerritorySchema = z.string().regex(/^[A-Z]{2}$/);
 
+/** Calendar date as YYYY-MM-DD; rejects impossible dates such as 2026-02-30. */
+export const IsoDateSchema = z.iso.date();
+
 export const LicenseSchema = z.object({
   trainingAllowed: z.boolean(),
   territories: z.array(TerritorySchema).min(1),
-  /** Last day the license is valid (YYYY-MM-DD), or null for a perpetual license. */
-  expiresAt: z.iso.date().nullable(),
+  /** Day the license expires (YYYY-MM-DD), already invalid on that day; null for a perpetual license. */
+  expiresAt: IsoDateSchema.nullable(),
 });
 
 export const ClipSchema = z.object({
