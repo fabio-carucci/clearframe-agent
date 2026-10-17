@@ -20,7 +20,6 @@ export function matchesFilters(clip: Clip, filters: SearchFilters): boolean {
   );
 }
 
-/** Applies the exact filters first, then orders the survivors by semantic similarity. */
 export function rankClips(
   queryVector: number[],
   catalog: readonly Clip[],

@@ -18,10 +18,8 @@ resource "aws_iam_openid_connect_provider" "github" {
   client_id_list = ["sts.amazonaws.com"]
 }
 
-# ---------------------------------------------------------------------------------------------
-# Permissions boundary: the most any workload role may ever do. The deploy role can create
-# roles only with this boundary attached, so it cannot mint a role more powerful than this.
-# ---------------------------------------------------------------------------------------------
+# The most any workload role may ever do. The deploy role can create roles only with this
+# boundary attached, so it cannot mint a role more powerful than this.
 
 data "aws_iam_policy_document" "workload_boundary" {
   statement {
@@ -59,10 +57,6 @@ resource "aws_iam_policy" "workload_boundary" {
   name   = "${var.workload_prefix}-boundary"
   policy = data.aws_iam_policy_document.workload_boundary.json
 }
-
-# ---------------------------------------------------------------------------------------------
-# ci-eval: pull requests of this repository run the eval suite.
-# ---------------------------------------------------------------------------------------------
 
 data "aws_iam_policy_document" "eval_trust" {
   statement {
@@ -112,10 +106,6 @@ resource "aws_iam_role_policy" "ci_eval" {
   role   = aws_iam_role.ci_eval.id
   policy = data.aws_iam_policy_document.ci_eval.json
 }
-
-# ---------------------------------------------------------------------------------------------
-# ci-deploy: only pushes to main run terraform apply for env/dev.
-# ---------------------------------------------------------------------------------------------
 
 data "aws_iam_policy_document" "deploy_trust" {
   statement {

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { UncheckedManifestDraft } from "../../evals/unchecked-draft";
 import type { Clip } from "../catalog/schema";
 import type { EmbeddingIndex } from "../retrieval/embeddings";
 import type { RunContext } from "./context";
@@ -20,6 +19,18 @@ const clip = (id: string, territories: string[]): Clip => ({
 const clips = [clip("clip_0001", ["ES"]), clip("clip_0002", ["JP"])];
 const clipsById = new Map(clips.map((c) => [c.id, c]));
 const usage = { territory: "ES", date: "2026-10-17" };
+
+/** A draft that applies no rule, like the eval ablation, without importing from evals/. */
+const ruleFreeDraft = (): ManifestWriter => ({
+  usage,
+  entries: [],
+  rejections: [],
+  enforcesRights: false,
+  assess: () => null,
+  propose: () => {
+    throw new Error("not used by these tests");
+  },
+});
 
 function runWith(draft: ManifestWriter): RunContext {
   return {
@@ -51,7 +62,7 @@ describe("searchClips", () => {
   });
 
   it("returns every clip when the draft applies no rule (ablation)", async () => {
-    const run = runWith(new UncheckedManifestDraft(clipsById, usage));
+    const run = runWith(ruleFreeDraft());
     const hits = (await call(createSearchClipsTool(run), { query: "cooking", limit: 10 })) as {
       clipId: string;
     }[];
@@ -73,7 +84,7 @@ describe("getRights", () => {
   });
 
   it("returns only the raw license when the draft applies no rule (ablation)", async () => {
-    const run = runWith(new UncheckedManifestDraft(clipsById, usage));
+    const run = runWith(ruleFreeDraft());
     await expect(call(createGetRightsTool(run), { clipIds: ["clip_0002"] })).resolves.toEqual([
       { clipId: "clip_0002", license: clips[1]!.license },
     ]);

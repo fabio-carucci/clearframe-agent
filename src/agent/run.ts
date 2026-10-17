@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { FinishReason } from "ai";
+import type { z } from "zod";
 import type { CatalogData } from "../catalog/load";
 import type { UsageRequest } from "../rights/check-training-rights";
 import { MAX_STEPS, TOKEN_BUDGET, createClipAgent } from "./agent";
@@ -16,11 +17,7 @@ import {
 
 export const RunRequestSchema = ManifestSchema.shape.request;
 
-export interface RunRequest {
-  prompt: string;
-  territory: string;
-  date: string;
-}
+export type RunRequest = z.infer<typeof RunRequestSchema>;
 
 export interface StepTrace {
   stepNumber: number;
