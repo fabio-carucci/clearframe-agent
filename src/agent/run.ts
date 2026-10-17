@@ -73,7 +73,7 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
     stopReason,
     summary,
     usage: { steps: result.steps.length, ...tokens },
-    costUsd: estimateCostUsd(tokens),
+    costUsd: Math.round(estimateCostUsd(tokens) * 1e6) / 1e6,
     durationMs: Math.round(performance.now() - startedAt),
   });
 }
