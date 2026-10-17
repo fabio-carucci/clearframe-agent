@@ -1,11 +1,11 @@
-data "aws_iam_policy" "workload_boundary" {
-  name = "clearframe-dev-boundary"
-}
+data "aws_caller_identity" "current" {}
 
 module "api" {
   source = "../../modules/api"
 
-  permissions_boundary_arn = data.aws_iam_policy.workload_boundary.arn
+  # Built from the account id: looking the policy up by name needs iam:ListPolicies on every
+  # policy in the account, which the CI deploy role deliberately lacks.
+  permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/clearframe-dev-boundary"
 
   name_prefix         = "clearframe-dev"
   data_bucket_name    = "clearframe-dev-data-6iit7"
