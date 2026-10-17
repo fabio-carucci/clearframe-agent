@@ -5,6 +5,7 @@ import type { UsageRequest } from "../rights/check-training-rights";
 import { MAX_STEPS, TOKEN_BUDGET, createClipAgent } from "./agent";
 import type { RunContext } from "./context";
 import { estimateCostUsd } from "./cost";
+import { type RunError, toRunError } from "./errors";
 import {
   type Manifest,
   ManifestDraft,
@@ -32,7 +33,7 @@ export interface StepTrace {
 export interface RunResult {
   manifest: Manifest;
   steps: StepTrace[];
-  error?: string;
+  error?: RunError;
 }
 
 export interface RunDeps {
@@ -73,7 +74,7 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
 
   const steps: StepTrace[] = [];
   let stepStartedAt = performance.now();
-  let outcome: { finishReason: FinishReason; text: string } | { error: string };
+  let outcome: { finishReason: FinishReason; text: string } | { error: RunError };
 
   try {
     const result = await createClipAgent(run).generate({
@@ -94,7 +95,7 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
     });
     outcome = { finishReason: result.finishReason, text: result.text };
   } catch (error) {
-    outcome = { error: error instanceof Error ? error.message : String(error) };
+    outcome = { error: toRunError(error) };
   }
 
   const tokens = {
@@ -107,7 +108,7 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
   let summary: string;
   if ("error" in outcome) {
     stopReason = "error";
-    summary = `Run failed after ${steps.length} steps (${outcome.error}); the manifest is partial.`;
+    summary = `Run failed after ${steps.length} steps (${outcome.error.code}); the manifest is partial.`;
   } else {
     stopReason = stopReasonOf(outcome.finishReason, tokens.inputTokens + tokens.outputTokens);
     summary =

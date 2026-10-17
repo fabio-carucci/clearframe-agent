@@ -40,7 +40,7 @@ async function runCase(evalCase: EvalCase): Promise<CaseResult> {
     const { manifest, error } = await runClipAgent({ prompt, territory, date }, deps);
     return {
       ...scoreCase(evalCase, manifest, data.clips, data.clipsById),
-      ...(error && { error }),
+      ...(error && { error: `${error.code}: ${error.message}` }),
     };
   } catch (error) {
     return {

@@ -26,7 +26,7 @@ const result: RunResult = {
       durationMs: 900,
     },
   ],
-  error: "provider overloaded",
+  error: { code: "provider_unavailable", message: "APICallError: overloaded" },
 };
 
 const createdAt = new Date("2026-10-17T18:30:00.000Z");
@@ -62,7 +62,8 @@ describe("AwsRunStore", () => {
       runId: result.manifest.runId,
       day: "2026-10-17",
       status: "error",
-      error: "provider overloaded",
+      errorCode: "provider_unavailable",
+      errorMessage: "APICallError: overloaded",
       territory: "ES",
       rejectedCount: 1,
       steps: result.steps,

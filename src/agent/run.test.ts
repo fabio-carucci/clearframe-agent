@@ -69,7 +69,8 @@ describe("runClipAgent", () => {
       deps,
     );
 
-    expect(error).toBe("provider overloaded");
+    expect(error).toEqual({ code: "internal_error", message: "Error: provider overloaded" });
+    expect(manifest.summary).not.toContain("provider overloaded");
     expect(manifest.stopReason).toBe("error");
     expect(manifest.clips.map((entry) => entry.clipId)).toEqual(["clip_0001"]);
     expect(manifest.usage).toMatchObject({ steps: 1, inputTokens: 100, outputTokens: 10 });

@@ -135,7 +135,7 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<LambdaFunc
     rejectedCount: manifest.rejected.length,
     costUsd: manifest.costUsd,
     durationMs: manifest.durationMs,
-    ...(result.error && { error: result.error }),
+    ...(result.error && { errorCode: result.error.code, errorMessage: result.error.message }),
   });
 
   return json(manifest.stopReason === "error" ? 502 : 200, manifest);

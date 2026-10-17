@@ -26,7 +26,9 @@ export interface RunRecord {
   costUsd: number;
   durationMs: number;
   manifestKey: string;
-  error?: string;
+  errorCode?: string;
+  /** Internal only: may name ARNs or accounts, never returned to API callers. */
+  errorMessage?: string;
 }
 
 export const manifestKeyFor = (runId: string, createdAt: Date) =>
@@ -52,6 +54,6 @@ export function toRunRecord(result: RunResult, createdAt: Date): RunRecord {
     costUsd: manifest.costUsd,
     durationMs: manifest.durationMs,
     manifestKey: manifestKeyFor(manifest.runId, createdAt),
-    ...(error && { error }),
+    ...(error && { errorCode: error.code, errorMessage: error.message }),
   };
 }
