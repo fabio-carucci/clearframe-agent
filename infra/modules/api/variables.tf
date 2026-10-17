@@ -28,6 +28,12 @@ variable "api_token_param" {
   type        = string
 }
 
+variable "permissions_boundary_arn" {
+  description = "Boundary attached to the agent role. The CI deploy role can only create roles that carry it."
+  type        = string
+  default     = null
+}
+
 variable "embedding_model_id" {
   type    = string
   default = "amazon.titan-embed-text-v2:0"

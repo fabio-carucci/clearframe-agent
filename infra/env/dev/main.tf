@@ -1,5 +1,11 @@
+data "aws_iam_policy" "workload_boundary" {
+  name = "clearframe-dev-boundary"
+}
+
 module "api" {
   source = "../../modules/api"
+
+  permissions_boundary_arn = data.aws_iam_policy.workload_boundary.arn
 
   name_prefix         = "clearframe-dev"
   data_bucket_name    = "clearframe-dev-data-6iit7"

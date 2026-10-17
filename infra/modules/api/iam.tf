@@ -22,8 +22,9 @@ data "aws_iam_policy_document" "lambda_assume" {
 }
 
 resource "aws_iam_role" "agent" {
-  name               = "${var.name_prefix}-agent"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
+  name                 = "${var.name_prefix}-agent"
+  assume_role_policy   = data.aws_iam_policy_document.lambda_assume.json
+  permissions_boundary = var.permissions_boundary_arn
 }
 
 data "aws_iam_policy_document" "agent" {
