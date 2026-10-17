@@ -7,10 +7,10 @@ import type { LambdaFunctionURLEvent, LambdaFunctionURLResult } from "aws-lambda
 import { z } from "zod";
 import { runClipAgent } from "../agent/run";
 import { type CatalogData, loadCatalogData, s3JsonReader } from "../catalog/load";
-import { IsoDateSchema, TerritorySchema } from "../catalog/schema";
 import { embedQuery } from "../retrieval/embeddings";
 import { logEvent } from "../tracing/log";
 import { AwsRunStore } from "../tracing/run-store";
+import { parseRunRequest } from "./request";
 
 const env = z
   .object({
@@ -21,7 +21,10 @@ const env = z
   })
   .parse(process.env);
 
+const SECRETS_TTL_MS = 5 * 60_000;
+
 const s3 = new S3Client({});
+const ssm = new SSMClient({});
 const store = new AwsRunStore({
   tableName: env.RUNS_TABLE,
   bucket: env.DATA_BUCKET,
@@ -31,21 +34,9 @@ const store = new AwsRunStore({
   }),
 });
 
-const RequestBodySchema = z.object({
-  prompt: z.string().min(1).max(2000),
-  territory: TerritorySchema,
-  date: IsoDateSchema.optional(),
-});
-
-interface ColdStart {
-  data: CatalogData;
-  apiTokenHash: Buffer;
-}
-
 const sha256 = (value: string) => createHash("sha256").update(value).digest();
 
-async function initialize(): Promise<ColdStart> {
-  const ssm = new SSMClient({});
+async function fetchSecrets(): Promise<{ apiTokenHash: Buffer }> {
   const { Parameters = [] } = await ssm.send(
     new GetParametersCommand({
       Names: [env.ANTHROPIC_KEY_PARAM, env.API_TOKEN_PARAM],
@@ -59,20 +50,33 @@ async function initialize(): Promise<ColdStart> {
   };
   // The Anthropic provider reads the key from the environment on every call.
   process.env.ANTHROPIC_API_KEY = parameter(env.ANTHROPIC_KEY_PARAM);
-  return {
-    data: await loadCatalogData(s3JsonReader(s3, env.DATA_BUCKET, "data/")),
-    apiTokenHash: sha256(parameter(env.API_TOKEN_PARAM)),
-  };
+  return { apiTokenHash: sha256(parameter(env.API_TOKEN_PARAM)) };
 }
 
-let coldStart: Promise<ColdStart> | undefined;
+/**
+ * Both caches drop a rejected promise so the next request retries. Secrets also expire, so a
+ * rotated token stops working within SECRETS_TTL_MS instead of living as long as the container.
+ */
+let secrets: { value: Promise<{ apiTokenHash: Buffer }>; fetchedAt: number } | undefined;
+function getSecrets() {
+  if (!secrets || Date.now() - secrets.fetchedAt > SECRETS_TTL_MS) {
+    const value = fetchSecrets().catch((error: unknown) => {
+      secrets = undefined;
+      throw error;
+    });
+    secrets = { value, fetchedAt: Date.now() };
+  }
+  return secrets.value;
+}
 
-/** Retries initialization on the next request instead of caching a rejected promise forever. */
-const ready = () =>
-  (coldStart ??= initialize().catch((error: unknown) => {
-    coldStart = undefined;
-    throw error;
-  }));
+let catalog: Promise<CatalogData> | undefined;
+const getCatalog = () =>
+  (catalog ??= loadCatalogData(s3JsonReader(s3, env.DATA_BUCKET, "data/")).catch(
+    (error: unknown) => {
+      catalog = undefined;
+      throw error;
+    },
+  ));
 
 const json = (statusCode: number, body: unknown): LambdaFunctionURLResult => ({
   statusCode,
@@ -86,7 +90,7 @@ function isAuthorized(header: string | undefined, expectedHash: Buffer): boolean
   return token !== undefined && timingSafeEqual(sha256(token), expectedHash);
 }
 
-function parseBody(event: LambdaFunctionURLEvent): unknown {
+function parseJsonBody(event: LambdaFunctionURLEvent): unknown {
   if (!event.body) return undefined;
   const raw = event.isBase64Encoded ? Buffer.from(event.body, "base64").toString() : event.body;
   try {
@@ -101,24 +105,29 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<LambdaFunc
     return json(405, { error: "Use POST with a JSON body" });
   }
 
-  const { data, apiTokenHash } = await ready();
+  const { apiTokenHash } = await getSecrets();
   if (!isAuthorized(event.headers.authorization, apiTokenHash)) {
     return json(401, { error: "Missing or invalid bearer token" });
   }
 
-  const body = RequestBodySchema.safeParse(parseBody(event));
-  if (!body.success) {
-    return json(400, { error: "Invalid request", issues: z.treeifyError(body.error) });
+  const createdAt = new Date();
+  const request = parseRunRequest(parseJsonBody(event), createdAt.toISOString().slice(0, 10));
+  if (!request.ok) {
+    return json(400, { error: request.error, issues: request.issues });
   }
 
   const runId = randomUUID();
-  const createdAt = new Date();
-  const { prompt, territory, date = createdAt.toISOString().slice(0, 10) } = body.data;
+  const { prompt, territory, date } = request;
   logEvent("run_started", { runId, territory, date });
 
   const result = await runClipAgent(
     { prompt, territory, date },
-    { data, embedQuery, runId, onStep: (step) => logEvent("step", { runId, ...step }) },
+    {
+      data: await getCatalog(),
+      embedQuery,
+      runId,
+      onStep: (step) => logEvent("step", { runId, ...step }),
+    },
   );
   const { manifest } = result;
 
