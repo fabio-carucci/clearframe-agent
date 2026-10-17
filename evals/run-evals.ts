@@ -15,6 +15,7 @@ const { values } = parseArgs({
     concurrency: { type: "string", default: "4" },
     cases: { type: "string" },
     "no-rule": { type: "boolean", default: false },
+    label: { type: "string" },
   },
 });
 
@@ -95,13 +96,14 @@ const results = await mapWithConcurrency(jobs, concurrency, async (evalCase) => 
 
 const summary = summarize(results);
 const reportDir = new URL("./reports/", import.meta.url);
+const reportName = `latest-${meta.mode}${values.label ? `-${values.label}` : ""}`;
 await mkdir(reportDir, { recursive: true });
 await writeFile(
-  new URL(`latest-${meta.mode}.json`, reportDir),
+  new URL(`${reportName}.json`, reportDir),
   `${JSON.stringify({ meta, summary, results }, null, 2)}\n`,
 );
 const markdown = renderMarkdown(meta, summary, results);
-await writeFile(new URL(`latest-${meta.mode}.md`, reportDir), markdown);
+await writeFile(new URL(`${reportName}.md`, reportDir), markdown);
 console.log(markdown);
 
 if (!ablation && (summary.violations > 0 || summary.errors > 0)) {
