@@ -10,6 +10,7 @@
   "scripts": {
     "catalog:generate": "tsx scripts/generate-catalog.ts",
     "catalog:embed": "tsx scripts/embed-catalog.ts",
+    "agent": "tsx --env-file-if-exists=.env scripts/run-agent.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
