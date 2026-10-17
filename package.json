@@ -21,12 +21,18 @@
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^5.0.117",
     "@ai-sdk/anthropic": "^4.0.81",
+    "@aws-sdk/client-dynamodb": "^3.1152.0",
+    "@aws-sdk/client-s3": "^3.1152.0",
+    "@aws-sdk/client-ssm": "^3.1152.0",
     "@aws-sdk/credential-providers": "^3.1152.0",
+    "@aws-sdk/lib-dynamodb": "^3.1152.0",
     "ai": "^7.0.142",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.164",
     "@types/node": "^26.6.5",
+    "esbuild": "^0.28.2",
     "prettier": "^3.9.10",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
