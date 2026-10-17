@@ -27,6 +27,7 @@ const catalog = [
 const clipsById = new Map(catalog.map((c) => [c.id, c]));
 
 const manifestWith = (clipIds: string[]): Manifest => ({
+  runId: "00000000-0000-4000-8000-000000000000",
   request: { prompt: "p", territory: "ES", date: "2026-10-17" },
   clips: clipIds.map((clipId) => {
     const { title, genre, language, durationSec } = clipsById.get(clipId)!;

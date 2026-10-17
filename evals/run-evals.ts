@@ -37,8 +37,11 @@ const deps: RunDeps = {
 async function runCase(evalCase: EvalCase): Promise<CaseResult> {
   const { prompt, territory, date } = evalCase;
   try {
-    const manifest = await runClipAgent({ prompt, territory, date }, deps);
-    return scoreCase(evalCase, manifest, data.clips, data.clipsById);
+    const { manifest, error } = await runClipAgent({ prompt, territory, date }, deps);
+    return {
+      ...scoreCase(evalCase, manifest, data.clips, data.clipsById),
+      ...(error && { error }),
+    };
   } catch (error) {
     return {
       caseId: evalCase.id,

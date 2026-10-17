@@ -19,7 +19,7 @@ if (!values.territory || !prompt) {
   process.exit(1);
 }
 
-const manifest = await runClipAgent(
+const { manifest } = await runClipAgent(
   { prompt, territory: values.territory, date: values.date },
   {
     data: await loadCatalogData(),

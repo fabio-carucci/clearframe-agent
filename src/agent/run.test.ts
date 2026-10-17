@@ -1,6 +1,14 @@
-import { describe, expect, it } from "vitest";
-import { TOKEN_BUDGET } from "./agent";
-import { stopReasonOf } from "./run";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Clip } from "../catalog/schema";
+import type { EmbeddingIndex } from "../retrieval/embeddings";
+import { TOKEN_BUDGET, createClipAgent } from "./agent";
+import type { RunContext } from "./context";
+import { runClipAgent, stopReasonOf } from "./run";
+
+vi.mock("./agent", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./agent")>()),
+  createClipAgent: vi.fn(),
+}));
 
 describe("stopReasonOf", () => {
   it("is completed when the model ended with a text answer", () => {
@@ -13,5 +21,75 @@ describe("stopReasonOf", () => {
 
   it("blames the step limit when the loop stopped mid tool call under budget", () => {
     expect(stopReasonOf("tool-calls", TOKEN_BUDGET - 1)).toBe("step_limit");
+  });
+});
+
+const clip: Clip = {
+  id: "clip_0001",
+  title: "Surf",
+  description: "Surf",
+  genre: "sports_outdoor",
+  language: "es",
+  durationSec: 20,
+  resolution: "1080p",
+  license: { trainingAllowed: true, territories: ["ES"], expiresAt: null },
+};
+
+const deps = {
+  data: { clips: [clip], clipsById: new Map([[clip.id, clip]]), index: {} as EmbeddingIndex },
+  embedQuery: async () => ({ embedding: [], tokens: 0 }),
+};
+
+type FakeGenerate = (options: {
+  onStepEnd: (event: { stepNumber: number; usage: object; toolCalls: object[] }) => void;
+}) => Promise<unknown>;
+
+function fakeAgent(generate: (run: RunContext) => FakeGenerate) {
+  vi.mocked(createClipAgent).mockImplementation(
+    (run) => ({ generate: generate(run) }) as unknown as ReturnType<typeof createClipAgent>,
+  );
+}
+
+describe("runClipAgent", () => {
+  beforeEach(() => vi.mocked(createClipAgent).mockReset());
+
+  it("keeps the clips accepted before a mid-run failure and reports why", async () => {
+    fakeAgent((run) => async ({ onStepEnd }) => {
+      run.draft.propose("clip_0001", "fits");
+      onStepEnd({
+        stepNumber: 0,
+        usage: { inputTokens: 100, outputTokens: 10 },
+        toolCalls: [{ toolName: "addToManifest" }],
+      });
+      throw new Error("provider overloaded");
+    });
+
+    const { manifest, steps, error } = await runClipAgent(
+      { prompt: "surf", territory: "ES", date: "2026-10-17" },
+      deps,
+    );
+
+    expect(error).toBe("provider overloaded");
+    expect(manifest.stopReason).toBe("error");
+    expect(manifest.clips.map((entry) => entry.clipId)).toEqual(["clip_0001"]);
+    expect(manifest.usage).toMatchObject({ steps: 1, inputTokens: 100, outputTokens: 10 });
+    expect(steps).toEqual([expect.objectContaining({ toolCalls: ["addToManifest"] })]);
+  });
+
+  it("uses the run id it is given, so callers can find the trace", async () => {
+    fakeAgent(() => async () => ({ finishReason: "stop", text: "done" }));
+    const runId = "11111111-1111-4111-8111-111111111111";
+    const { manifest } = await runClipAgent(
+      { prompt: "surf", territory: "ES", date: "2026-10-17" },
+      { ...deps, runId },
+    );
+    expect(manifest).toMatchObject({ runId, stopReason: "completed", summary: "done" });
+  });
+
+  it("rejects an invalid request before calling the model", async () => {
+    await expect(
+      runClipAgent({ prompt: "surf", territory: "Spain", date: "2026-10-17" }, deps),
+    ).rejects.toThrow();
+    expect(createClipAgent).not.toHaveBeenCalled();
   });
 });

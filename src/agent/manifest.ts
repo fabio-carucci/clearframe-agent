@@ -35,9 +35,10 @@ export const RejectionSchema = z.object({
   reasons: z.array(z.enum(PROPOSAL_REJECTIONS)).min(1),
 });
 
-export const StopReasonSchema = z.enum(["completed", "step_limit", "token_budget"]);
+export const StopReasonSchema = z.enum(["completed", "step_limit", "token_budget", "error"]);
 
 export const ManifestSchema = z.object({
+  runId: z.uuid(),
   request: z.object({
     prompt: z.string().min(1),
     territory: TerritorySchema,

@@ -1,9 +1,10 @@
+import { randomUUID } from "node:crypto";
 import type { FinishReason } from "ai";
 import type { CatalogData } from "../catalog/load";
+import type { UsageRequest } from "../rights/check-training-rights";
 import { MAX_STEPS, TOKEN_BUDGET, createClipAgent } from "./agent";
 import type { RunContext } from "./context";
 import { estimateCostUsd } from "./cost";
-import type { UsageRequest } from "../rights/check-training-rights";
 import {
   type Manifest,
   ManifestDraft,
@@ -20,17 +21,25 @@ export interface RunRequest {
   date: string;
 }
 
-export interface StepLog {
+export interface StepTrace {
   stepNumber: number;
   toolCalls: string[];
   inputTokens: number;
   outputTokens: number;
+  durationMs: number;
+}
+
+export interface RunResult {
+  manifest: Manifest;
+  steps: StepTrace[];
+  error?: string;
 }
 
 export interface RunDeps {
   data: CatalogData;
   embedQuery: RunContext["embedQuery"];
-  onStep?: (step: StepLog) => void;
+  runId?: string;
+  onStep?: (step: StepTrace) => void;
   /** Eval-only seam for the no-rule ablation; production always uses ManifestDraft. */
   createDraft?: (data: CatalogData, usage: UsageRequest) => ManifestWriter;
 }
@@ -41,8 +50,16 @@ export function stopReasonOf(finishReason: FinishReason, totalTokens: number): S
   return totalTokens >= TOKEN_BUDGET ? "token_budget" : "step_limit";
 }
 
-export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<Manifest> {
+const sum = (steps: StepTrace[], key: "inputTokens" | "outputTokens") =>
+  steps.reduce((total, step) => total + step[key], 0);
+
+/**
+ * Runs the agent and always returns a validated manifest. When the model or a provider fails
+ * mid-run, the clips accepted so far are kept and the manifest says why it is partial.
+ */
+export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<RunResult> {
   const startedAt = performance.now();
+  const runId = deps.runId ?? randomUUID();
   const { prompt, territory, date } = RunRequestSchema.parse(request);
 
   const createDraft =
@@ -54,37 +71,63 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
     stats: { embeddingTokens: 0 },
   };
 
-  const result = await createClipAgent(run).generate({
-    prompt,
-    onStepEnd: ({ stepNumber, usage, toolCalls }) =>
-      deps.onStep?.({
-        stepNumber,
-        toolCalls: toolCalls.map((call) => call.toolName),
-        inputTokens: usage.inputTokens ?? 0,
-        outputTokens: usage.outputTokens ?? 0,
-      }),
-  });
+  const steps: StepTrace[] = [];
+  let stepStartedAt = performance.now();
+  let outcome: { finishReason: FinishReason; text: string } | { error: string };
+
+  try {
+    const result = await createClipAgent(run).generate({
+      prompt,
+      onStepEnd: ({ stepNumber, usage, toolCalls }) => {
+        const now = performance.now();
+        const step: StepTrace = {
+          stepNumber,
+          toolCalls: toolCalls.map((call) => call.toolName),
+          inputTokens: usage.inputTokens ?? 0,
+          outputTokens: usage.outputTokens ?? 0,
+          durationMs: Math.round(now - stepStartedAt),
+        };
+        stepStartedAt = now;
+        steps.push(step);
+        deps.onStep?.(step);
+      },
+    });
+    outcome = { finishReason: result.finishReason, text: result.text };
+  } catch (error) {
+    outcome = { error: error instanceof Error ? error.message : String(error) };
+  }
 
   const tokens = {
-    inputTokens: result.totalUsage.inputTokens ?? 0,
-    outputTokens: result.totalUsage.outputTokens ?? 0,
+    inputTokens: sum(steps, "inputTokens"),
+    outputTokens: sum(steps, "outputTokens"),
     embeddingTokens: run.stats.embeddingTokens,
   };
-  const stopReason = stopReasonOf(result.finishReason, tokens.inputTokens + tokens.outputTokens);
-  const summary =
-    stopReason === "completed"
-      ? result.text
-      : `Stopped early (${stopReason}) after ${result.steps.length} of ${MAX_STEPS} steps; ` +
-        "the manifest is partial.";
 
-  return ManifestSchema.parse({
+  let stopReason: StopReason;
+  let summary: string;
+  if ("error" in outcome) {
+    stopReason = "error";
+    summary = `Run failed after ${steps.length} steps (${outcome.error}); the manifest is partial.`;
+  } else {
+    stopReason = stopReasonOf(outcome.finishReason, tokens.inputTokens + tokens.outputTokens);
+    summary =
+      stopReason === "completed"
+        ? outcome.text
+        : `Stopped early (${stopReason}) after ${steps.length} of ${MAX_STEPS} steps; ` +
+          "the manifest is partial.";
+  }
+
+  const manifest = ManifestSchema.parse({
+    runId,
     request: { prompt, territory, date },
     clips: run.draft.entries,
     rejected: run.draft.rejections,
     stopReason,
     summary,
-    usage: { steps: result.steps.length, ...tokens },
+    usage: { steps: steps.length, ...tokens },
     costUsd: Math.round(estimateCostUsd(tokens) * 1e6) / 1e6,
     durationMs: Math.round(performance.now() - startedAt),
   });
+
+  return { manifest, steps, ...("error" in outcome && { error: outcome.error }) };
 }

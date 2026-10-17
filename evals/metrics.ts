@@ -121,7 +121,7 @@ export function summarize(results: readonly CaseResult[]) {
   return {
     runs: results.length,
     errors: results.length - scored.length,
-    violations: scored.reduce((sum, r) => sum + r.violations.length, 0),
+    violations: results.reduce((sum, r) => sum + r.violations.length, 0),
     meanFilterPrecision: mean(scored.flatMap((r) => r.filterPrecision ?? [])),
     meanRecall: mean(scored.flatMap((r) => r.recall ?? [])),
     countRespectedRate: mean(scored.map((r) => (r.countRespected ? 1 : 0))),
