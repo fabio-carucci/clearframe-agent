@@ -30,6 +30,12 @@ export class UncheckedManifestDraft implements ManifestWriter {
     return [...this.#rejections];
   }
 
+  readonly enforcesRights = false;
+
+  assess(): null {
+    return null;
+  }
+
   propose(clipId: string, reason: string): ProposalOutcome {
     const clip = this.#clipsById.get(clipId);
     if (!clip) {

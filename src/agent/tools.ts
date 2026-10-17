@@ -2,17 +2,24 @@ import { tool } from "ai";
 import { z } from "zod";
 import { GenreSchema, LanguageSchema } from "../catalog/schema";
 import { rankClips } from "../retrieval/search";
-import { checkTrainingRights } from "../rights/check-training-rights";
 import type { RunContext } from "./context";
 
 export const MAX_BATCH = 25;
 
-export const createSearchClipsTool = (run: RunContext) =>
-  tool({
+export const createSearchClipsTool = (run: RunContext) => {
+  const { territory, date } = run.draft.usage;
+  // Rights-aware retrieval: the model never sees clips it could not use. addToManifest still
+  // runs the rule on every proposal, so this filter saves tokens but is not the guarantee.
+  const searchable = run.data.clips.filter((clip) => run.draft.assess(clip)?.allowed ?? true);
+
+  return tool({
     description:
       "Semantic search over the clip catalog. Put the scene you want in `query` (what happens, " +
       "where, mood) and hard constraints in the filters. Returns clips ordered by relevance, " +
-      "without license information.",
+      "without license information." +
+      (run.draft.enforcesRights
+        ? ` Results only include clips licensed for training in ${territory} on ${date}.`
+        : ""),
     inputSchema: z.object({
       query: z
         .string()
@@ -26,7 +33,7 @@ export const createSearchClipsTool = (run: RunContext) =>
     execute: async ({ query, limit, ...filters }) => {
       const { embedding, tokens } = await run.embedQuery(query);
       run.stats.embeddingTokens += tokens;
-      return rankClips(embedding, run.data.clips, run.data.index.vectors, filters, limit).map(
+      return rankClips(embedding, searchable, run.data.index.vectors, filters, limit).map(
         ({ clip, score }) => ({
           clipId: clip.id,
           title: clip.title,
@@ -39,13 +46,16 @@ export const createSearchClipsTool = (run: RunContext) =>
       );
     },
   });
+};
 
 export const createGetRightsTool = (run: RunContext) =>
   tool({
     description:
-      `Check the training license of up to ${MAX_BATCH} clips for this request's territory ` +
-      `(${run.draft.usage.territory}) and date (${run.draft.usage.date}). ` +
-      "Use it before adding clips to the manifest.",
+      `Return the training license of up to ${MAX_BATCH} clips` +
+      (run.draft.enforcesRights
+        ? `, with whether it allows training in ${run.draft.usage.territory} on ` +
+          `${run.draft.usage.date}. Use it before adding clips to the manifest.`
+        : ". Use it before adding clips to the manifest."),
     inputSchema: z.object({
       clipIds: z.array(z.string()).min(1).max(MAX_BATCH),
     }),
@@ -53,7 +63,8 @@ export const createGetRightsTool = (run: RunContext) =>
       clipIds.map((clipId) => {
         const clip = run.data.clipsById.get(clipId);
         if (!clip) return { clipId, error: "UNKNOWN_CLIP" as const };
-        const decision = checkTrainingRights(clip.license, run.draft.usage);
+        const decision = run.draft.assess(clip);
+        if (!decision) return { clipId, license: clip.license };
         return {
           clipId,
           license: clip.license,

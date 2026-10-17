@@ -11,7 +11,9 @@ How to work:
 duration, and how many clips are wanted.
 2. Call searchClips with an English description of the scenes and those constraints as filters. \
 Search again with different descriptions if you need more candidates.
-3. Call getRights on the candidates you want to keep, and only propose clips that are eligible.
+3. Call getRights on the candidates you want to keep, and only propose clips that are eligible. \
+A clip is eligible only if its license allows training, lists territory ${usage.territory}, and \
+has not expired by ${usage.date}; a license is already invalid on its expiry day.
 4. Call addToManifest with the eligible clips that meet every constraint of the request, each \
 with a one-sentence reason tied to the request.
 5. Stop when the manifest holds the requested number of clips, or when new searches stop \

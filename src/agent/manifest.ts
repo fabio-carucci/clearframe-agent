@@ -8,6 +8,7 @@ import {
 } from "../catalog/schema";
 import {
   RIGHTS_VIOLATIONS,
+  type RightsDecision,
   type UsageRequest,
   checkTrainingRights,
 } from "../rights/check-training-rights";
@@ -65,6 +66,9 @@ export interface ManifestWriter {
   readonly usage: Readonly<UsageRequest>;
   readonly entries: ManifestEntry[];
   readonly rejections: Rejection[];
+  readonly enforcesRights: boolean;
+  /** The rule's verdict for this draft's territory and date, or null when it applies no rule. */
+  assess(clip: Clip): RightsDecision | null;
   propose(clipId: string, reason: string): ProposalOutcome;
 }
 
@@ -95,12 +99,18 @@ export class ManifestDraft implements ManifestWriter {
     return [...this.#rejections];
   }
 
+  readonly enforcesRights = true;
+
+  assess(clip: Clip): RightsDecision {
+    return checkTrainingRights(clip.license, this.#usage);
+  }
+
   propose(clipId: string, reason: string): ProposalOutcome {
     const clip = this.#clipsById.get(clipId);
     if (!clip) return this.#reject(clipId, ["UNKNOWN_CLIP"]);
     if (this.#entries.has(clipId)) return { clipId, status: "rejected", reasons: ["DUPLICATE"] };
 
-    const decision = checkTrainingRights(clip.license, this.#usage);
+    const decision = this.assess(clip);
     if (!decision.allowed) return this.#reject(clipId, decision.reasons);
 
     this.#entries.set(clipId, {
