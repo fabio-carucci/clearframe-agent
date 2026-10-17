@@ -12,11 +12,7 @@ import {
   checkTrainingRights,
 } from "../rights/check-training-rights";
 
-export const PROPOSAL_REJECTIONS = [
-  ...RIGHTS_VIOLATIONS,
-  "UNKNOWN_CLIP",
-  "DUPLICATE",
-] as const;
+export const PROPOSAL_REJECTIONS = [...RIGHTS_VIOLATIONS, "UNKNOWN_CLIP", "DUPLICATE"] as const;
 
 export type ProposalRejection = (typeof PROPOSAL_REJECTIONS)[number];
 
@@ -38,11 +34,7 @@ export const RejectionSchema = z.object({
   reasons: z.array(z.enum(PROPOSAL_REJECTIONS)).min(1),
 });
 
-export const StopReasonSchema = z.enum([
-  "completed",
-  "step_limit",
-  "token_budget",
-]);
+export const StopReasonSchema = z.enum(["completed", "step_limit", "token_budget"]);
 
 export const ManifestSchema = z.object({
   request: z.object({
@@ -69,11 +61,18 @@ export type Rejection = z.infer<typeof RejectionSchema>;
 export type StopReason = z.infer<typeof StopReasonSchema>;
 export type Manifest = z.infer<typeof ManifestSchema>;
 
+export interface ManifestWriter {
+  readonly usage: Readonly<UsageRequest>;
+  readonly entries: ManifestEntry[];
+  readonly rejections: Rejection[];
+  propose(clipId: string, reason: string): ProposalOutcome;
+}
+
 /**
  * The only way to put a clip in a manifest. Territory and date are fixed when the draft is
  * created, so the model can propose clips but never choose what the rights rule checks.
  */
-export class ManifestDraft {
+export class ManifestDraft implements ManifestWriter {
   readonly #clipsById: ReadonlyMap<string, Clip>;
   readonly #usage: UsageRequest;
   readonly #entries = new Map<string, ManifestEntry>();
@@ -99,8 +98,7 @@ export class ManifestDraft {
   propose(clipId: string, reason: string): ProposalOutcome {
     const clip = this.#clipsById.get(clipId);
     if (!clip) return this.#reject(clipId, ["UNKNOWN_CLIP"]);
-    if (this.#entries.has(clipId))
-      return { clipId, status: "rejected", reasons: ["DUPLICATE"] };
+    if (this.#entries.has(clipId)) return { clipId, status: "rejected", reasons: ["DUPLICATE"] };
 
     const decision = checkTrainingRights(clip.license, this.#usage);
     if (!decision.allowed) return this.#reject(clipId, decision.reasons);

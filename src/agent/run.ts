@@ -3,7 +3,14 @@ import type { CatalogData } from "../catalog/load";
 import { MAX_STEPS, TOKEN_BUDGET, createClipAgent } from "./agent";
 import type { RunContext } from "./context";
 import { estimateCostUsd } from "./cost";
-import { type Manifest, ManifestDraft, ManifestSchema, type StopReason } from "./manifest";
+import type { UsageRequest } from "../rights/check-training-rights";
+import {
+  type Manifest,
+  ManifestDraft,
+  ManifestSchema,
+  type ManifestWriter,
+  type StopReason,
+} from "./manifest";
 
 export const RunRequestSchema = ManifestSchema.shape.request;
 
@@ -24,6 +31,8 @@ export interface RunDeps {
   data: CatalogData;
   embedQuery: RunContext["embedQuery"];
   onStep?: (step: StepLog) => void;
+  /** Eval-only seam for the no-rule ablation; production always uses ManifestDraft. */
+  createDraft?: (data: CatalogData, usage: UsageRequest) => ManifestWriter;
 }
 
 /** The loop ends on its own only when the model answers with text instead of a tool call. */
@@ -36,9 +45,11 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
   const startedAt = performance.now();
   const { prompt, territory, date } = RunRequestSchema.parse(request);
 
+  const createDraft =
+    deps.createDraft ?? ((data, usage) => new ManifestDraft(data.clipsById, usage));
   const run: RunContext = {
     data: deps.data,
-    draft: new ManifestDraft(deps.data.clipsById, { territory, date }),
+    draft: createDraft(deps.data, { territory, date }),
     embedQuery: deps.embedQuery,
     stats: { embeddingTokens: 0 },
   };
