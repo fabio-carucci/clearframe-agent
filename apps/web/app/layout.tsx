@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-dvh font-sans text-sm antialiased">
         <Providers>
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+          <Toaster position="bottom-center" />
         </Providers>
       </body>
     </html>

@@ -1,5 +1,6 @@
 import { Film, TriangleAlert } from "lucide-react";
 import { Panel } from "@/components/panel";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ClipFrame } from "./clip-frame";
 import { formatCount, genreLabel, languageLabel, rejectionLabel } from "./format";
@@ -33,15 +34,33 @@ function Counts({ clips }: { clips: BinClip[] }) {
 function EmptyState({ run }: { run: LiveRun | null }) {
   const message = !run
     ? "Clips the agent proposes appear here as it works, each marked with the rule's decision."
-    : run.status === "running"
-      ? "The agent is searching the catalog. Clips appear here once it proposes them."
-      : run.status === "failed"
-        ? "The dataset was not composed. The run details say why."
-        : "The agent proposed no clip. Its note in the run details explains why.";
+    : run.status === "failed"
+      ? "The dataset was not composed. The run details say why."
+      : "The agent proposed no clip. Its note in the run details explains why.";
   return (
     <div className="grid h-full min-h-48 place-content-center justify-items-center gap-3 p-8 text-center">
       <Film className="size-7 text-muted-foreground/60" strokeWidth={1.5} aria-hidden />
       <p className="max-w-xs text-[13px] leading-relaxed text-muted-foreground">{message}</p>
+    </div>
+  );
+}
+
+/** Where clips will land while the agent searches: frames of the size they will have. */
+function Searching() {
+  return (
+    <div className="p-4" aria-busy="true">
+      <p className="text-[13px] text-muted-foreground">
+        The agent is searching the catalog. Clips appear here once it proposes them.
+      </p>
+      <ul className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-x-3 gap-y-4 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))]">
+        {Array.from({ length: 4 }, (_, index) => (
+          <li key={index} className="space-y-2">
+            <Skeleton className="aspect-video w-full rounded-[4px]" />
+            <Skeleton className="h-3.5 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -51,7 +70,11 @@ export function ClipBin({ run, selectedId, onSelect, className }: ClipBinProps) 
   return (
     <Panel title="Clips" actions={<Counts clips={clips} />} className={className}>
       {clips.length === 0 ? (
-        <EmptyState run={run} />
+        run?.status === "running" ? (
+          <Searching />
+        ) : (
+          <EmptyState run={run} />
+        )
       ) : (
         <>
           {run?.status === "failed" && (
