@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sample:save": "tsx scripts/save-sample.ts"
   },
   "dependencies": {
     "@clearframe/contracts": "workspace:*",
