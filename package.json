@@ -15,6 +15,7 @@
     "agent": "tsx --env-file-if-exists=.env packages/core/scripts/run-agent.ts",
     "eval": "tsx --env-file-if-exists=.env evals/run-evals.ts",
     "eval:no-rule": "tsx --env-file-if-exists=.env evals/run-evals.ts --no-rule",
+    "verify-manifest": "tsx packages/core/scripts/verify-manifest.ts",
     "catalog:generate": "tsx packages/core/scripts/generate-catalog.ts",
     "catalog:embed": "tsx --env-file-if-exists=.env packages/core/scripts/embed-catalog.ts",
     "build:lambda": "pnpm --filter @clearframe/api build",
