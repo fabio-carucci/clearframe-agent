@@ -30,7 +30,7 @@ export function renderMarkdown(
       pct(r.filterPrecision),
       pct(r.recall),
       r.countRespected ? "yes" : "**no**",
-      r.error ? `error: ${r.error.slice(0, 60)}` : r.stopReason,
+      (r.error ? `error: ${r.error.slice(0, 60)}` : r.stopReason) + (r.retried ? " (retried)" : ""),
       r.steps,
       usd(r.costUsd),
       sec(r.durationMs),
@@ -45,6 +45,7 @@ ${meta.startedAt} · model \`${meta.model}\` · ${summary.runs} runs (repeat ${m
 |---|---|
 | Rights violations | **${summary.violations}** |
 | Errors | ${summary.errors} |
+| Retried after a provider error | ${summary.retried} |
 | Mean filter precision | ${pct(summary.meanFilterPrecision)} |
 | Mean recall | ${pct(summary.meanRecall)} |
 | Requested count respected | ${pct(summary.countRespectedRate)} |

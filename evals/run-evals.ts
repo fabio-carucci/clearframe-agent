@@ -1,11 +1,13 @@
 import { mkdir, writeFile } from "node:fs/promises";
+import { setTimeout as sleep } from "node:timers/promises";
 import { parseArgs } from "node:util";
 import { MODEL_ID } from "@clearframe/core/agent/agent";
+import type { RunErrorCode } from "@clearframe/core/agent/errors";
 import { type RunDeps, runClipAgent } from "@clearframe/core/agent/run";
 import { loadCatalogData } from "@clearframe/core/catalog/load";
 import { embedQuery } from "@clearframe/core/retrieval/embeddings";
 import { EVAL_CASES, type EvalCase } from "./cases";
-import { type CaseResult, eligibleClipIds, scoreCase, summarize } from "./metrics";
+import { type CaseResult, eligibleClipIds, gateFailures, scoreCase, summarize } from "./metrics";
 import { type ReportMeta, renderMarkdown } from "./report";
 import { UncheckedManifestDraft } from "./unchecked-draft";
 
@@ -16,8 +18,23 @@ const { values } = parseArgs({
     cases: { type: "string" },
     "no-rule": { type: "boolean", default: false },
     label: { type: "string" },
+    "min-recall": { type: "string" },
+    "min-precision": { type: "string" },
   },
 });
+
+function threshold(flag: "min-recall" | "min-precision"): number | undefined {
+  const raw = values[flag];
+  if (raw === undefined) return undefined;
+  const value = Number(raw);
+  if (!(value >= 0 && value <= 1)) throw new Error(`--${flag} must be between 0 and 1`);
+  return value;
+}
+
+const thresholds = {
+  minRecall: threshold("min-recall"),
+  minFilterPrecision: threshold("min-precision"),
+};
 
 const repeat = Number(values.repeat);
 const concurrency = Number(values.concurrency);
@@ -34,16 +51,33 @@ const deps: RunDeps = {
   }),
 };
 
+/** Failures on the provider's side say nothing about the agent, so they get a second attempt. */
+const RETRYABLE: ReadonlySet<RunErrorCode> = new Set(["rate_limited", "provider_unavailable"]);
+const RETRY_DELAY_MS = 10_000;
+
 async function runCase(evalCase: EvalCase): Promise<CaseResult> {
+  const first = await attempt(evalCase);
+  if (!first.errorCode || !RETRYABLE.has(first.errorCode)) return first.result;
+  console.error(`${evalCase.id}: ${first.result.error}; retrying once`);
+  await sleep(RETRY_DELAY_MS);
+  return { ...(await attempt(evalCase)).result, retried: true };
+}
+
+async function attempt(
+  evalCase: EvalCase,
+): Promise<{ result: CaseResult; errorCode?: RunErrorCode }> {
   const { prompt, territory, date } = evalCase;
   try {
     const { manifest, error } = await runClipAgent({ prompt, territory, date }, deps);
     return {
-      ...scoreCase(evalCase, manifest, data.clips, data.clipsById),
-      ...(error && { error: `${error.code}: ${error.message}` }),
+      result: {
+        ...scoreCase(evalCase, manifest, data.clips, data.clipsById),
+        ...(error && { error: `${error.code}: ${error.message}` }),
+      },
+      ...(error && { errorCode: error.code }),
     };
   } catch (error) {
-    return {
+    const result: CaseResult = {
       caseId: evalCase.id,
       tags: evalCase.tags,
       eligible: eligibleClipIds(evalCase, data.clips).size,
@@ -58,6 +92,7 @@ async function runCase(evalCase: EvalCase): Promise<CaseResult> {
       durationMs: 0,
       error: error instanceof Error ? error.message : String(error),
     };
+    return { result };
   }
 }
 
@@ -109,7 +144,8 @@ const markdown = renderMarkdown(meta, summary, results);
 await writeFile(new URL(`${reportName}.md`, reportDir), markdown);
 console.log(markdown);
 
-if (!ablation && (summary.violations > 0 || summary.errors > 0)) {
-  console.error(`FAILED: ${summary.violations} rights violations, ${summary.errors} errors`);
+const failures = ablation ? [] : gateFailures(summary, thresholds);
+if (failures.length > 0) {
+  console.error(`FAILED: ${failures.join("; ")}`);
   process.exit(1);
 }
