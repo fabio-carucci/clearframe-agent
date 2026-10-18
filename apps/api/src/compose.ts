@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { ClearanceCertificate, ComposeResponse, RunEvent } from "@clearframe/contracts";
+import { type SigningKey, verifySignedManifest } from "@clearframe/contracts/certificate";
 import type { RunDeps, runClipAgent } from "@clearframe/core/agent/run";
 import type { CatalogData } from "@clearframe/core/catalog/load";
 import type { LanguageModel } from "ai";
@@ -7,9 +8,9 @@ import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { type AccessTokenVerifier, authenticate } from "./auth";
 import type { RunQuota } from "./quota";
 import { parseRunRequest } from "./request";
+import type { Notary } from "./notary";
 import { sendJson as respond } from "./respond";
 import type { RunStore } from "./run-store";
-import { type ManifestSigner, signManifest } from "./signer";
 
 export const NDJSON = "application/x-ndjson";
 
@@ -28,7 +29,9 @@ export interface ComposeDeps {
   embedQuery: RunDeps["embedQuery"];
   runAgent: typeof runClipAgent;
   quota: RunQuota;
-  signer: ManifestSigner;
+  notary: Notary;
+  /** The keys a delivered certificate must verify with: the ones the repository publishes. */
+  trustedKeys: readonly SigningKey[];
   store: RunStore;
   log: (event: string, fields?: Record<string, unknown>) => void;
   now: () => Date;
@@ -111,8 +114,14 @@ export async function compose(
 
   let certificate: ClearanceCertificate | undefined;
   try {
-    certificate = await signManifest(manifest, deps.signer, deps.now());
+    certificate = await deps.notary.certify(manifest);
+    // What the customer's verifier will say, said first: a key missing from the published list
+    // or a signing fault fails this run here, not someone's audit later.
+    const check = await verifySignedManifest({ manifest, certificate }, deps.trustedKeys);
+    if (check.status !== "valid")
+      throw new Error(`The certificate does not verify: ${check.status}`);
   } catch (error) {
+    certificate = undefined;
     deps.log("signing_failed", { runId, error: String(error) });
   }
 

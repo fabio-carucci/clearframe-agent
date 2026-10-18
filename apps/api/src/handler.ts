@@ -1,11 +1,12 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { KMSClient } from "@aws-sdk/client-kms";
+import { LambdaClient } from "@aws-sdk/client-lambda";
 import { S3Client } from "@aws-sdk/client-s3";
 import { GetParametersCommand, SSMClient } from "@aws-sdk/client-ssm";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import type { LanguageModel } from "ai";
 import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { z } from "zod";
+import { PUBLISHED_SIGNING_KEYS } from "@clearframe/contracts/certificate";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { MODEL_ID } from "@clearframe/core/agent/agent";
 import { runClipAgent } from "@clearframe/core/agent/run";
@@ -17,8 +18,8 @@ import { type AccessTokenVerifier, AuthConfigSchema, createAccessTokenVerifier }
 import { cachedFor } from "./cache";
 import type { ResponseSink } from "./compose";
 import { DynamoRunQuota } from "./quota";
+import { LambdaNotary } from "./notary";
 import { route } from "./router";
-import { KmsManifestSigner } from "./signer";
 import { s3JsonReader } from "./s3-reader";
 
 const env = z
@@ -29,7 +30,7 @@ const env = z
     DAILY_RUN_LIMIT: z.coerce.number().int().positive(),
     ANTHROPIC_KEY_PARAM: z.string().min(1),
     AUTH_CONFIG_PARAM: z.string().min(1),
-    SIGNING_KEY_ARN: z.string().min(1),
+    NOTARY_FUNCTION: z.string().min(1),
   })
   .parse(process.env);
 
@@ -46,7 +47,7 @@ const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true },
 });
 const store = new AwsRunStore({ tableName: env.RUNS_TABLE, bucket: env.DATA_BUCKET, s3, dynamo });
-const signer = new KmsManifestSigner(new KMSClient({}), env.SIGNING_KEY_ARN);
+const notary = new LambdaNotary(new LambdaClient({}), env.NOTARY_FUNCTION);
 const quota = new DynamoRunQuota({
   tableName: env.QUOTAS_TABLE,
   dailyLimit: env.DAILY_RUN_LIMIT,
@@ -107,7 +108,8 @@ export const handler = awslambda.streamifyResponse(
         embedQuery,
         runAgent: runClipAgent,
         quota,
-        signer,
+        notary,
+        trustedKeys: PUBLISHED_SIGNING_KEYS,
         store,
         history: store,
         log: logEvent,

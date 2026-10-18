@@ -32,7 +32,7 @@ importers:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1152.0
         version: 3.1152.0
-      '@aws-sdk/client-kms':
+      '@aws-sdk/client-lambda':
         specifier: ^3.1152.0
         version: 3.1152.0
       '@aws-sdk/client-s3':
@@ -63,6 +63,22 @@ importers:
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
+
+  apps/notary:
+    dependencies:
+      '@aws-sdk/client-kms':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@clearframe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@clearframe/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+    devDependencies:
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -227,6 +243,10 @@ packages:
 
   '@aws-sdk/client-kms@3.1152.0':
     resolution: {integrity: sha512-hQ9HoblAMUloJD+/uP0CJ/w0wAWrGNBtwJe5obXY8FzuZ8c1S1Vis0/l3lE2SMnmRi0ziY9+b2RpMr1x/O0A9A==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-lambda@3.1152.0':
+    resolution: {integrity: sha512-n34GhGzXXupWhaTJ3DfGtaq9Lp7NqUcZ9XOM2QhLWgqY73731m8fQBvuAZGJN002QHthDHyAyLJv6nkOvGhh9w==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/client-s3@3.1152.0':
@@ -2616,6 +2636,17 @@ snapshots:
       tslib: 2.8.1
 
   '@aws-sdk/client-kms@3.1152.0':
+    dependencies:
+      '@aws-sdk/core': 3.978.3
+      '@aws-sdk/credential-provider-node': 3.972.86
+      '@aws-sdk/types': 3.974.6
+      '@smithy/core': 3.36.0
+      '@smithy/fetch-http-handler': 5.8.0
+      '@smithy/node-http-handler': 4.12.1
+      '@smithy/types': 4.19.0
+      tslib: 2.8.1
+
+  '@aws-sdk/client-lambda@3.1152.0':
     dependencies:
       '@aws-sdk/core': 3.978.3
       '@aws-sdk/credential-provider-node': 3.972.86

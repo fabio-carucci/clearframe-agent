@@ -1,7 +1,7 @@
 import { createHash, generateKeyPairSync, sign, verify } from "node:crypto";
 import { SignCommand } from "@aws-sdk/client-kms";
 import { describe, expect, it } from "vitest";
-import { KmsManifestSigner, derToRaw, keyIdFromArn } from "./signer";
+import { KmsManifestSigner, derToRaw, keyIdFromArn } from "./kms-signer";
 
 const bytes = (length: number, first: number, fill = 0x11) => {
   const value = new Uint8Array(length).fill(fill);

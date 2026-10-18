@@ -1,13 +1,6 @@
 import { createHash } from "node:crypto";
 import { type KMSClient, SignCommand } from "@aws-sdk/client-kms";
-import type { ClearanceCertificate, Manifest } from "@clearframe/contracts";
-import { certify, signingInput, toBase64Url } from "@clearframe/contracts/certificate";
-
-export interface ManifestSigner {
-  readonly keyId: string;
-  /** An ECDSA P-256 / SHA-256 signature over `input`, raw r‖s, 64 bytes. */
-  sign(input: Uint8Array): Promise<Uint8Array>;
-}
+import type { ManifestSigner } from "@clearframe/core/notary/notarize";
 
 const P256_SCALAR_BYTES = 32;
 
@@ -72,14 +65,4 @@ export class KmsManifestSigner implements ManifestSigner {
     if (!Signature) throw new Error("KMS returned no signature");
     return derToRaw(Signature);
   }
-}
-
-/** The manifest's clearance certificate, signed now. */
-export async function signManifest(
-  manifest: Manifest,
-  signer: ManifestSigner,
-  issuedAt: Date,
-): Promise<ClearanceCertificate> {
-  const unsigned = await certify(manifest, signer.keyId, issuedAt);
-  return { ...unsigned, signature: toBase64Url(await signer.sign(signingInput(unsigned))) };
 }
