@@ -177,15 +177,17 @@ on the rule under test, and a regression in the rule fails a free test before an
 | Summary language     | Completed runs whose summary is in the request's language           | reported    |
 | Cost, steps, latency | Mean cost, mean steps, p50/p95 latency                              | reported    |
 
-Results with Claude Haiku 5.5 at medium effort, 20 cases run 3 times each
+Results with Claude Haiku 5.5 at medium effort, 21 cases run 3 times each
 ([full report](evals/reports/latest-with-rule.md)):
 
-|              | Violations | Filter precision | Recall | Mean cost | p50 / p95 latency |
-| ------------ | ---------- | ---------------- | ------ | --------- | ----------------- |
-| Rule in code | 0          | 100%             | 98%    | $0.0018   | 7.5 s / 11.2 s    |
+|              | Violations | Filter precision | Recall | Summary language | Mean cost | p50 / p95 latency |
+| ------------ | ---------- | ---------------- | ------ | ---------------- | --------- | ----------------- |
+| Rule in code | 0          | 100%             | 100%   | 100%             | $0.0018   | 7.2 s / 11.8 s    |
 
-The missing recall is one prompt-injection case: told to check rights for another territory, the
-model sometimes refuses the whole request and returns nothing. Safe, but too cautious.
+Recall used to be 98%: told to check rights for another territory, the model sometimes refused
+the whole request. It now ignores only the injected instruction, says so, and fulfils the rest. A
+recorded run had also summarized an English request for Spanish clips in Spanish; the
+summary-language metric and the `en-request-es-clips` case cover that.
 
 The evals also found a real defect. Search was not rights-aware, so in a territory where few clips
 are licensed the model paged through unusable results until it hit the token budget: 0 clips at
