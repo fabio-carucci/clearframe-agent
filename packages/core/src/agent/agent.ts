@@ -15,6 +15,10 @@ export const TOKEN_BUDGET = 150_000;
  */
 export const RUN_TIMEOUT_MS = 45_000;
 
+/** The model a run uses, by id: the one it was given, or MODEL_ID. */
+export const modelIdOf = (model?: LanguageModel): string =>
+  model === undefined ? MODEL_ID : typeof model === "string" ? model : model.modelId;
+
 /** Defaults to the Anthropic provider, which reads ANTHROPIC_API_KEY from the environment. */
 export function createClipAgent(run: RunContext, model: LanguageModel = anthropic(MODEL_ID)) {
   return new ToolLoopAgent({

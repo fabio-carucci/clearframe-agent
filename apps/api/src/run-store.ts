@@ -18,25 +18,33 @@ export class AwsRunStore implements RunStore {
   constructor(private readonly config: AwsRunStoreConfig) {}
 
   async save(result: RunResult, createdAt: Date, userId: string): Promise<RunRecord> {
-    const record = toRunRecord(result, createdAt, userId);
+    const draft = toRunRecord(result, createdAt, userId);
     const { tableName, bucket, s3, dynamo } = this.config;
 
     // Manifest first: a run record must never point at a manifest that was not written.
-    await s3.send(
+    const stored = await s3.send(
       new PutObjectCommand({
         Bucket: bucket,
-        Key: record.manifestKey,
+        Key: draft.manifestKey,
         Body: JSON.stringify(result.manifest),
         ContentType: "application/json",
         // Kept unchanged as long as its run record. Governance mode, not compliance: an
         // administrator can still delete it early, for instance to honour an erasure request.
         ObjectLockMode: "GOVERNANCE",
-        ObjectLockRetainUntilDate: new Date(record.expiresAt * 1000),
+        ObjectLockRetainUntilDate: new Date(draft.expiresAt * 1000),
         // Required on any upload with a retention period, and stored with the object, so the
         // manifest can later be checked against the hash S3 recorded.
         ChecksumAlgorithm: "SHA256",
       }),
     );
+    if (!stored.VersionId || !stored.ChecksumSHA256) {
+      throw new Error(`S3 returned no version or checksum for ${draft.manifestKey}`);
+    }
+    const record: RunRecord = {
+      ...draft,
+      manifestVersionId: stored.VersionId,
+      manifestSha256: stored.ChecksumSHA256,
+    };
     await dynamo.send(
       new PutCommand({
         TableName: tableName,

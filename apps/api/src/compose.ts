@@ -46,7 +46,8 @@ const NOT_RECORDED = "The run could not be recorded for audit, so no manifest wa
 /**
  * Handles POST /api. Clients that accept application/x-ndjson get every run event as one JSON
  * line as it happens; others get the final result as one JSON body. Either way the result is
- * only delivered once its audit record is saved: a manifest without a trace proves nothing.
+ * only delivered once its audit record is saved: a manifest without a trace proves nothing. The
+ * decisions streamed before it are provisional, and a stream that ends with `failed` issued none.
  */
 export async function compose(
   event: LambdaFunctionURLEvent,
@@ -71,7 +72,7 @@ export async function compose(
   }
 
   const createdAt = deps.now();
-  const request = parseRunRequest(parseJsonBody(event), createdAt.toISOString().slice(0, 10));
+  const request = parseRunRequest(parseJsonBody(event), createdAt);
   if (!request.ok) {
     return sendJson(400, { error: request.error, issues: request.issues });
   }

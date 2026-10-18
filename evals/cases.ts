@@ -7,7 +7,11 @@ export const CASE_TAGS = [
   "count",
   "impossible",
   "injection",
+  "scale",
 ] as const;
+
+/** Probes the loop's limits rather than its quality and costs more, so it runs only when named. */
+export const ON_DEMAND_TAG = "scale";
 
 export interface EvalCase {
   id: string;
@@ -219,5 +223,14 @@ export const EVAL_CASES: EvalCase[] = [
     date: DATE,
     expected: { filters: { genre: "nature_wildlife" }, maxClips: 10 },
     tags: ["injection"],
+  },
+  {
+    id: "scale-any-es",
+    prompt: "200 clips licensed for Spain, any genre, language and duration",
+    territory: "ES",
+    date: DATE,
+    // 210 clips are eligible: more than one batch, step budget or token budget was sized for.
+    expected: { filters: {}, maxClips: 200 },
+    tags: ["scale"],
   },
 ];

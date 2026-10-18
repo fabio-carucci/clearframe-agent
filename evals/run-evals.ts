@@ -2,13 +2,13 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { MODEL_ID } from "@clearframe/core/agent/agent";
+import { modelIdOf } from "@clearframe/core/agent/agent";
 import { format, resolveConfig } from "prettier";
 import type { RunErrorCode } from "@clearframe/core/agent/errors";
 import { type RunDeps, runClipAgent } from "@clearframe/core/agent/run";
 import { loadCatalogData } from "@clearframe/core/catalog/load";
 import { embedQuery } from "@clearframe/core/retrieval/embeddings";
-import { EVAL_CASES, type EvalCase } from "./cases";
+import { EVAL_CASES, type EvalCase, ON_DEMAND_TAG } from "./cases";
 import { type CaseResult, eligibleClipIds, gateFailures, scoreCase, summarize } from "./metrics";
 import { type ReportMeta, renderMarkdown } from "./report";
 import { UncheckedManifestDraft } from "./unchecked-draft";
@@ -42,7 +42,9 @@ const repeat = Number(values.repeat);
 const concurrency = Number(values.concurrency);
 const ablation = values["no-rule"];
 const caseIds = values.cases?.split(",");
-const selected = caseIds ? EVAL_CASES.filter((c) => caseIds.includes(c.id)) : EVAL_CASES;
+const selected = caseIds
+  ? EVAL_CASES.filter((c) => caseIds.includes(c.id))
+  : EVAL_CASES.filter((c) => !c.tags.includes(ON_DEMAND_TAG));
 
 const data = await loadCatalogData();
 const deps: RunDeps = {
@@ -117,7 +119,7 @@ async function mapWithConcurrency<T, R>(
 
 const meta: ReportMeta = {
   mode: ablation ? "no-rule" : "with-rule",
-  model: MODEL_ID,
+  model: modelIdOf(deps.model),
   repeat,
   startedAt: new Date().toISOString(),
 };

@@ -1,5 +1,4 @@
 import type { Step } from "@clearframe/contracts";
-import { MODEL_ID } from "@clearframe/core/agent/agent";
 import type { RunResult } from "@clearframe/core/agent/run";
 
 export const RUN_TTL_DAYS = 90;
@@ -29,6 +28,12 @@ export interface RunRecord {
   costUsd: number;
   durationMs: number;
   manifestKey: string;
+  /**
+   * The locked S3 version and SHA-256 of the manifest written for this run. A later write to the
+   * same key makes a new current version; these identify the one the run produced.
+   */
+  manifestVersionId: string;
+  manifestSha256: string;
   errorCode?: string;
   /** Internal only: may name ARNs or accounts, never returned to API callers. */
   errorMessage?: string;
@@ -37,7 +42,10 @@ export interface RunRecord {
 export const manifestKeyFor = (runId: string, createdAt: Date) =>
   `manifests/${createdAt.toISOString().slice(0, 10)}/${runId}.json`;
 
-export function toRunRecord(result: RunResult, createdAt: Date, userId: string): RunRecord {
+/** A run record before its manifest is stored, which gives it the version and checksum. */
+export type RunRecordDraft = Omit<RunRecord, "manifestVersionId" | "manifestSha256">;
+
+export function toRunRecord(result: RunResult, createdAt: Date, userId: string): RunRecordDraft {
   const { manifest, steps, error } = result;
   return {
     runId: manifest.runId,
@@ -45,7 +53,7 @@ export function toRunRecord(result: RunResult, createdAt: Date, userId: string):
     expiresAt: Math.floor(createdAt.getTime() / 1000) + RUN_TTL_DAYS * 86_400,
     status: manifest.stopReason === "error" ? "error" : "ok",
     userId,
-    model: MODEL_ID,
+    model: result.model,
     ...manifest.request,
     catalogVersion: manifest.catalogVersion,
     stopReason: manifest.stopReason,

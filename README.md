@@ -198,7 +198,21 @@ licenses without a verdict, so it measures the prompt-only baseline honestly. Th
 pnpm eval --min-recall 0.9 --min-precision 0.95   # the CI gate
 pnpm eval:no-rule --repeat 3                # prompt-only baseline
 pnpm eval --cases es-outdoor-short,any-jp   # a subset
+pnpm eval --cases scale-any-es              # the scale probe, run only when named
 ```
+
+## Scale
+
+Every clip passes through the model, which proposes it with a reason, inside fixed limits: 25 clips
+per call, 15 steps, 150,000 tokens, 45 seconds. That puts the ceiling around a hundred clips per
+run, and no eval case gets near it except `scale-any-es`, which asks for 200 of 210 eligible clips
+and runs only on demand.
+
+A real dataset holds thousands of clips, so past that ceiling the roles would invert. The model
+turns the request into a plan (filters, search queries, how many clips), a deterministic pipeline
+selects the clips and applies the rights rule to every one, and the model writes reasons for a
+sample. Cost then grows with the size of the request, not of the dataset, and the rule stays the
+only gate.
 
 ## Tracing and cost
 
@@ -247,14 +261,16 @@ may invoke the function URL.
 
 - A CloudFront Function on `/api` rejects requests the Lambda would refuse anyway (not a POST, no
   body hash, a missing, malformed, expired or non-access token) before they invoke it. It cannot
-  check signatures, so the Lambda still verifies every token.
+  check signatures, so a forged token still reaches the Lambda, which rejects it in milliseconds:
+  a flood of those costs little but can take the account's concurrency. A per-IP rate limit in
+  AWS WAF would stop it, at about $6 a month, and is left out of this demo.
 - Each user may start 20 runs per UTC day (`daily_run_limit`). The Lambda counts them with one
   conditional, atomic DynamoDB update before it loads anything. Over the limit the answer is `429`;
   if the update fails, the request fails instead of running uncounted.
 - Each run stops at 15 steps, 150,000 tokens or 45 seconds.
-- Reserved concurrency would keep a flood from starving the account, but this account's limit is
-  10 concurrent executions and AWS keeps 10 unreserved, so none can be reserved until the quota is
-  raised (Service Quotas, code `L-B99A9384`).
+- The Lambda has 50 concurrent executions reserved, which is also its ceiling: a flood, even of
+  forged tokens, cannot take more than that from the rest of the account. A run takes about ten
+  seconds, so that is room for about five new runs a second.
 
 **CI.** GitHub Actions assume AWS roles through OIDC, so no AWS keys live in GitHub. The trust
 policies match GitHub's immutable subject, which carries the owner and repository ids, so a
@@ -368,7 +384,11 @@ instance to honour an erasure request.
 - OpenTelemetry traces from the AI SDK, exported to X-Ray or a vendor, alongside the run records.
 - Separate AWS accounts per environment under AWS Organizations, with `staging` and `prod` stacks.
 - AWS WAF rate-based rules on the distribution, once traffic justifies its fixed monthly cost.
-- Reserved concurrency for the Lambda, once the account's concurrency quota is raised.
+- Alarms: a metric filter on `trace_failed` and run error codes, IAM Access Analyzer findings to an
+  SNS topic, and a budget alert.
+- Licenses read from the rights system of record, which can invalidate the cached catalog itself:
+  today a revocation is a change to `data/catalog.json` and a deploy, picked up within five
+  minutes.
 - Tag conditions (`aws:ResourceTag/Project`) on the deploy role's CloudFront and Cognito
   permissions, which today cover every distribution and user pool in the account.
 - SSO for customer organizations through Cognito SAML or OIDC federation.
