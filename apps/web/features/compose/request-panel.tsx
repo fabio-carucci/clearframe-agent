@@ -1,13 +1,23 @@
 "use client";
 
 import { Clapperboard, Play } from "lucide-react";
-import type { FormEvent, ReactNode } from "react";
+import { type FormEvent, type KeyboardEvent, type ReactNode, useSyncExternalStore } from "react";
 import { Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ComposeInput } from "./compose-stream";
+import { DateField } from "./date-field";
+import { TerritorySelect } from "./territory-select";
+
+/** Whether the shortcut reads ⌘ or Ctrl; unknown, so Ctrl, while pre-rendering. */
+const useIsMac = () =>
+  useSyncExternalStore(
+    () => () => {},
+    () => /Mac|iPhone|iPad/.test(navigator.platform),
+    () => false,
+  );
 
 const EXAMPLES: { label: string; input: Omit<ComposeInput, "date"> }[] = [
   {
@@ -61,6 +71,13 @@ export function RequestPanel({
     onSubmit();
   };
   const locked = replay || pending;
+  const mac = useIsMac();
+  const submitOnShortcut = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      event.currentTarget.form?.requestSubmit();
+    }
+  };
 
   return (
     <Panel title="Request" bodyClassName="p-4">
@@ -76,40 +93,32 @@ export function RequestPanel({
             disabled={locked}
             value={value.prompt}
             onChange={(e) => onChange({ ...value, prompt: e.target.value })}
+            onKeyDown={submitOnShortcut}
             placeholder="Scenes, spoken language, maximum length, how many clips"
             className="min-h-28 resize-y leading-relaxed"
           />
         </div>
 
-        <div className="grid grid-cols-[5.5rem_1fr] gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="territory">Territory</Label>
-            <Input
-              id="territory"
-              required
-              maxLength={2}
-              pattern="[A-Z]{2}"
-              disabled={locked}
-              value={value.territory}
-              onChange={(e) => onChange({ ...value, territory: e.target.value.toUpperCase() })}
-              aria-describedby="usage-help"
-              className="font-mono uppercase"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="date">Used on</Label>
-            <Input
-              id="date"
-              type="date"
-              required
-              min={today}
-              disabled={locked}
-              value={value.date}
-              onChange={(e) => onChange({ ...value, date: e.target.value })}
-              aria-describedby="usage-help"
-              className="font-mono"
-            />
-          </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="territory">Territory</Label>
+          <TerritorySelect
+            id="territory"
+            value={value.territory}
+            disabled={locked}
+            onChange={(territory) => onChange({ ...value, territory })}
+            aria-describedby="usage-help"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="date">Used on</Label>
+          <DateField
+            id="date"
+            value={value.date}
+            min={today}
+            disabled={locked}
+            onChange={(date) => onChange({ ...value, date })}
+            aria-describedby="usage-help"
+          />
         </div>
         <p id="usage-help" className="text-xs leading-relaxed text-muted-foreground">
           Every license is checked for this country and date. The agent cannot change them.
@@ -124,6 +133,14 @@ export function RequestPanel({
             : pending
               ? "Composing…"
               : "Compose dataset"}
+          {!replay && !pending && (
+            <KbdGroup className="ml-auto hidden sm:inline-flex" aria-hidden>
+              <Kbd className="bg-primary-foreground/10 text-primary-foreground/70">
+                {mac ? "⌘" : "Ctrl"}
+              </Kbd>
+              <Kbd className="bg-primary-foreground/10 text-primary-foreground/70">↵</Kbd>
+            </KbdGroup>
+          )}
         </Button>
       </form>
 
