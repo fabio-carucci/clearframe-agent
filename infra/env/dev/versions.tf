@@ -21,14 +21,28 @@ terraform {
   }
 }
 
+locals {
+  default_tags = {
+    Project     = "clearframe"
+    Environment = "dev"
+    ManagedBy   = "terraform"
+  }
+}
+
 provider "aws" {
   region = "eu-west-1"
 
   default_tags {
-    tags = {
-      Project     = "clearframe"
-      Environment = "dev"
-      ManagedBy   = "terraform"
-    }
+    tags = local.default_tags
+  }
+}
+
+# CloudFront only accepts ACM certificates issued in us-east-1.
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+
+  default_tags {
+    tags = local.default_tags
   }
 }

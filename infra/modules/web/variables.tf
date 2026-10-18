@@ -21,6 +21,11 @@ variable "api_function_url_domain" {
   type        = string
 }
 
+variable "domain_name" {
+  description = "Custom domain the site is served on, besides its cloudfront.net name."
+  type        = string
+}
+
 variable "auth_domain" {
   description = "Cognito managed login host, allowed in the page's Content Security Policy."
   type        = string
