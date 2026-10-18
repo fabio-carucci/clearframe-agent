@@ -85,7 +85,14 @@ export function useSession(): Session {
     email: typeof user.profile.email === "string" ? user.profile.email : "Signed in",
     getAccessToken: () => accessToken(manager),
     signOut: () => {
-      void manager.removeUser().then(() => window.location.assign(cognitoLogoutUrl(webConfig)));
+      // Cognito's logout ends the hosted sign-in session but leaves the refresh token valid for
+      // hours. Revoking it stops new access tokens; one already issued still works until it
+      // expires, since the Lambda verifies tokens offline. A failed revocation still signs out.
+      void manager
+        .revokeTokens(["refresh_token"])
+        .catch(() => undefined)
+        .then(() => manager.removeUser())
+        .then(() => window.location.assign(cognitoLogoutUrl(webConfig)));
     },
   };
 }
