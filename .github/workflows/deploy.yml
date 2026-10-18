@@ -39,6 +39,9 @@ jobs:
             apps/api/dist
             apps/web/out
           if-no-files-found: error
+          # The site publishes its signing keys at .well-known/jwks.json, which upload-artifact
+          # leaves out unless hidden files are included.
+          include-hidden-files: true
 
   # Keep package installs and npm scripts out of this job: anything that runs here can use the
   # deploy role.
