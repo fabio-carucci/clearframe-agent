@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
+import type { ComposeResponse, RunEvent } from "@clearframe/contracts";
 import type { RunDeps, runClipAgent } from "@clearframe/core/agent/run";
 import type { CatalogData } from "@clearframe/core/catalog/load";
+import type { LanguageModel } from "ai";
 import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { type AccessTokenVerifier, authenticate } from "./auth";
 import { parseRunRequest } from "./request";
@@ -18,6 +20,7 @@ export interface ResponseSink {
 
 export interface ComposeDeps {
   verifier: () => Promise<AccessTokenVerifier>;
+  model: () => Promise<LanguageModel>;
   catalog: () => Promise<CatalogData>;
   embedQuery: RunDeps["embedQuery"];
   runAgent: typeof runClipAgent;
@@ -36,9 +39,12 @@ function parseJsonBody(event: LambdaFunctionURLEvent): unknown {
   }
 }
 
+const NOT_RECORDED = "The run could not be recorded for audit, so no manifest was issued.";
+
 /**
  * Handles POST /api. Clients that accept application/x-ndjson get every run event as one JSON
- * line as it happens, ending with `completed`; others get the final result as one JSON body.
+ * line as it happens; others get the final result as one JSON body. Either way the result is
+ * only delivered once its audit record is saved: a manifest without a trace proves nothing.
  */
 export async function compose(
   event: LambdaFunctionURLEvent,
@@ -70,7 +76,7 @@ export async function compose(
 
   // Load before the status line goes out: once a stream has started, a failure can no longer
   // be reported as an HTTP error.
-  const data = await deps.catalog();
+  const [data, model] = await Promise.all([deps.catalog(), deps.model()]);
   const streaming = event.headers.accept?.includes(NDJSON) ?? false;
   const runId = randomUUID();
   const { userId } = principal;
@@ -78,23 +84,28 @@ export async function compose(
   deps.log("run_started", { runId, userId, territory, date });
   if (streaming) sink.start(200, NDJSON);
 
+  const writeEvent = (runEvent: RunEvent) => sink.write(`${JSON.stringify(runEvent)}\n`);
   const result = await deps.runAgent(
     { prompt, territory, date },
     {
       data,
+      model,
       embedQuery: deps.embedQuery,
       runId,
       onEvent: (runEvent) => {
         if (runEvent.type === "step") deps.log("step", { runId, ...runEvent.step });
-        if (streaming) sink.write(`${JSON.stringify(runEvent)}\n`);
+        if (streaming && runEvent.type !== "completed") writeEvent(runEvent);
       },
     },
   );
   const { manifest, steps, decisions } = result;
+  const response = { manifest, steps, decisions } satisfies ComposeResponse;
 
+  let recorded = true;
   try {
     await deps.store.save(result, createdAt, userId);
   } catch (error) {
+    recorded = false;
     deps.log("trace_failed", { runId, error: String(error) });
   }
 
@@ -109,6 +120,12 @@ export async function compose(
     ...(result.error && { errorCode: result.error.code, errorMessage: result.error.message }),
   });
 
-  if (streaming) return sink.end();
-  return sendJson(manifest.stopReason === "error" ? 502 : 200, { manifest, steps, decisions });
+  if (streaming) {
+    writeEvent(
+      recorded ? { type: "completed", result: response } : { type: "failed", error: NOT_RECORDED },
+    );
+    return sink.end();
+  }
+  if (!recorded) return sendJson(503, { error: NOT_RECORDED });
+  return sendJson(manifest.stopReason === "error" ? 502 : 200, response);
 }
