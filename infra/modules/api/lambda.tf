@@ -47,4 +47,7 @@ resource "aws_lambda_function" "agent" {
 resource "aws_lambda_function_url" "agent" {
   function_name      = aws_lambda_function.agent.function_name
   authorization_type = "AWS_IAM"
+  # The handler is wrapped in awslambda.streamifyResponse; in BUFFERED mode a streaming
+  # handler's events would only reach the client once the whole run had finished.
+  invoke_mode = "RESPONSE_STREAM"
 }
