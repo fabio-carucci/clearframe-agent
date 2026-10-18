@@ -1,10 +1,12 @@
 import { canonicalJson } from "./canonical-json";
+import { findDuplicateKey } from "./duplicate-keys";
 import {
   type ClearanceCertificate,
   ClearanceCertificateSchema,
   type Manifest,
   ManifestSchema,
 } from "./index";
+import publishedKeys from "./signing-keys.json";
 
 export { canonicalJson };
 
@@ -13,6 +15,14 @@ export interface SigningKey {
   keyId: string;
   spki: string;
 }
+
+/**
+ * The keys Clearframe's notary signs with. They live in the repository, not in anything a deploy
+ * writes, so trusting a new key takes a reviewed commit; infra/github refuses to deploy the
+ * notary with a key missing from this list. A key stays listed for as long as any certificate it
+ * signed may be checked.
+ */
+export const PUBLISHED_SIGNING_KEYS: readonly SigningKey[] = publishedKeys;
 
 export type CertificateDigests = ClearanceCertificate["digests"];
 export type UnsignedCertificate = Omit<ClearanceCertificate, "signature">;
@@ -150,14 +160,21 @@ export type Verification =
   | { status: "signature_invalid"; certificate: ClearanceCertificate }
   | { status: "content_changed"; certificate: ClearanceCertificate; changes: DigestChanges };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 const isJsonManifest = (value: unknown): value is JsonManifest =>
-  typeof value === "object" &&
-  value !== null &&
-  Array.isArray((value as { clips?: unknown }).clips);
+  isRecord(value) && Array.isArray(value.clips);
+
+const ENVELOPE_FIELDS = new Set(["manifest", "certificate"]);
+
+const malformed = (reason: string): Verification => ({ status: "malformed", reason });
 
 /**
  * Verifies a downloaded manifest file, locally: the signature, then every digest. A manifest
- * without a certificate is unsigned, never valid. Accepts the file's text or its parsed JSON.
+ * without a certificate is unsigned, never valid, and nothing in the file may sit outside what
+ * the signature covers. Accepts the file's text or its parsed JSON; only text can be checked for
+ * repeated keys.
  */
 export async function verifySignedManifest(
   file: unknown,
@@ -168,21 +185,43 @@ export async function verifySignedManifest(
     try {
       json = JSON.parse(file);
     } catch {
-      return { status: "malformed", reason: "The file is not JSON." };
+      return malformed("The file is not JSON.");
+    }
+    const repeated = findDuplicateKey(file);
+    if (repeated !== null) {
+      return malformed(
+        `The file gives "${repeated}" twice in one object, so readers can disagree on its value.`,
+      );
     }
   }
 
-  const envelope = (json ?? {}) as { manifest?: unknown; certificate?: unknown };
-  const rawManifest = isJsonManifest(envelope.manifest) ? envelope.manifest : json;
+  // A file with a manifest member is an envelope; any other object is a bare, unsigned manifest.
+  const envelope = isRecord(json) && "manifest" in json ? json : null;
+  const rawManifest = envelope ? envelope.manifest : json;
   const manifest = ManifestSchema.safeParse(rawManifest);
   if (!isJsonManifest(rawManifest) || !manifest.success) {
-    return { status: "malformed", reason: "The file is not a Clearframe manifest." };
+    return malformed("The file is not a Clearframe manifest.");
+  }
+  if (!envelope) return { status: "unsigned", manifest: manifest.data };
+
+  const unsignedFields = Object.keys(envelope).filter((field) => !ENVELOPE_FIELDS.has(field));
+  if (unsignedFields.length > 0) {
+    return malformed(
+      `The file has fields outside the signed manifest: ${unsignedFields.join(", ")}.`,
+    );
   }
   if (envelope.certificate === undefined) return { status: "unsigned", manifest: manifest.data };
 
   const certificate = ClearanceCertificateSchema.safeParse(envelope.certificate);
   if (!certificate.success) {
-    return { status: "malformed", reason: "The certificate is not in the expected format." };
+    const unknown = certificate.error.issues.flatMap((issue) =>
+      issue.code === "unrecognized_keys" ? issue.keys : [],
+    );
+    return malformed(
+      unknown.length > 0
+        ? `The certificate has fields its signature does not cover: ${unknown.join(", ")}.`
+        : "The certificate is not in the expected format.",
+    );
   }
 
   const signature = await verifySignature(certificate.data, keys);
