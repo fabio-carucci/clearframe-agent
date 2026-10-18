@@ -1,4 +1,4 @@
-import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
 import { GetParametersCommand, SSMClient } from "@aws-sdk/client-ssm";
@@ -10,6 +10,12 @@ import { type CatalogData, loadCatalogData, s3JsonReader } from "../catalog/load
 import { embedQuery } from "../retrieval/embeddings";
 import { logEvent } from "../tracing/log";
 import { AwsRunStore } from "../tracing/run-store";
+import {
+  type AccessTokenVerifier,
+  AuthConfigSchema,
+  authenticate,
+  createAccessTokenVerifier,
+} from "./auth";
 import { parseRunRequest } from "./request";
 
 const env = z
@@ -17,11 +23,11 @@ const env = z
     DATA_BUCKET: z.string().min(1),
     RUNS_TABLE: z.string().min(1),
     ANTHROPIC_KEY_PARAM: z.string().min(1),
-    API_TOKEN_PARAM: z.string().min(1),
+    AUTH_CONFIG_PARAM: z.string().min(1),
   })
   .parse(process.env);
 
-const SECRETS_TTL_MS = 5 * 60_000;
+const RUNTIME_CONFIG_TTL_MS = 5 * 60_000;
 
 const s3 = new S3Client({});
 const ssm = new SSMClient({});
@@ -34,12 +40,10 @@ const store = new AwsRunStore({
   }),
 });
 
-const sha256 = (value: string) => createHash("sha256").update(value).digest();
-
-async function fetchSecrets(): Promise<{ apiTokenHash: Buffer }> {
+async function fetchRuntimeConfig(): Promise<{ verifier: AccessTokenVerifier }> {
   const { Parameters = [] } = await ssm.send(
     new GetParametersCommand({
-      Names: [env.ANTHROPIC_KEY_PARAM, env.API_TOKEN_PARAM],
+      Names: [env.ANTHROPIC_KEY_PARAM, env.AUTH_CONFIG_PARAM],
       WithDecryption: true,
     }),
   );
@@ -50,23 +54,25 @@ async function fetchSecrets(): Promise<{ apiTokenHash: Buffer }> {
   };
   // The Anthropic provider reads the key from the environment on every call.
   process.env.ANTHROPIC_API_KEY = parameter(env.ANTHROPIC_KEY_PARAM);
-  return { apiTokenHash: sha256(parameter(env.API_TOKEN_PARAM)) };
+  const authConfig = AuthConfigSchema.parse(JSON.parse(parameter(env.AUTH_CONFIG_PARAM)));
+  return { verifier: createAccessTokenVerifier(authConfig) };
 }
 
 /**
- * Both caches drop a rejected promise so the next request retries. Secrets also expire, so a
- * rotated token stops working within SECRETS_TTL_MS instead of living as long as the container.
+ * Both caches drop a rejected promise so the next request retries. The runtime config also
+ * expires, so a rotated Anthropic key reaches warm containers within RUNTIME_CONFIG_TTL_MS.
  */
-let secrets: { value: Promise<{ apiTokenHash: Buffer }>; fetchedAt: number } | undefined;
-function getSecrets() {
-  if (!secrets || Date.now() - secrets.fetchedAt > SECRETS_TTL_MS) {
-    const value = fetchSecrets().catch((error: unknown) => {
-      secrets = undefined;
+let runtimeConfig:
+  { value: Promise<{ verifier: AccessTokenVerifier }>; fetchedAt: number } | undefined;
+function getRuntimeConfig() {
+  if (!runtimeConfig || Date.now() - runtimeConfig.fetchedAt > RUNTIME_CONFIG_TTL_MS) {
+    const value = fetchRuntimeConfig().catch((error: unknown) => {
+      runtimeConfig = undefined;
       throw error;
     });
-    secrets = { value, fetchedAt: Date.now() };
+    runtimeConfig = { value, fetchedAt: Date.now() };
   }
-  return secrets.value;
+  return runtimeConfig.value;
 }
 
 let catalog: Promise<CatalogData> | undefined;
@@ -80,15 +86,9 @@ const getCatalog = () =>
 
 const json = (statusCode: number, body: unknown): LambdaFunctionURLResult => ({
   statusCode,
-  headers: { "content-type": "application/json" },
+  headers: { "content-type": "application/json", "cache-control": "no-store" },
   body: JSON.stringify(body),
 });
-
-/** Hashing first gives equal-length buffers, so the comparison time does not leak the token. */
-function isAuthorized(header: string | undefined, expectedHash: Buffer): boolean {
-  const token = header?.match(/^Bearer (.+)$/)?.[1];
-  return token !== undefined && timingSafeEqual(sha256(token), expectedHash);
-}
 
 function parseJsonBody(event: LambdaFunctionURLEvent): unknown {
   if (!event.body) return undefined;
@@ -105,9 +105,10 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<LambdaFunc
     return json(405, { error: "Use POST with a JSON body" });
   }
 
-  const { apiTokenHash } = await getSecrets();
-  if (!isAuthorized(event.headers.authorization, apiTokenHash)) {
-    return json(401, { error: "Missing or invalid bearer token" });
+  const { verifier } = await getRuntimeConfig();
+  const principal = await authenticate(event.headers, verifier);
+  if (!principal) {
+    return json(401, { error: "Sign in again: the access token is missing, invalid or expired" });
   }
 
   const createdAt = new Date();
@@ -117,8 +118,9 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<LambdaFunc
   }
 
   const runId = randomUUID();
+  const { userId } = principal;
   const { prompt, territory, date } = request;
-  logEvent("run_started", { runId, territory, date });
+  logEvent("run_started", { runId, userId, territory, date });
 
   const result = await runClipAgent(
     { prompt, territory, date },
@@ -132,13 +134,14 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<LambdaFunc
   const { manifest } = result;
 
   try {
-    await store.save(result, createdAt);
+    await store.save(result, createdAt, userId);
   } catch (error) {
     logEvent("trace_failed", { runId, error: String(error) });
   }
 
   logEvent("run_finished", {
     runId,
+    userId,
     stopReason: manifest.stopReason,
     clipCount: manifest.clips.length,
     rejectedCount: manifest.rejected.length,
