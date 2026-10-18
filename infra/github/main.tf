@@ -19,6 +19,30 @@ resource "aws_iam_openid_connect_provider" "github" {
   client_id_list = ["sts.amazonaws.com"]
 }
 
+# Signs the clearance certificate of every manifest the API issues. An asymmetric KMS key never
+# leaves KMS, so whoever may call kms:Sign on it is what a certificate vouches for: an
+# administrator manages it, only the agent role may sign with it, and CI may only read it.
+resource "aws_kms_key" "manifest_signing" {
+  description              = "Signs Clearframe clearance certificates"
+  customer_master_key_spec = "ECC_NIST_P256"
+  key_usage                = "SIGN_VERIFY"
+  deletion_window_in_days  = 30
+
+  # Every certificate it signed would become unverifiable unless its public key is kept elsewhere.
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_kms_alias" "manifest_signing" {
+  name          = "alias/${var.workload_prefix}-manifest-signing"
+  target_key_id = aws_kms_key.manifest_signing.key_id
+}
+
+data "aws_kms_public_key" "manifest_signing" {
+  key_id = aws_kms_key.manifest_signing.arn
+}
+
 # The most any workload role may ever do. The deploy role can create roles only with this
 # boundary attached, so it cannot mint a role more powerful than this.
 
@@ -48,6 +72,12 @@ data "aws_iam_policy_document" "workload_boundary" {
     sid       = "Secrets"
     actions   = ["ssm:GetParameters"]
     resources = [local.ssm_parameters]
+  }
+
+  statement {
+    sid       = "SignManifests"
+    actions   = ["kms:Sign"]
+    resources = [aws_kms_key.manifest_signing.arn]
   }
 
   statement {
@@ -317,6 +347,26 @@ data "aws_iam_policy_document" "ci_deploy" {
 
   # Manifests are locked in governance mode; without this, s3:* would let CI delete them or
   # shorten their retention.
+  statement {
+    sid       = "ReadSigningKey"
+    actions   = ["kms:DescribeKey", "kms:GetPublicKey"]
+    resources = [aws_kms_key.manifest_signing.arn]
+  }
+
+  # A stolen CI credential must not be able to mint certificates, or change who can.
+  statement {
+    sid    = "NeverSignOrChangeWhoSigns"
+    effect = "Deny"
+    actions = [
+      "kms:Sign",
+      "kms:CreateGrant",
+      "kms:PutKeyPolicy",
+      "kms:ScheduleKeyDeletion",
+      "kms:DisableKey",
+    ]
+    resources = ["*"]
+  }
+
   statement {
     sid       = "NeverBypassManifestRetention"
     effect    = "Deny"
