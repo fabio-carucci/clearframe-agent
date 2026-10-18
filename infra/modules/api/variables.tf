@@ -55,6 +55,12 @@ variable "daily_run_limit" {
   default     = 20
 }
 
+variable "reserved_concurrency" {
+  description = "Concurrent executions reserved for, and the most allowed to, the agent Lambda. A run takes about ten seconds."
+  type        = number
+  default     = 50
+}
+
 variable "log_retention_days" {
   type    = number
   default = 14

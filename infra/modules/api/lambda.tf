@@ -24,6 +24,10 @@ resource "aws_lambda_function" "agent" {
   memory_size      = 1024
   timeout          = 60
 
+  # A ceiling as well as a reservation: a flood, even of forged tokens that pass the edge gate,
+  # cannot take more than this from the account's other functions.
+  reserved_concurrent_executions = var.reserved_concurrency
+
   environment {
     variables = {
       DATA_BUCKET         = aws_s3_bucket.data.id
