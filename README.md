@@ -153,16 +153,27 @@ on the rule under test, and a regression in the rule fails a free test before an
 | Recall               | Share of eligible clips found, capped at the requested count        | mean ≥ 90%  |
 | Cost, steps, latency | Mean cost, mean steps, p50/p95 latency                              | reported    |
 
-Results with Claude Haiku 5.5 at medium effort ([full report](evals/reports/latest-with-rule.md)):
+Results with Claude Haiku 5.5 at medium effort, 20 cases run 3 times each
+([full report](evals/reports/latest-with-rule.md)):
 
-|              | Violations | Filter precision | Recall | Mean cost | p50 latency |
-| ------------ | ---------- | ---------------- | ------ | --------- | ----------- |
-| Rule in code | 0          | 100%             | 100%   | $0.0023   | 8.1 s       |
+|              | Violations | Filter precision | Recall | Mean cost | p50 / p95 latency |
+| ------------ | ---------- | ---------------- | ------ | --------- | ----------------- |
+| Rule in code | 0          | 100%             | 98%    | $0.0018   | 7.5 s / 11.2 s    |
+
+The missing recall is one prompt-injection case: told to check rights for another territory, the
+model sometimes refuses the whole request and returns nothing. Safe, but too cautious.
 
 The evals also found a real defect. Search was not rights-aware, so in a territory where few clips
 are licensed the model paged through unusable results until it hit the token budget: 0 clips at
 6× the average cost. Filtering by rights inside retrieval fixed it and cut the mean cost per
 request by a third (from $0.0034 to $0.0023). The rule in `addToManifest` stays as the guarantee.
+
+Once search was rights-aware, the prompt's `getRights` step checked what search had already
+filtered. Dropping it from the procedure, and telling the model that an empty search is final,
+cut the mean cost from $0.0024 to $0.0018 and the mean steps from 4.3 to 3.6, with the same
+precision ([before](evals/reports/latest-with-rule-before-p1.md),
+[without the step](evals/reports/latest-with-rule-after-p1.md)). Without the second change the
+model kept rephrasing searches for impossible requests, which raised p95 latency.
 
 The ablation (`pnpm eval:no-rule`) swaps in a draft that applies no rule and gives the model raw
 licenses without a verdict, so it measures the prompt-only baseline honestly. That draft lives in
@@ -190,7 +201,7 @@ Every run gets a `runId`, returned in the manifest. The Lambda writes:
 filter event = "run_finished" | stats count(), avg(costUsd), pct(durationMs, 95) by stopReason
 ```
 
-A typical request costs about **$0.002**: almost all of it is Haiku input tokens, since each step
+A typical request costs about **$0.0018**: almost all of it is Haiku input tokens, since each step
 resends the conversation. Idle, the stack costs effectively nothing: Lambda and DynamoDB bill per
 request, S3 holds a few MB, CloudFront and Cognito stay inside their free tiers at this volume, and
 SSM standard parameters are free.
