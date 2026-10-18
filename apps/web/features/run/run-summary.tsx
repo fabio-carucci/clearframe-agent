@@ -1,9 +1,15 @@
 import type { ClearanceCertificate, Manifest } from "@clearframe/contracts";
+import {
+  PUBLISHED_SIGNING_KEYS,
+  type SigningKey,
+  type Verification,
+} from "@clearframe/contracts/certificate";
 import { BadgeCheck, Download, ShieldCheck, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatCount, formatRunTime, formatUsd, stopReasonLabel } from "./format";
 import type { LiveRun } from "./live-run";
+import { useSignatureCheck } from "./use-signature-check";
 
 /** The signed envelope /verify reads: the manifest with its certificate, when it has one. */
 function downloadManifest(manifest: Manifest, certificate: ClearanceCertificate | undefined) {
@@ -25,6 +31,52 @@ const signedOn = (iso: string) =>
     minute: "2-digit",
   });
 
+const whyNotValid = (result: Verification) => {
+  switch (result.status) {
+    case "signature_invalid":
+      return "its signature does not match";
+    case "unknown_key":
+      return "it names a key Clearframe does not publish";
+    case "content_changed":
+      return "the manifest differs from what was signed";
+    case "malformed":
+      return result.reason;
+    default:
+      return result.status;
+  }
+};
+
+function SignatureStatus({ check }: { check: Verification | null }) {
+  if (!check) {
+    return <p className="text-muted-foreground">Checking the signature in this browser…</p>;
+  }
+  if (check.status === "valid") {
+    const { certificate } = check;
+    return (
+      <p className="flex items-start gap-2 text-cleared">
+        <BadgeCheck className="mt-px size-4 shrink-0" aria-hidden />
+        <span>
+          Signed with key <span className="font-mono">{certificate.keyId.slice(0, 8)}…</span> on{" "}
+          {signedOn(certificate.issuedAt)}, and verified in this browser. Anyone with the file can{" "}
+          <Link href="/verify" className="underline underline-offset-2">
+            verify it
+          </Link>
+          .
+        </span>
+      </p>
+    );
+  }
+  return (
+    <p className="flex items-start gap-2 text-destructive">
+      <TriangleAlert className="mt-px size-4 shrink-0" aria-hidden />
+      <span>
+        The certificate does not verify: {whyNotValid(check)}. Do not rely on this manifest; quote
+        the run id.
+      </span>
+    </p>
+  );
+}
+
 function Figure({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md bg-muted/60 px-3 py-2">
@@ -34,7 +86,14 @@ function Figure({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function RunSummary({ run }: { run: LiveRun | null }) {
+interface RunSummaryProps {
+  run: LiveRun | null;
+  /** The keys a certificate must verify with; the repository's published keys by default. */
+  signingKeys?: readonly SigningKey[];
+}
+
+export function RunSummary({ run, signingKeys = PUBLISHED_SIGNING_KEYS }: RunSummaryProps) {
+  const check = useSignatureCheck(run?.result?.manifest, run?.result?.certificate, signingKeys);
   if (!run) {
     return (
       <p className="p-4 text-[13px] leading-relaxed text-muted-foreground">
@@ -118,18 +177,7 @@ export function RunSummary({ run }: { run: LiveRun | null }) {
           {manifest ? (
             <>
               {certificate ? (
-                <p className="flex items-start gap-2 text-cleared">
-                  <BadgeCheck className="mt-px size-4 shrink-0" aria-hidden />
-                  <span>
-                    Signed with key{" "}
-                    <span className="font-mono">{certificate.keyId.slice(0, 8)}…</span> on{" "}
-                    {signedOn(certificate.issuedAt)}. Anyone with the file can{" "}
-                    <Link href="/verify" className="underline underline-offset-2">
-                      verify it
-                    </Link>
-                    .
-                  </span>
-                </p>
+                <SignatureStatus check={check} />
               ) : (
                 <p className="text-muted-foreground">
                   Not signed: issued before manifests were signed.

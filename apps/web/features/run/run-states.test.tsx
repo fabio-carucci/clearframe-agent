@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import type { ClipDecision, ComposeResponse } from "@clearframe/contracts";
+import { certify, signingInput, toBase64Url } from "@clearframe/contracts/certificate";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { ClipBin } from "./clip-bin";
@@ -112,20 +113,31 @@ describe("a run as the user sees it", () => {
     expect(screen.getByText(/cannot be verified/)).toBeTruthy();
   });
 
-  it("says whether the manifest is signed, and links to where anyone can verify it", () => {
-    const certificate = {
-      v: 1 as const,
-      alg: "ES256" as const,
-      keyId: "9c8a2f4e-1b3d-4e5f-8a7b-6c5d4e3f2a1b",
-      issuedAt: "2026-10-18T17:42:00.000Z",
-      runId,
-      digests: { manifest: "a".repeat(64), clips: ["b".repeat(64)] },
-      signature: "s".repeat(86),
-    };
-    render(<RunSummary run={finishedRun({ ...result, certificate }, 0)} />);
-    expect(screen.getByText(/Signed with key/)).toBeTruthy();
+  it("shows a signature as verified only once this browser has verified it", async () => {
+    const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, [
+      "sign",
+      "verify",
+    ]);
+    const spki = new Uint8Array(await crypto.subtle.exportKey("spki", pair.publicKey));
+    const keys = [{ keyId: "9c8a2f4e", spki: btoa(String.fromCharCode(...spki)) }];
+    const unsigned = await certify(result.manifest, "9c8a2f4e", new Date("2026-10-18T17:42:00Z"));
+    const signature = await crypto.subtle.sign(
+      { name: "ECDSA", hash: "SHA-256" },
+      pair.privateKey,
+      signingInput(unsigned),
+    );
+    const certificate = { ...unsigned, signature: toBase64Url(new Uint8Array(signature)) };
+    const signed = finishedRun({ ...result, certificate }, 0);
+
+    render(<RunSummary run={signed} signingKeys={keys} />);
+    expect(await screen.findByText(/verified in this browser/)).toBeTruthy();
     expect(screen.getByText("verify it").getAttribute("href")).toBe("/verify");
     expect(screen.getByText("Download signed manifest")).toBeTruthy();
+    cleanup();
+
+    render(<RunSummary run={signed} signingKeys={[]} />);
+    expect(await screen.findByText(/does not publish/)).toBeTruthy();
+    expect(screen.queryByText(/verified in this browser/)).toBeNull();
     cleanup();
 
     render(<RunSummary run={finishedRun(result, 0)} />);
