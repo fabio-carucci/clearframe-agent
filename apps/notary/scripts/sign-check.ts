@@ -1,16 +1,17 @@
 import { GetPublicKeyCommand, KMSClient } from "@aws-sdk/client-kms";
 import type { Manifest } from "@clearframe/contracts";
-import { verifySignedManifest } from "@clearframe/contracts/certificate";
-import { KmsManifestSigner, signManifest } from "../src/signer";
+import { PUBLISHED_SIGNING_KEYS, verifySignedManifest } from "@clearframe/contracts/certificate";
+import { signManifest } from "@clearframe/core/notary/notarize";
+import { KmsManifestSigner } from "../src/kms-signer";
 
 /**
- * One-off check against the real key, before the first deploy that signs: KMS's DER signatures,
- * DIGEST signing and WebCrypto verification meet nowhere else before production. Run it with an
- * administrator's AWS profile, which may use the key.
+ * Checks the real key against the published list, with an administrator's AWS profile: KMS's DER
+ * signatures, DIGEST signing and WebCrypto verification meet nowhere else before production, and
+ * a key missing from signing-keys.json would sign certificates nobody can verify.
  */
 const keyArn = process.argv[2];
 if (!keyArn) {
-  console.error("Usage: pnpm --filter @clearframe/api sign-check <signing key ARN>");
+  console.error("Usage: pnpm --filter @clearframe/notary sign-check <signing key ARN>");
   process.exit(2);
 }
 
@@ -18,7 +19,10 @@ const kms = new KMSClient({ region: keyArn.split(":")[3] });
 const signer = new KmsManifestSigner(kms, keyArn);
 const { PublicKey } = await kms.send(new GetPublicKeyCommand({ KeyId: keyArn }));
 if (!PublicKey) throw new Error("KMS returned no public key");
-const keys = [{ keyId: signer.keyId, spki: Buffer.from(PublicKey).toString("base64") }];
+const spki = Buffer.from(PublicKey).toString("base64");
+const published = PUBLISHED_SIGNING_KEYS.some(
+  (key) => key.keyId === signer.keyId && key.spki === spki,
+);
 
 const clip = (clipId: string) => ({
   clipId,
@@ -45,15 +49,21 @@ const manifest: Manifest = {
 };
 
 const certificate = await signManifest(manifest, signer, new Date());
-const untouched = await verifySignedManifest(JSON.stringify({ manifest, certificate }), keys);
+const untouched = await verifySignedManifest(
+  JSON.stringify({ manifest, certificate }),
+  PUBLISHED_SIGNING_KEYS,
+);
 const edited = structuredClone(manifest);
 edited.clips[1]!.license.expiresAt = "2030-01-01";
 const tampered = await verifySignedManifest(
   JSON.stringify({ manifest: edited, certificate }),
-  keys,
+  PUBLISHED_SIGNING_KEYS,
 );
 
 console.log(`key ${signer.keyId}`);
+console.log(`listed in signing-keys.json: ${published} (expected true)`);
 console.log(`untouched manifest: ${untouched.status} (expected valid)`);
 console.log(`edited licence:     ${tampered.status} (expected content_changed)`);
-if (untouched.status !== "valid" || tampered.status !== "content_changed") process.exit(1);
+if (!published || untouched.status !== "valid" || tampered.status !== "content_changed") {
+  process.exit(1);
+}

@@ -1,13 +1,13 @@
-import type { RunEvent } from "@clearframe/contracts";
+import type { Manifest, RunEvent } from "@clearframe/contracts";
 import type { RunResult } from "@clearframe/core/agent/run";
 import type { CatalogData } from "@clearframe/core/catalog/load";
+import { type ManifestSigner, signManifest } from "@clearframe/core/notary/notarize";
 import type { LanguageModel } from "ai";
 import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { describe, expect, it, vi } from "vitest";
 import { ACCESS_TOKEN_HEADER } from "./auth";
 import { verifySignedManifest } from "@clearframe/contracts/certificate";
 import { type ComposeDeps, NDJSON, type ResponseSink, compose } from "./compose";
-import type { ManifestSigner } from "./signer";
 
 const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, [
   "sign",
@@ -86,7 +86,12 @@ function harness(runResult: RunResult = result) {
       return runResult;
     },
     quota: { consume },
-    signer: { keyId: webCryptoSigner.keyId, sign: vi.fn(webCryptoSigner.sign) },
+    notary: {
+      certify: vi.fn((manifest: Manifest) =>
+        signManifest(manifest, webCryptoSigner, new Date("2026-10-18T10:00:01Z")),
+      ),
+    },
+    trustedKeys: keys,
     store: { save },
     log: () => {},
     now: () => new Date("2026-10-18T10:00:00Z"),
@@ -186,9 +191,9 @@ describe("compose", () => {
     expect((await verifySignedManifest({ manifest, certificate }, keys)).status).toBe("valid");
   });
 
-  it("withholds the manifest with 503 and saves nothing when it cannot be signed", async () => {
+  it("withholds the manifest with 503 and saves nothing when the notary refuses it", async () => {
     const { sink, responseSink, deps, save } = harness();
-    vi.mocked(deps.signer.sign).mockRejectedValueOnce(new Error("KMS throttled"));
+    vi.mocked(deps.notary.certify).mockRejectedValueOnce(new Error("Notary refused"));
     await compose(event({}), deps, responseSink);
     expect(sink.status).toBe(503);
     expect(JSON.parse(sink.chunks.join(""))).toEqual({ error: expect.stringMatching(/signed/) });
@@ -197,9 +202,17 @@ describe("compose", () => {
 
   it("ends the stream with failed when the manifest cannot be signed", async () => {
     const { sink, responseSink, deps } = harness();
-    vi.mocked(deps.signer.sign).mockRejectedValueOnce(new Error("KMS throttled"));
+    vi.mocked(deps.notary.certify).mockRejectedValueOnce(new Error("Notary failed"));
     await compose(event({ headers: { accept: NDJSON } }), deps, responseSink);
     const types = sink.chunks.map((chunk) => (JSON.parse(chunk) as RunEvent).type);
     expect(types).toEqual(["started", "failed"]);
+  });
+
+  it("withholds a certificate the published keys do not verify, saving nothing", async () => {
+    const { sink, responseSink, deps, save } = harness();
+    deps.trustedKeys = [];
+    await compose(event({}), deps, responseSink);
+    expect(sink.status).toBe(503);
+    expect(save).not.toHaveBeenCalled();
   });
 });

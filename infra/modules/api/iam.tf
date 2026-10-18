@@ -71,21 +71,9 @@ data "aws_iam_policy_document" "agent" {
   }
 
   statement {
-    sid       = "SignManifests"
-    actions   = ["kms:Sign"]
-    resources = [var.signing_key_arn]
-
-    condition {
-      test     = "StringEquals"
-      variable = "kms:SigningAlgorithm"
-      values   = ["ECDSA_SHA_256"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "kms:MessageType"
-      values   = ["DIGEST"]
-    }
+    sid       = "AskTheNotary"
+    actions   = ["lambda:InvokeFunction"]
+    resources = [var.notary_function_arn]
   }
 
   statement {

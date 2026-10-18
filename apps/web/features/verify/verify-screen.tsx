@@ -1,11 +1,11 @@
 "use client";
 
 import {
+  PUBLISHED_SIGNING_KEYS,
   type SigningKey,
   type Verification,
   verifySignedManifest,
 } from "@clearframe/contracts/certificate";
-import { useQuery } from "@tanstack/react-query";
 import { FileQuestion, ShieldCheck, ShieldX, Upload } from "lucide-react";
 import Link from "next/link";
 import { type DragEvent, type ReactNode, useRef, useState } from "react";
@@ -13,7 +13,8 @@ import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { loadWebConfig } from "../auth/config";
+
+const REPOSITORY_URL = "https://github.com/fabio-carucci/clearframe-agent";
 
 const issuedOn = (iso: string) =>
   new Date(iso).toLocaleString("en-GB", {
@@ -80,8 +81,8 @@ export function VerificationReport({ result }: { result: Verification }) {
             {manifest.clips.length} {manifest.clips.length === 1 ? "clip" : "clips"} intact.
           </p>
           <p className="text-muted-foreground">
-            “{manifest.request.prompt}”, for {manifest.request.territory} on {manifest.request.date}
-            .
+            For {manifest.request.territory} on {manifest.request.date}. The request, as the user
+            typed it: “{manifest.request.prompt}”
           </p>
         </Verdict>
       );
@@ -162,33 +163,38 @@ function WhatItProves() {
     <aside className="self-start rounded-lg bg-card p-5 text-[13px] leading-relaxed">
       <h2 className="font-title text-[15px]">What a valid signature proves</h2>
       <p className="mt-2">
-        That Clearframe issued this manifest at that time, with those license snapshots and that
-        catalog version, and that it has not changed since.
+        That Clearframe&apos;s notary signed this manifest at that time, after checking every
+        clip&apos;s license and details against that catalog version and the rights rule, and that
+        it has not changed since.
       </p>
       <h2 className="mt-5 font-title text-[15px]">What it does not prove</h2>
       <ul className="mt-2 list-inside list-disc space-y-1.5 text-muted-foreground">
         <li>That the licenses in the catalog are legally sound.</li>
         <li>
-          Anything about the text the model wrote, its reasons and summary: they are signed, so
-          unchanged, but they are still the model&apos;s text.
+          Anything said in words: the request is what the user typed, and the reasons and summary
+          are the model&apos;s. They are signed, so unchanged, but nobody checked them.
         </li>
         <li>
-          The key is held by Clearframe&apos;s pipeline: a certificate is worth as much as your
-          trust in whoever controls it.
+          That Clearframe runs the notary honestly: a certificate is worth as much as your trust in
+          whoever holds the key.
         </li>
       </ul>
+      <h2 className="mt-5 font-title text-[15px]">Checking without this site</h2>
+      <p className="mt-2 text-muted-foreground">
+        This page checks against the keys committed to Clearframe&apos;s{" "}
+        <a href={REPOSITORY_URL} className="text-foreground underline underline-offset-2">
+          repository
+        </a>
+        , but the site itself could be changed. To check without trusting it, run{" "}
+        <code className="font-mono text-foreground">pnpm verify-manifest file.json</code> from a
+        checkout of the repository.
+      </p>
     </aside>
   );
 }
 
-interface VerifierProps {
-  keys: readonly SigningKey[];
-  /** False where no config.json publishes keys, as in local development. */
-  keysPublished: boolean;
-}
-
 /** Reads a manifest file from a drop, a file picker or pasted text, and verifies it here. */
-export function Verifier({ keys, keysPublished }: VerifierProps) {
+export function Verifier({ keys = PUBLISHED_SIGNING_KEYS }: { keys?: readonly SigningKey[] }) {
   const [result, setResult] = useState<Verification | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [pasted, setPasted] = useState("");
@@ -202,7 +208,7 @@ export function Verifier({ keys, keysPublished }: VerifierProps) {
     } catch {
       setResult({
         status: "malformed",
-        reason: "This site's published signing key could not be read, so nothing can be checked.",
+        reason: "A published signing key could not be read, so nothing can be checked.",
       });
     }
   };
@@ -217,12 +223,6 @@ export function Verifier({ keys, keysPublished }: VerifierProps) {
 
   return (
     <div className="space-y-5">
-      {!keysPublished && (
-        <p className="rounded-md bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
-          This environment publishes no signing keys (there is no config.json), so no signature can
-          be confirmed here.
-        </p>
-      )}
       <div
         onDragOver={(event) => {
           event.preventDefault();
@@ -279,11 +279,6 @@ export function Verifier({ keys, keysPublished }: VerifierProps) {
 
 /** Public: anyone holding a manifest can check it, without an account or a call to the API. */
 export function VerifyScreen() {
-  const config = useQuery({
-    queryKey: ["web-config"],
-    queryFn: loadWebConfig,
-    staleTime: Infinity,
-  });
   return (
     <div className="min-h-dvh">
       <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4">
@@ -303,14 +298,7 @@ export function VerifyScreen() {
             not.
           </p>
           <div className="mt-8">
-            {config.isPending ? (
-              <p className="text-muted-foreground">Loading the published keys…</p>
-            ) : (
-              <Verifier
-                keys={config.data?.signingKeys ?? []}
-                keysPublished={(config.data?.signingKeys.length ?? 0) > 0}
-              />
-            )}
+            <Verifier />
           </div>
         </div>
         <WhatItProves />

@@ -9,19 +9,21 @@ page and Cognito sign-in.
 
 ## Commands
 
-| Task                                    | Command                                                 |
-| --------------------------------------- | ------------------------------------------------------- |
-| Install                                 | `pnpm install`                                          |
-| Typecheck every package, tests, format  | `pnpm typecheck`, `pnpm test`, `pnpm format:check`      |
-| Run the agent once                      | `pnpm agent --territory ES "10 Spanish cooking clips"`  |
-| Eval suite (with the rule)              | `pnpm eval [--repeat N] [--cases id,id] [--label name]` |
-| Eval suite with the CI quality gate     | `pnpm eval --min-recall 0.9 --min-precision 0.95`       |
-| Eval suite without the rule (ablation)  | `pnpm eval:no-rule [...]`                               |
-| Regenerate catalog, then its embeddings | `pnpm catalog:generate && pnpm catalog:embed`           |
-| Lambda bundle (`apps/api/dist`)         | `pnpm build:lambda`                                     |
-| Web app: dev server, static export      | `pnpm web:dev`, `pnpm web:build`                        |
-| Add a shadcn/ui component (in apps/web) | `pnpm dlx shadcn@4.22.0 add <name>`                     |
-| Sign and verify with the real KMS key   | `pnpm --filter @clearframe/api sign-check <key ARN>`    |
+| Task                                     | Command                                                 |
+| ---------------------------------------- | ------------------------------------------------------- |
+| Install                                  | `pnpm install`                                          |
+| Typecheck every package, tests, format   | `pnpm typecheck`, `pnpm test`, `pnpm format:check`      |
+| Run the agent once                       | `pnpm agent --territory ES "10 Spanish cooking clips"`  |
+| Eval suite (with the rule)               | `pnpm eval [--repeat N] [--cases id,id] [--label name]` |
+| Eval suite with the CI quality gate      | `pnpm eval --min-recall 0.9 --min-precision 0.95`       |
+| Eval suite without the rule (ablation)   | `pnpm eval:no-rule [...]`                               |
+| Regenerate catalog, then its embeddings  | `pnpm catalog:generate && pnpm catalog:embed`           |
+| Lambda bundle (`apps/api/dist`)          | `pnpm build:lambda`                                     |
+| Notary bundle (`apps/notary/dist`)       | `pnpm build:notary`                                     |
+| Verify a manifest file, without the site | `pnpm verify-manifest <file>`                           |
+| Web app: dev server, static export       | `pnpm web:dev`, `pnpm web:build`                        |
+| Add a shadcn/ui component (in apps/web)  | `pnpm dlx shadcn@4.22.0 add <name>`                     |
+| Sign and verify with the real KMS key    | `pnpm --filter @clearframe/notary sign-check <key ARN>` |
 
 `pnpm agent`, `pnpm eval` and `pnpm catalog:embed` call Anthropic and Amazon Bedrock and cost real
 money (an eval run is about $0.05). They read `.env` (see `.env.example`) and an AWS profile. Ask
@@ -30,7 +32,9 @@ before running them.
 Vitest does not typecheck. Run `pnpm typecheck` and `pnpm test`; CI runs both.
 
 Never run `terraform apply`. `infra/bootstrap` and `infra/github` are applied by an administrator;
-`infra/env/dev` is applied by CI on merge to `main`.
+`infra/env/dev` is applied by CI on merge to `main`. The notary is part of `infra/github`: a change
+to `apps/notary`, the notary's code in `packages/core`, or `data/catalog.json` reaches it only when
+an administrator runs `pnpm build:notary` and applies that stack, before the merge.
 
 ## Layout
 
@@ -39,6 +43,7 @@ A pnpm workspace. These are the only allowed dependencies between packages:
 ```
 apps/web            -> packages/contracts
 apps/api            -> packages/core, packages/contracts
+apps/notary         -> packages/core, packages/contracts
 evals               -> packages/core, packages/contracts
 packages/core       -> packages/contracts
 packages/contracts  -> zod only
@@ -49,9 +54,10 @@ packages/contracts  -> zod only
 | `packages/contracts/` | Zod schemas of the HTTP API: request, manifest, steps, response. Depends only on Zod.                 |
 | `packages/core/`      | Catalog, rights rule, retrieval, agent loop, cost; scripts for the catalog and local runs             |
 | `apps/api/`           | Lambda handler, Cognito token check, request validation, DynamoDB and S3 adapters, bundle             |
+| `apps/notary/`        | The notary Lambda: KMS signer, handler with the bundled catalog, `sign-check`                         |
 | `apps/web/`           | Static Next.js page; `features/` holds auth, compose (NDJSON client), history, run, verify, workspace |
 | `evals/`              | Cases, metrics, no-rule ablation draft, runner, committed reports                                     |
-| `infra/`              | `bootstrap`, `github` (OIDC roles), modules `api`, `web`, `auth`, `env/dev`                           |
+| `infra/`              | `bootstrap`, `github` (OIDC roles, signing key, notary), modules `api`, `web`, `auth`, `env/dev`      |
 | `data/`               | Generated catalog and its embedding index, both committed                                             |
 
 Workspace packages export TypeScript source (`@clearframe/core/agent/run` maps to
@@ -121,16 +127,30 @@ Each of these is load-bearing; most are pinned by a test.
     never edit or invent events; `sample.test.ts` checks it against the contract.
 25. `GET /api/runs/:id` answers 404 for another user's run exactly as for a missing one, so run ids
     cannot be probed, and reads the manifest by the version id in the run record.
-26. Every manifest the API delivers is signed, and the S3 object is the same signed envelope. A run
-    that cannot be signed is not delivered.
+26. Every manifest the API delivers carries a certificate from the notary that verifies with the
+    published keys, and the S3 object is the same signed envelope. A run that cannot be signed is
+    not delivered.
 27. `canonicalJson`, the certificate's signing input and `verifySignedManifest` exist only in
     `packages/contracts/src/certificate.ts` and `canonical-json.ts`. No other code builds the bytes
     a signature covers; never use `JSON.stringify` for them.
-28. Only the agent role may call `kms:Sign`, and only for a SHA-256 digest. CI may neither sign nor
-    change who signs; the key belongs to an administrator in `infra/github`.
-29. The page verifies locally and never asks the server whether a manifest is valid. A manifest
-    without a certificate is "Not signed", never valid. Keys stay in `signingKeys` for as long as
-    any certificate they signed may be checked.
+28. Only the notary role may call `kms:Sign`, and only for a SHA-256 digest. The workload boundary
+    never grants `kms:Sign`: the agent role runs code CI deploys, so it may only invoke the
+    notary. CI may neither sign nor act on the notary, its role or its log group; the key and the
+    notary belong to an administrator in `infra/github`, outside the deploy role's prefix.
+29. The notary signs only what `auditManifest` (`packages/core/src/notary`) passes: every clip
+    matches the notary's own catalog and passes the rule, every rejection is the rule's, the date
+    is not past by the notary's clock, and no field is unknown to the schema. Its catalog is
+    bundled at build time, never read from the data bucket CI writes.
+30. Trusted keys live only in `packages/contracts/src/signing-keys.json`, never in `config.json`
+    or anything a deploy writes, and stay listed for as long as any certificate they signed may be
+    checked. `infra/github` refuses to deploy the notary with a key missing from that file.
+31. The page verifies locally and never asks the server whether a manifest is valid; the Audit
+    section shows the verification's result, not the presence of a certificate. A manifest
+    without a certificate is "Not signed", never valid, and `verifySignedManifest` refuses
+    anything the signature does not cover: a repeated key, a field beside the manifest, a field
+    the certificate schema does not know.
+32. CI never manages Cognito users: the deploy role is denied `cognito-idp:Admin*`, user import
+    jobs and identity providers. Users are created by an administrator with the AWS CLI.
 
 ## Conventions
 

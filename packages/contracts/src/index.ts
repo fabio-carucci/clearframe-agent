@@ -123,8 +123,9 @@ const Sha256HexSchema = z.string().regex(/^[0-9a-f]{64}$/);
  * Clearframe's signature over a manifest: a SHA-256 of the manifest without its clips, one per
  * clip in order, then an ECDSA P-256 signature over the certificate without `signature`, so a
  * change can be traced to a clip. `@clearframe/contracts/certificate` builds and checks it.
+ * Strict: a field added to a certificate would read as signed while no signature covers it.
  */
-export const ClearanceCertificateSchema = z.object({
+export const ClearanceCertificateSchema = z.strictObject({
   v: z.literal(1),
   alg: z.literal("ES256"),
   /** The KMS key id (its UUID, not its ARN, which names the account). */
@@ -132,7 +133,7 @@ export const ClearanceCertificateSchema = z.object({
   /** When the manifest was signed; inside the signed bytes, so it is proven too. */
   issuedAt: z.iso.datetime(),
   runId: z.uuid(),
-  digests: z.object({
+  digests: z.strictObject({
     manifest: Sha256HexSchema,
     clips: z.array(Sha256HexSchema),
   }),
@@ -150,7 +151,7 @@ export const ComposeResponseSchema = z.object({
 });
 
 /** What the API stores in S3 and the page downloads: the manifest with its certificate. */
-export const SignedManifestSchema = z.object({
+export const SignedManifestSchema = z.strictObject({
   manifest: ManifestSchema,
   certificate: ClearanceCertificateSchema,
 });

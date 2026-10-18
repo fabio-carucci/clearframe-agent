@@ -72,6 +72,52 @@ export function recall(
   return Math.min(found, reachable) / reachable;
 }
 
+/**
+ * Words frequent in one of the languages requests are written in and rare in the others. Shared
+ * words such as "de", "la" or "con" are left out: they cannot tell Spanish from Italian.
+ */
+const MARKER_WORDS = {
+  en: ["the", "and", "of", "to", "is", "are", "with", "for", "not", "was", "which", "this", "from"],
+  it: [
+    "il",
+    "di",
+    "che",
+    "per",
+    "sono",
+    "gli",
+    "della",
+    "delle",
+    "dei",
+    "nel",
+    "perché",
+    "anche",
+    "è",
+  ],
+  es: ["el", "los", "las", "del", "por", "son", "pero", "también", "hay", "sin", "está", "y"],
+} as const;
+
+export type SummaryLanguage = keyof typeof MARKER_WORDS;
+
+/**
+ * The language a summary is written in, by marker words, after removing the clip titles it may
+ * quote: titles are English whatever the summary's language. Null when no language leads.
+ */
+export function summaryLanguage(
+  summary: string,
+  quotedTitles: readonly string[],
+): SummaryLanguage | null {
+  let text = summary.toLowerCase();
+  for (const title of quotedTitles) text = text.replaceAll(title.toLowerCase(), " ");
+  const words = text.match(/\p{L}+/gu) ?? [];
+  const scores = Object.entries(MARKER_WORDS).map(([language, markers]) => ({
+    language: language as SummaryLanguage,
+    score: words.filter((word) => (markers as readonly string[]).includes(word)).length,
+  }));
+  scores.sort((a, b) => b.score - a.score);
+  const [first, second] = scores;
+  return first && first.score > 0 && first.score > (second?.score ?? 0) ? first.language : null;
+}
+
 export interface CaseResult {
   caseId: string;
   tags: readonly string[];
@@ -81,6 +127,8 @@ export interface CaseResult {
   filterPrecision: number | null;
   recall: number | null;
   countRespected: boolean;
+  /** The model wrote its summary in the request's language; null when the run did not complete. */
+  summaryLanguageOk: boolean | null;
   stopReason: StopReason | "error";
   steps: number;
   costUsd: number;
@@ -106,6 +154,14 @@ export function scoreCase(
     filterPrecision: filterPrecision(manifest, evalCase.expected.filters, clipsById),
     recall: recall(manifest, eligible, evalCase.expected.maxClips),
     countRespected: manifest.clips.length <= (evalCase.expected.maxClips ?? Infinity),
+    // Runs that stop early carry a summary the code writes, not the model.
+    summaryLanguageOk:
+      manifest.stopReason === "completed"
+        ? summaryLanguage(
+            manifest.summary,
+            manifest.clips.map((entry) => entry.title),
+          ) === evalCase.language
+        : null,
     stopReason: manifest.stopReason,
     steps: manifest.usage.steps,
     costUsd: manifest.costUsd,
@@ -135,6 +191,9 @@ export function summarize(results: readonly CaseResult[]) {
     meanFilterPrecision: mean(scored.flatMap((r) => r.filterPrecision ?? [])),
     meanRecall: mean(scored.flatMap((r) => r.recall ?? [])),
     countRespectedRate: mean(scored.map((r) => (r.countRespected ? 1 : 0))),
+    summaryLanguageRate: mean(
+      scored.flatMap((r) => (r.summaryLanguageOk === null ? [] : [r.summaryLanguageOk ? 1 : 0])),
+    ),
     meanCostUsd: mean(scored.map((r) => r.costUsd)),
     totalCostUsd: scored.reduce((sum, r) => sum + r.costUsd, 0),
     meanSteps: mean(scored.map((r) => r.steps)),

@@ -60,10 +60,10 @@ beforeAll(async () => {
 
 afterEach(cleanup);
 
-async function pasteAndVerify(json: unknown, published = true) {
-  render(<Verifier keys={keys} keysPublished={published} />);
+async function pasteAndVerify(json: unknown) {
+  render(<Verifier keys={keys} />);
   fireEvent.change(screen.getByLabelText("Or paste its JSON"), {
-    target: { value: JSON.stringify(json) },
+    target: { value: typeof json === "string" ? json : JSON.stringify(json) },
   });
   fireEvent.click(screen.getByText("Verify pasted JSON"));
 }
@@ -74,6 +74,7 @@ describe("/verify", () => {
     expect(await screen.findByText("Signed by Clearframe, unchanged since")).toBeTruthy();
     expect(screen.getByText(/18 Oct 2026, 17:42 UTC/)).toBeTruthy();
     expect(screen.getByText(/3 clips intact/)).toBeTruthy();
+    expect(screen.getByText(/as the user typed it: “nature in English”/)).toBeTruthy();
   });
 
   it("names the clip that changed after signing", async () => {
@@ -92,9 +93,23 @@ describe("/verify", () => {
     expect(screen.queryByText("Signed by Clearframe, unchanged since")).toBeNull();
   });
 
-  it("says when this environment publishes no keys to check against", () => {
-    render(<Verifier keys={[]} keysPublished={false} />);
-    expect(screen.getByText(/publishes no signing keys/)).toBeTruthy();
+  it("refuses a file that gives a key twice, saying which", async () => {
+    const file = JSON.stringify({ manifest, certificate }).replace(
+      '"summary":"Three clips."',
+      '"summary":"Approved by legal.","summary":"Three clips."',
+    );
+    await pasteAndVerify(file);
+    expect(await screen.findByText("Not a manifest this page can check")).toBeTruthy();
+    expect(screen.getByText(/"summary" twice/)).toBeTruthy();
+  });
+
+  it("checks against the keys committed to the repository by default", async () => {
+    render(<Verifier />);
+    fireEvent.change(screen.getByLabelText("Or paste its JSON"), {
+      target: { value: JSON.stringify({ manifest, certificate }) },
+    });
+    fireEvent.click(screen.getByText("Verify pasted JSON"));
+    expect(await screen.findByText("Signed with a key this site does not publish")).toBeTruthy();
   });
 
   it("reports a forged signature and a key it does not know", () => {

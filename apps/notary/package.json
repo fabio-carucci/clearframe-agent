@@ -1,0 +1,19 @@
+{
+  "name": "@clearframe/notary",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "typecheck": "tsc --noEmit -p .",
+    "sign-check": "tsx scripts/sign-check.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-kms": "^3.1152.0",
+    "@clearframe/contracts": "workspace:*",
+    "@clearframe/core": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

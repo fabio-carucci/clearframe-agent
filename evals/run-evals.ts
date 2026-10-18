@@ -90,6 +90,7 @@ async function attempt(
       filterPrecision: null,
       recall: null,
       countRespected: true,
+      summaryLanguageOk: null,
       stopReason: "error",
       steps: 0,
       costUsd: 0,

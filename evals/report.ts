@@ -30,6 +30,7 @@ export function renderMarkdown(
       pct(r.filterPrecision),
       pct(r.recall),
       r.countRespected ? "yes" : "**no**",
+      r.summaryLanguageOk === null ? "–" : r.summaryLanguageOk ? "yes" : "**no**",
       (r.error ? `error: ${r.error.slice(0, 60)}` : r.stopReason) + (r.retried ? " (retried)" : ""),
       r.steps,
       usd(r.costUsd),
@@ -49,14 +50,15 @@ ${meta.startedAt} · model \`${meta.model}\` · ${summary.runs} runs (repeat ${m
 | Mean filter precision | ${pct(summary.meanFilterPrecision)} |
 | Mean recall | ${pct(summary.meanRecall)} |
 | Requested count respected | ${pct(summary.countRespectedRate)} |
+| Summary in the request's language | ${pct(summary.summaryLanguageRate)} |
 | Mean cost per request | ${usd(summary.meanCostUsd)} |
 | Total cost | ${usd(summary.totalCostUsd)} |
 | Mean steps | ${summary.meanSteps?.toFixed(1) ?? "–"} |
 | Latency p50 / p95 | ${sec(summary.p50DurationMs)} / ${sec(summary.p95DurationMs)} |
 | Stop reasons | ${stopReasons} |
 
-| Case | Tags | Eligible | Clips | Violations | Filter precision | Recall | Count ok | Stop | Steps | Cost | Time |
-|---|---|---|---|---|---|---|---|---|---|---|---|
+| Case | Tags | Eligible | Clips | Violations | Filter precision | Recall | Count ok | Summary language | Stop | Steps | Cost | Time |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
 ${rows.map((row) => `| ${row} |`).join("\n")}
 `;
 }

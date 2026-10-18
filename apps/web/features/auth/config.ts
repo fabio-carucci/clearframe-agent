@@ -5,8 +5,6 @@ export const WebConfigSchema = z.object({
   issuer: z.url(),
   clientId: z.string().min(1),
   authDomain: z.string().min(1),
-  /** Public keys that signed clearance certificates; /verify checks signatures against these. */
-  signingKeys: z.array(z.object({ keyId: z.string().min(1), spki: z.string().min(1) })).default([]),
 });
 
 export type WebConfig = z.infer<typeof WebConfigSchema>;

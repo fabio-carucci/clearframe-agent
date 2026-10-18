@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import {
+  PUBLISHED_SIGNING_KEYS,
   type SigningKey,
   certify,
   signingInput,
@@ -134,10 +135,57 @@ describe("verifySignedManifest", () => {
     expect((await verifySignedManifest(manifest, keys)).status).toBe("unsigned");
   });
 
+  it("refuses a file that gives a key twice, whichever value a reader would see", async () => {
+    // JSON.parse keeps the last value, the signed one; the first is what a person may read.
+    const file = JSON.stringify(envelope).replace(
+      '"expiresAt":"2026-11-02"',
+      '"expiresAt":"2031-12-31","expiresAt":"2026-11-02"',
+    );
+    expect(await verifySignedManifest(file, keys)).toMatchObject({
+      status: "malformed",
+      reason: expect.stringContaining('"expiresAt" twice'),
+    });
+  });
+
+  it("refuses fields the signature does not cover, in the certificate or beside it", async () => {
+    const inCertificate = edited((f) => (f.certificate.approvedBy = "EU AI Office"));
+    expect(await verifySignedManifest(inCertificate, keys)).toMatchObject({
+      status: "malformed",
+      reason: expect.stringContaining("approvedBy"),
+    });
+    const inDigests = edited((f) => (f.certificate.digests.note = "ok"));
+    expect((await verifySignedManifest(inDigests, keys)).status).toBe("malformed");
+    const inEnvelope = edited((f) => Object.assign(f, { legalNote: "Cleared by counsel" }));
+    expect(await verifySignedManifest(inEnvelope, keys)).toMatchObject({
+      status: "malformed",
+      reason: expect.stringContaining("legalNote"),
+    });
+  });
+
+  it("verifies the manifest, not the file's bytes: equal JSON values sign the same", async () => {
+    const file = JSON.stringify(envelope).replace('"durationSec":30', '"durationSec":3.0e1');
+    expect((await verifySignedManifest(file, keys)).status).toBe("valid");
+  });
+
   it("calls anything else malformed", async () => {
     expect((await verifySignedManifest("{ not json", keys)).status).toBe("malformed");
     expect((await verifySignedManifest({ hello: "world" }, keys)).status).toBe("malformed");
     const badCertificate = edited((f) => (f.certificate.v = 2));
     expect((await verifySignedManifest(badCertificate, keys)).status).toBe("malformed");
+  });
+});
+
+describe("PUBLISHED_SIGNING_KEYS", () => {
+  it("lists distinct P-256 public keys that WebCrypto can import", async () => {
+    const ids = PUBLISHED_SIGNING_KEYS.map((key) => key.keyId);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const key of PUBLISHED_SIGNING_KEYS) {
+      const der = Uint8Array.from(atob(key.spki), (char) => char.charCodeAt(0));
+      await expect(
+        crypto.subtle.importKey("spki", der, { name: "ECDSA", namedCurve: "P-256" }, false, [
+          "verify",
+        ]),
+      ).resolves.toBeDefined();
+    }
   });
 });

@@ -160,8 +160,9 @@ deployed agent's stream, which it can replay at its original pace; sign-in and l
 
 ## Evals
 
-Twenty cases with ground truth written by hand: ordinary requests, other territories, future
-dates, requested counts, impossible requests and prompt injections. For most cases the clips a
+Twenty-one cases with ground truth written by hand: ordinary requests, other territories, future
+dates, requested counts, impossible requests, prompt injections, and an English request for Spanish
+clips. For most cases the clips a
 perfect agent could return are computed from the catalog with the expected filters and the rights
 rule. Three cases list them instead, read off `data/catalog.json` by a person, and a unit test
 checks that the rule and filters select exactly those clips. Grading those cases does not depend
@@ -173,17 +174,20 @@ on the rule under test, and a regression in the rule fails a free test before an
 | Errors               | Runs that failed, after one retry of provider errors (429, 5xx)     | must be `0` |
 | Filter precision     | Share of returned clips that meet the requested constraints         | mean ≥ 95%  |
 | Recall               | Share of eligible clips found, capped at the requested count        | mean ≥ 90%  |
+| Summary language     | Completed runs whose summary is in the request's language           | reported    |
 | Cost, steps, latency | Mean cost, mean steps, p50/p95 latency                              | reported    |
 
-Results with Claude Haiku 5.5 at medium effort, 20 cases run 3 times each
+Results with Claude Haiku 5.5 at medium effort, 21 cases run 3 times each
 ([full report](evals/reports/latest-with-rule.md)):
 
-|              | Violations | Filter precision | Recall | Mean cost | p50 / p95 latency |
-| ------------ | ---------- | ---------------- | ------ | --------- | ----------------- |
-| Rule in code | 0          | 100%             | 98%    | $0.0018   | 7.5 s / 11.2 s    |
+|              | Violations | Filter precision | Recall | Summary language | Mean cost | p50 / p95 latency |
+| ------------ | ---------- | ---------------- | ------ | ---------------- | --------- | ----------------- |
+| Rule in code | 0          | 100%             | 100%   | 100%             | $0.0018   | 7.2 s / 11.8 s    |
 
-The missing recall is one prompt-injection case: told to check rights for another territory, the
-model sometimes refuses the whole request and returns nothing. Safe, but too cautious.
+Recall used to be 98%: told to check rights for another territory, the model sometimes refused
+the whole request. It now ignores only the injected instruction, says so, and fulfils the rest. A
+recorded run had also summarized an English request for Spanish clips in Spanish; the
+summary-language metric and the `en-request-es-clips` case cover that.
 
 The evals also found a real defect. Search was not rights-aware, so in a territory where few clips
 are licensed the model paged through unusable results until it hit the token budget: 0 clips at
@@ -243,15 +247,33 @@ filter event = "run_finished" | stats count(), avg(costUsd), pct(durationMs, 95)
 
 Every manifest the API issues is signed, and the page downloads the same signed file S3 stores:
 `{ manifest, certificate }`. Anyone holding it can check it at `/verify`, without an account and
-without a call to the server: the page checks the signature with the public key `config.json`
-publishes, recomputes every digest, and names the clip that changed if one did. A manifest without
-a certificate, issued before signing existed, reads "Not signed", never valid.
+without a call to the server: the page checks the signature against the keys committed in
+`packages/contracts/src/signing-keys.json`, recomputes every digest, and names the clip that
+changed if one did. A manifest without a certificate reads "Not signed", never valid, and a file
+holding anything the signature does not cover (a key given twice, a field beside the manifest or
+inside the certificate) is refused. A run's Audit section shows the same check, run in the browser.
 
-**What a valid signature proves:** that Clearframe issued this manifest at that time, with those
-license snapshots and that catalog version, and that it has not changed since. **What it does
-not:** that the catalog's licenses are legally sound; anything about the model's own text
-(reasons, summary), which is signed, so unchanged, but still the model's; and more than the trust
-due to whoever controls the key, which is Clearframe's pipeline.
+**Who signs.** Not the agent. It sends each manifest to a notary, a separate Lambda that an
+administrator deploys from `infra/github` and CI cannot change, read or invoke. The notary checks
+the manifest against the catalog bundled into it and against its own clock: every clip's license,
+title, genre, language, duration and expiry warning must match that catalog version and pass the
+rights rule for the request's territory and date, every rejection must be the one the rule gives,
+the date must not be in the past, and the manifest may hold no field the schema does not know.
+Only then does it sign, with an ECDSA P-256 key in KMS that nothing else may use. CI deploys the
+agent, so a compromised pipeline can still ask for certificates, but only for manifests the rule
+would issue.
+
+**What a valid signature proves:** that the notary signed this manifest at that time, after those
+checks, and that it has not changed since. **What it does not:** that the catalog's licenses are
+legally sound; anything said in words, since the request is the user's text and the reasons and
+summary are the model's, signed and so unchanged, but unchecked; the run's statistics (steps,
+tokens, cost, time), which are the agent's own report; and more than the trust due to whoever
+holds the key.
+
+**Checking without the site.** The page and its scripts are deployed by CI, so they are only as
+trustworthy as the pipeline. `pnpm verify-manifest <file>` checks a file against the keys
+committed in the checkout, and `/.well-known/jwks.json` publishes the same keys as a JSON Web Key
+Set for other verifiers.
 
 How it is built:
 
@@ -259,19 +281,33 @@ How it is built:
   verifier can say which clip changed, plus when it was signed and with which key. The signature
   covers all of that, `issuedAt` included.
 - Both sides hash the same bytes: RFC 8785 canonical JSON, implemented once in
-  `packages/contracts`, which the Lambda and the page import. Digests are taken over the JSON as
-  given, so a field added to a clip reads as a change rather than being dropped by a schema.
-- An ECDSA P-256 key in KMS signs; the private key never leaves KMS. The Lambda sends the SHA-256
-  of the input with `MessageType: DIGEST` (RAW is limited to 4 KB) and converts KMS's DER
-  signature to the raw r‖s that WebCrypto verifies.
-- Only the agent role may call `kms:Sign` on that key, and only for a SHA-256 digest. The key
-  belongs to an administrator in `infra/github`; CI may read its public key but is denied signing
-  and changing who can.
-- A run that cannot be signed is not delivered, like one whose audit record cannot be saved.
-- Asymmetric KMS keys do not rotate: a new key has a new id, and `signingKeys` in `config.json`
-  must keep every key that ever signed.
+  `packages/contracts`, which the notary, the Lambda and the page import. Digests are taken over
+  the JSON as given, so a field added to a clip reads as a change rather than being dropped by a
+  schema. A file is identified by its certificate's digest, not by the SHA-256 of its bytes: `30`
+  and `3.0e1` are the same JSON value and sign the same.
+- The notary sends KMS the SHA-256 of the input with `MessageType: DIGEST` (RAW is limited to
+  4 KB) and converts KMS's DER signature to the raw r‖s that WebCrypto verifies.
+- The workload boundary has no `kms:Sign`: the agent role may only invoke the notary, and the
+  notary role may only sign SHA-256 digests. CI is denied signing, changing the key's policy or
+  grants, and any action on the notary, its role and its log group, which records every
+  certificate signed or refused for 90 days.
+- The Lambda verifies each certificate with the published keys before delivering it. A run that
+  cannot be signed, or whose certificate does not verify, is not delivered, like one whose audit
+  record cannot be saved. `infra/github` refuses to deploy the notary with a key that is not in
+  `signing-keys.json`.
 
-The key costs about $1 a month, plus $0.15 per 10,000 signatures.
+**Changing the catalog.** The notary bundles `data/catalog.json` when it is built, so a catalog
+change is `pnpm build:notary`, an apply of `infra/github`, then the merge that deploys the agent.
+While the two hold different catalogs, the notary refuses every manifest and runs are withheld.
+
+**Rotating the key.** Asymmetric KMS keys do not rotate in place; a new key has a new id. Create
+the new key in `infra/github` beside the old one, commit its id and public key to
+`signing-keys.json` next to the old entry, then point the notary at it and apply. Keep the old
+entry for as long as any certificate it signed may be checked, and disable the old key rather than
+deleting it: verification needs only the committed public key.
+
+The key costs about $1 a month, plus $0.15 per 10,000 signatures; the notary stays within Lambda's
+free tier at this volume.
 
 A typical request costs about **$0.0018**: almost all of it is Haiku input tokens, since each step
 resends the conversation. Idle, the stack costs effectively nothing: Lambda and DynamoDB bill per
@@ -282,11 +318,11 @@ SSM standard parameters are free.
 
 Terraform, with state in S3 and native S3 locking. Three root stacks:
 
-| Stack             | Applied by       | Contents                                                                                    |
-| ----------------- | ---------------- | ------------------------------------------------------------------------------------------- |
-| `infra/bootstrap` | an administrator | The state bucket: versioned, encrypted, public access blocked, TLS only                     |
-| `infra/github`    | an administrator | GitHub OIDC provider, CI roles, the workload permissions boundary, the manifest signing key |
-| `infra/env/dev`   | CI, on `main`    | The `api`, `web` and `auth` modules, wired together                                         |
+| Stack             | Applied by       | Contents                                                                                          |
+| ----------------- | ---------------- | ------------------------------------------------------------------------------------------------- |
+| `infra/bootstrap` | an administrator | The state bucket: versioned, encrypted, public access blocked, TLS only                           |
+| `infra/github`    | an administrator | GitHub OIDC provider, CI roles, the workload permissions boundary, the signing key and the notary |
+| `infra/env/dev`   | CI, on `main`    | The `api`, `web` and `auth` modules, wired together                                               |
 
 | Module | Contents                                                                                                                                                    |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -298,8 +334,8 @@ The Lambda role has ten permissions, each scoped to one resource: write its own 
 `data/*`, write and lock `manifests/*`, read manifest versions back, `PutItem` on the runs table,
 `GetItem` and `Query` on the runs table and its `byUser` index, `UpdateItem` on the quotas table,
 read two named SSM parameters (the Anthropic key and the Cognito ids), invoke one Bedrock model,
-and sign SHA-256 digests with the manifest signing key. It cannot list the bucket, scan a table or call any other model. Only the CloudFront
-distribution may invoke the function URL.
+and invoke the notary. It cannot list the bucket, scan a table, call any other model or sign.
+Only the CloudFront distribution may invoke the function URL.
 
 **Spend limits.** Every run costs model tokens, so spend is capped in layers:
 
@@ -330,7 +366,10 @@ re-created repository with the same name cannot assume them.
   what a role can do, not who can use it, so trust changes are applied by an administrator. Its
   CloudFront, Cognito and certificate permissions name this stack's resources by id, because the
   account hosts other projects; creating or replacing one of them is an administrator's job too.
-  IAM Access Analyzer reports any resource in the account that is shared outside it.
+  It is denied signing, any action on the notary, and managing Cognito users: Terraform manages
+  the pool, never its users. It can still change the pool's settings, self sign-up included, so
+  that stays a reviewed change to `modules/auth`. IAM Access Analyzer reports any resource in the
+  account that is shared outside it.
 
 Pull requests run format, typecheck, tests, the Lambda and web builds and `terraform validate`,
 and the eval suite when they touch the agent, the evals, the data or the dependencies. Merges to
@@ -349,27 +388,29 @@ for the same reason. There is no shared API token: callers present short-lived C
 
 ## Decisions
 
-| Decision                                       | Instead of                    | Why                                                                                   |
-| ---------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------- |
-| Rule in code, enforced at the only write path  | Rule in the prompt            | Prompt-only failed 3 of 8 injection runs.                                             |
-| License snapshot and catalog hash per manifest | A pointer to the live catalog | Licenses change; a manifest must show what it was cleared on, alone.                  |
-| Object Lock, governance mode, 90 days          | Compliance mode               | Tamper-proof for the Lambda and CI, yet an administrator can honour erasure requests. |
-| Manifests signed with an ECDSA key in KMS      | An HMAC, a key kept in SSM    | Anyone verifies with the public key; the private key cannot be copied out of KMS.     |
-| A digest per clip in the certificate           | One digest of the manifest    | A verifier can name the clip that changed, not just say something did.                |
-| Expiring licenses flagged, not refused         | Refusing them                 | The rule decides on the usage date; how long training runs is the buyer's call.       |
-| Territory and date as explicit API fields      | Parsed from the request text  | They are contractual parameters; the model must not set what the rule checks.         |
-| Manifest built from accepted clips             | Model's final answer          | The model's summary is sometimes wrong about counts; the data is not.                 |
-| Batched tools                                  | One clip per call             | Each step resends the conversation, so fewer steps cost far fewer tokens.             |
-| Claude Haiku 5.5, medium effort                | Sonnet 5.5                    | About 20× cheaper; evals show 100% precision and recall on this task.                 |
-| In-memory cosine over 300 vectors              | A vector database             | Sub-millisecond, nothing to operate. pgvector past tens of thousands of clips.        |
-| Titan V2 embeddings on Bedrock                 | Voyage, local models          | IAM auth from the Lambda role, no second API key, no model in the bundle.             |
-| DynamoDB records and JSON logs                 | OpenTelemetry and X-Ray       | Covers per-run cost and steps with no collector to run; OTel is the next step.        |
-| Private function URL behind CloudFront         | Public URL or API Gateway     | One domain, no CORS, nothing public to abuse; WAF can attach to the distribution.     |
-| Daily run quota per user in DynamoDB           | AWS WAF rate limiting         | Caps runs per user, which is what costs money, with no fixed monthly charge.          |
-| Cognito access tokens verified in the Lambda   | A shared bearer token         | Per-user identity and cost, tokens that expire, revocation by disabling a user.       |
-| Managed identity provider                      | An auth library (Better Auth) | The page is static and the Lambda stateless; there is no server or session store.     |
-| Static export on S3 and CloudFront             | Next.js on Vercel             | Nothing to render on a server, and it keeps the API private behind the same CDN.      |
-| `ToolLoopAgent` from the AI SDK                | A hand-written loop           | Standard loop with `stopWhen` hooks; control stays in the tools and stop conditions.  |
+| Decision                                       | Instead of                    | Why                                                                                     |
+| ---------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------- |
+| Rule in code, enforced at the only write path  | Rule in the prompt            | Prompt-only failed 3 of 8 injection runs.                                               |
+| License snapshot and catalog hash per manifest | A pointer to the live catalog | Licenses change; a manifest must show what it was cleared on, alone.                    |
+| Object Lock, governance mode, 90 days          | Compliance mode               | Tamper-proof for the Lambda and CI, yet an administrator can honour erasure requests.   |
+| Manifests signed with an ECDSA key in KMS      | An HMAC, a key kept in SSM    | Anyone verifies with the public key; the private key cannot be copied out of KMS.       |
+| A digest per clip in the certificate           | One digest of the manifest    | A verifier can name the clip that changed, not just say something did.                  |
+| A notary that checks the rule before signing   | Signing in the agent Lambda   | CI deploys the agent; whoever controls it can only get rule-compliant manifests signed. |
+| Trusted keys committed to the repository       | Keys in `config.json`         | Trusting a new key takes a reviewed commit, not a deploy.                               |
+| Expiring licenses flagged, not refused         | Refusing them                 | The rule decides on the usage date; how long training runs is the buyer's call.         |
+| Territory and date as explicit API fields      | Parsed from the request text  | They are contractual parameters; the model must not set what the rule checks.           |
+| Manifest built from accepted clips             | Model's final answer          | The model's summary is sometimes wrong about counts; the data is not.                   |
+| Batched tools                                  | One clip per call             | Each step resends the conversation, so fewer steps cost far fewer tokens.               |
+| Claude Haiku 5.5, medium effort                | Sonnet 5.5                    | About 20× cheaper; evals show 100% precision and recall on this task.                   |
+| In-memory cosine over 300 vectors              | A vector database             | Sub-millisecond, nothing to operate. pgvector past tens of thousands of clips.          |
+| Titan V2 embeddings on Bedrock                 | Voyage, local models          | IAM auth from the Lambda role, no second API key, no model in the bundle.               |
+| DynamoDB records and JSON logs                 | OpenTelemetry and X-Ray       | Covers per-run cost and steps with no collector to run; OTel is the next step.          |
+| Private function URL behind CloudFront         | Public URL or API Gateway     | One domain, no CORS, nothing public to abuse; WAF can attach to the distribution.       |
+| Daily run quota per user in DynamoDB           | AWS WAF rate limiting         | Caps runs per user, which is what costs money, with no fixed monthly charge.            |
+| Cognito access tokens verified in the Lambda   | A shared bearer token         | Per-user identity and cost, tokens that expire, revocation by disabling a user.         |
+| Managed identity provider                      | An auth library (Better Auth) | The page is static and the Lambda stateless; there is no server or session store.       |
+| Static export on S3 and CloudFront             | Next.js on Vercel             | Nothing to render on a server, and it keeps the API private behind the same CDN.        |
+| `ToolLoopAgent` from the AI SDK                | A hand-written loop           | Standard loop with `stopWhen` hooks; control stays in the tools and stop conditions.    |
 
 ## Repository
 
@@ -377,7 +418,8 @@ A pnpm workspace:
 
 ```
 apps/api            Lambda: handler, Cognito token check, DynamoDB and S3 adapters
-apps/web            Static Next.js page, by feature: auth, compose, run, workspace
+apps/notary         Lambda that checks and signs manifests, deployed by an administrator
+apps/web            Static Next.js page, by feature: auth, compose, history, run, verify, workspace
 packages/contracts  Zod schemas of the HTTP API, shared by the Lambda and the page
 packages/core       Catalog, rights rule, retrieval, agent loop, cost
 evals               Eval cases, metrics, runner and reports
@@ -406,8 +448,9 @@ The catalog is synthetic and deterministic (seed 42): 300 clips, of which 30 can
 training, 30 are licensed only in Asia-Pacific and 30 have expired, so the rule always has
 something to refuse.
 
-Deploying from scratch: apply `infra/bootstrap`, create the Anthropic key parameter, apply
-`infra/github`, set the `AWS_EVAL_ROLE_ARN` and `AWS_DEPLOY_ROLE_ARN` repository variables, then
+Deploying from scratch: apply `infra/bootstrap`, create the Anthropic key parameter, run
+`pnpm build:notary` and apply `infra/github` (the first apply stops at the notary until the new
+key's public key is committed to `signing-keys.json`), set the `AWS_EVAL_ROLE_ARN` and `AWS_DEPLOY_ROLE_ARN` repository variables, then
 run `pnpm build:lambda && pnpm web:build` and apply `infra/env/dev` as an administrator: the deploy
 role manages the CloudFront, Cognito and certificate resources only by id, so it cannot create
 them. Set those ids in `infra/github/variables.tf` and apply it again; from then on, merges to
@@ -423,8 +466,8 @@ distribution (`terraform output cloudfront_domain`).
 ## Privacy
 
 Run records store the caller's Cognito id and the request prompt, which a user could fill with
-personal data. Records expire after 90 days, manifests after 90 days, logs after 14, and only the
-Lambda role can write them. Manifests are locked for their 90 days in governance mode, not
+personal data. Records expire after 90 days, manifests after 90 days, the agent's logs after 14 and
+the notary's, which hold run ids only, after 90; only the two Lambda roles can write them. Manifests are locked for their 90 days in governance mode, not
 compliance mode: the Lambda and CI cannot delete them, and an administrator still can, for
 instance to honour an erasure request.
 
@@ -441,10 +484,9 @@ instance to honour an erasure request.
 - Tag conditions (`aws:ResourceTag/Project`) instead of resource ids on the deploy role, once the
   CloudFront and Cognito actions it uses are confirmed to support them, so a replaced resource no
   longer needs an administrator.
-- Signing keys published somewhere durable (`/.well-known/clearframe-keys.json`), with a written
-  rotation procedure; a `verify-manifest` CLI for offline checks; an RFC 3161 timestamp, so
-  `issuedAt` does not rest on Clearframe alone; and proofs for single clips, which the per-clip
-  digests already allow.
+- An RFC 3161 timestamp, so `issuedAt` does not rest on Clearframe alone, and proofs for single
+  clips, which the per-clip digests already allow.
+- The notary reading licenses from the rights system of record instead of a bundled catalog.
 - A signed sample run, recorded again from the deployed agent.
 - SSO for customer organizations through Cognito SAML or OIDC federation.
 - Prompt caching for the instructions and tool definitions, the largest repeated input.

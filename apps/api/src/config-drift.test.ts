@@ -28,6 +28,12 @@ describe("configuration shared with Terraform", () => {
     );
   });
 
+  it("invokes the notary infra/github deploys, which env/dev can only name", () => {
+    const notary = defaultOf(terraform("github/variables.tf"), "notary_name");
+    expect(notary).toBe("clearframe-notary");
+    expect(terraform("env/dev/main.tf")).toContain(`:function:${notary}"`);
+  });
+
   it("queries the index Terraform creates and grants", () => {
     const storage = terraform("modules/api/storage.tf");
     expect(storage.match(/global_secondary_index \{\s*name\s*=\s*"([^"]+)"/)?.[1]).toBe(
