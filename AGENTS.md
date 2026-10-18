@@ -81,7 +81,9 @@ Each of these is load-bearing; most are pinned by a test.
 10. After changing `data/catalog.json`, rerun `pnpm catalog:embed`; a fingerprint test fails
     otherwise. Then fix the handwritten `clipIds` in `evals/cases.ts` by reading the catalog;
     never fill them in by running the rule, or the eval grades the rule with itself.
-11. Changing `MODEL_ID` needs a matching `PRICING` entry; the typecheck fails otherwise.
+11. Every model the agent runs needs a `MODEL_PRICES` entry. Costs and the audit record use the id of
+    the model actually injected; an unpriced model fails before it is called, and a test guards
+    the default `MODEL_ID`.
 12. The function URL stays `AWS_IAM`, invocable only by the CloudFront distribution through origin
     access control. Never grant it to `*`.
 13. User access tokens travel in `x-clearframe-access-token`; `Authorization` carries CloudFront's
@@ -90,7 +92,9 @@ Each of these is load-bearing; most are pinned by a test.
     `config.json` at runtime. Baking them into a build would bring back the dependency cycle between
     the `api`, `web` and `auth` modules.
 15. `packages/contracts` depends only on Zod, because it ships to the browser. `packages/core` holds
-    no storage or HTTP adapters; those live in `apps/api`.
+    no storage or HTTP adapters; those live in `apps/api`. The one exception is the Bedrock
+    embedder, shared by the CLI, the evals and the Lambda; it is created on first use, so importing
+    core has no side effects.
 16. Run events are emitted by the tools through `RunContext.emit`, and `emit` never throws into the
     run: a client that disconnects must not stop a run from finishing and being recorded.
 17. A run is counted against the user's daily quota after the request is validated and before

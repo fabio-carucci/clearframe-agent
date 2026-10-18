@@ -22,6 +22,7 @@ const result: RunResult = {
   },
   steps: [{ stepNumber: 0, toolCalls: [], inputTokens: 10, outputTokens: 1, durationMs: 5 }],
   decisions: [],
+  model: "claude-haiku-5-5",
 };
 
 function event(overrides: { method?: string; body?: unknown; headers?: Record<string, string> }) {

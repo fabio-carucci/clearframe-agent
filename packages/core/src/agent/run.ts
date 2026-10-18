@@ -11,9 +11,9 @@ import type { FinishReason, LanguageModel } from "ai";
 import type { z } from "zod";
 import type { CatalogData } from "../catalog/load";
 import type { UsageRequest } from "../rights/check-training-rights";
-import { MAX_STEPS, RUN_TIMEOUT_MS, TOKEN_BUDGET, createClipAgent } from "./agent";
+import { MAX_STEPS, RUN_TIMEOUT_MS, TOKEN_BUDGET, createClipAgent, modelIdOf } from "./agent";
 import type { RunContext } from "./context";
-import { estimateCostUsd } from "./cost";
+import { estimateCostUsd, priceOf } from "./cost";
 import { DecisionLog } from "./decisions";
 import { type RunError, toRunError } from "./errors";
 import { ManifestDraft, type ManifestWriter } from "./manifest";
@@ -26,6 +26,8 @@ export interface RunResult {
   manifest: Manifest;
   steps: Step[];
   decisions: ClipDecision[];
+  /** Id of the model that ran, as priced and recorded. */
+  model: string;
   error?: RunError;
 }
 
@@ -59,6 +61,8 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
   const startedAt = performance.now();
   const runId = deps.runId ?? randomUUID();
   const { prompt, territory, date } = RunRequestSchema.parse(request);
+  const model = modelIdOf(deps.model);
+  const price = priceOf(model);
 
   const createDraft =
     deps.createDraft ?? ((data, usage) => new ManifestDraft(data.clipsById, usage));
@@ -137,12 +141,18 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
     stopReason,
     summary,
     usage: { steps: steps.length, ...tokens },
-    costUsd: Math.round(estimateCostUsd(tokens) * 1e6) / 1e6,
+    costUsd: Math.round(estimateCostUsd(tokens, price) * 1e6) / 1e6,
     durationMs: Math.round(performance.now() - startedAt),
   });
 
   const decisions = run.decisions.final();
   emit({ type: "completed", result: { manifest, steps, decisions } });
 
-  return { manifest, steps, decisions, ...("error" in outcome && { error: outcome.error }) };
+  return {
+    manifest,
+    steps,
+    decisions,
+    model,
+    ...("error" in outcome && { error: outcome.error }),
+  };
 }

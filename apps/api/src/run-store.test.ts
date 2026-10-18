@@ -28,6 +28,7 @@ const result: RunResult = {
     },
   ],
   decisions: [],
+  model: "claude-haiku-5-5",
   error: { code: "provider_unavailable", message: "APICallError: overloaded" },
 };
 

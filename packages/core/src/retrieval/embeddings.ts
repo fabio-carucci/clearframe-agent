@@ -4,21 +4,25 @@ import {
   createAmazonBedrock,
 } from "@ai-sdk/amazon-bedrock";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import { embed, embedMany } from "ai";
+import { type EmbeddingModel, embed, embedMany } from "ai";
 import { z } from "zod";
 import type { Clip } from "../catalog/schema";
 
 export const EMBEDDING_MODEL_ID = "amazon.titan-embed-text-v2:0";
 export const EMBEDDING_DIMENSIONS = 512;
 
-const bedrock = createAmazonBedrock({
-  region: process.env.AWS_REGION ?? "eu-west-1",
-  // Without it the provider reads only static AWS_ACCESS_KEY_ID-style env vars and ignores
-  // the SSO profile; the chain also resolves the Lambda execution role and CI OIDC credentials.
-  credentialProvider: fromNodeProviderChain(),
-});
+let embeddingModel: EmbeddingModel | undefined;
 
-const embeddingModel = bedrock.embeddingModel(EMBEDDING_MODEL_ID);
+/** Created on first use, so importing core opens no client and reads no credentials. */
+function titan(): EmbeddingModel {
+  embeddingModel ??= createAmazonBedrock({
+    region: process.env.AWS_REGION ?? "eu-west-1",
+    // Without it the provider reads only static AWS_ACCESS_KEY_ID-style env vars and ignores
+    // the SSO profile; the chain also resolves the Lambda execution role and CI OIDC credentials.
+    credentialProvider: fromNodeProviderChain(),
+  }).embeddingModel(EMBEDDING_MODEL_ID);
+  return embeddingModel;
+}
 
 const providerOptions = {
   bedrock: {
@@ -38,7 +42,7 @@ export function catalogFingerprint(clips: readonly Clip[]): string {
 
 export async function embedTexts(texts: string[]) {
   const { embeddings, usage } = await embedMany({
-    model: embeddingModel,
+    model: titan(),
     values: texts,
     maxParallelCalls: 4,
     providerOptions,
@@ -47,7 +51,7 @@ export async function embedTexts(texts: string[]) {
 }
 
 export async function embedQuery(text: string) {
-  const { embedding, usage } = await embed({ model: embeddingModel, value: text, providerOptions });
+  const { embedding, usage } = await embed({ model: titan(), value: text, providerOptions });
   return { embedding, tokens: usage.tokens };
 }
 

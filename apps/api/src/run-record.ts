@@ -1,5 +1,4 @@
 import type { Step } from "@clearframe/contracts";
-import { MODEL_ID } from "@clearframe/core/agent/agent";
 import type { RunResult } from "@clearframe/core/agent/run";
 
 export const RUN_TTL_DAYS = 90;
@@ -54,7 +53,7 @@ export function toRunRecord(result: RunResult, createdAt: Date, userId: string):
     expiresAt: Math.floor(createdAt.getTime() / 1000) + RUN_TTL_DAYS * 86_400,
     status: manifest.stopReason === "error" ? "error" : "ok",
     userId,
-    model: MODEL_ID,
+    model: result.model,
     ...manifest.request,
     catalogVersion: manifest.catalogVersion,
     stopReason: manifest.stopReason,

@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { MODEL_ID } from "@clearframe/core/agent/agent";
+import { modelIdOf } from "@clearframe/core/agent/agent";
 import { format, resolveConfig } from "prettier";
 import type { RunErrorCode } from "@clearframe/core/agent/errors";
 import { type RunDeps, runClipAgent } from "@clearframe/core/agent/run";
@@ -117,7 +117,7 @@ async function mapWithConcurrency<T, R>(
 
 const meta: ReportMeta = {
   mode: ablation ? "no-rule" : "with-rule",
-  model: MODEL_ID,
+  model: modelIdOf(deps.model),
   repeat,
   startedAt: new Date().toISOString(),
 };
