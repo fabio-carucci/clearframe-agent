@@ -11,8 +11,8 @@ locals {
   csp = join("; ", [
     "default-src 'self'",
     # Next.js inlines its hydration payload in <script> tags, and a static export has no server
-    # to add nonces, so scripts need 'unsafe-inline'. connect-src is what keeps a stolen token
-    # from being sent anywhere but this origin and Cognito.
+    # to add nonces, so scripts need 'unsafe-inline'. That makes this CSP a limit on fetch and
+    # XHR targets, not an XSS defence: it does not govern navigation.
     "script-src 'self' 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",

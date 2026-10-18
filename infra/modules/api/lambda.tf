@@ -22,7 +22,7 @@ resource "aws_lambda_function" "agent" {
   filename         = data.archive_file.agent.output_path
   source_code_hash = data.archive_file.agent.output_base64sha256
   memory_size      = 1024
-  timeout          = 90
+  timeout          = 60
 
   environment {
     variables = {
