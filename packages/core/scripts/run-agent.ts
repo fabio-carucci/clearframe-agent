@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+import type { RunEvent } from "@clearframe/contracts";
 import { runClipAgent } from "../src/agent/run";
 import { loadCatalogData } from "../src/catalog/load";
 import { embedQuery } from "../src/retrieval/embeddings";
@@ -19,16 +20,40 @@ if (!values.territory || !prompt) {
   process.exit(1);
 }
 
+function describe(event: RunEvent): string | null {
+  switch (event.type) {
+    case "searching":
+      return `searching "${event.query}" ${JSON.stringify(event.filters)}`;
+    case "checking_rights":
+      return `checking rights of ${event.clipIds.length} clips`;
+    case "proposing":
+      return `proposing ${event.clipIds.length} clips`;
+    case "clips":
+      return (
+        event.decisions
+          .filter((d) => d.outcome === "accepted" || d.outcome === "refused")
+          .map(
+            (d) =>
+              `  ${d.outcome} ${d.clipId}${d.reasons.length ? ` (${d.reasons.join(", ")})` : ""}`,
+          )
+          .join("\n") || null
+      );
+    case "step":
+      return `step ${event.step.stepNumber}: ${event.step.toolCalls.join(", ") || "final answer"} (${event.step.inputTokens} in / ${event.step.outputTokens} out)`;
+    default:
+      return null;
+  }
+}
+
 const { manifest } = await runClipAgent(
   { prompt, territory: values.territory, date: values.date },
   {
     data: await loadCatalogData(),
     embedQuery,
-    onStep: (step) =>
-      console.error(
-        `step ${step.stepNumber}: ${step.toolCalls.join(", ") || "final answer"} ` +
-          `(${step.inputTokens} in / ${step.outputTokens} out)`,
-      ),
+    onEvent: (event) => {
+      const line = describe(event);
+      if (line) console.error(line);
+    },
   },
 );
 

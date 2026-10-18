@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { GenreSchema, LanguageSchema } from "@clearframe/contracts";
+import { type ClipDecision, GenreSchema, LanguageSchema } from "@clearframe/contracts";
 import { rankClips } from "../retrieval/search";
 import type { RunContext } from "./context";
 
@@ -31,6 +31,7 @@ export const createSearchClipsTool = (run: RunContext) => {
       limit: z.number().int().min(1).max(MAX_BATCH).default(10),
     }),
     execute: async ({ query, limit, ...filters }) => {
+      run.emit({ type: "searching", query, filters });
       const { embedding, tokens } = await run.embedQuery(query);
       run.stats.embeddingTokens += tokens;
       return rankClips(embedding, searchable, run.data.index.vectors, filters, limit).map(
@@ -59,11 +60,18 @@ export const createGetRightsTool = (run: RunContext) =>
     inputSchema: z.object({
       clipIds: z.array(z.string()).min(1).max(MAX_BATCH),
     }),
-    execute: async ({ clipIds }) =>
-      clipIds.map((clipId) => {
+    execute: async ({ clipIds }) => {
+      run.emit({ type: "checking_rights", clipIds });
+      const checked: ClipDecision[] = [];
+      const results = clipIds.map((clipId) => {
         const clip = run.data.clipsById.get(clipId);
-        if (!clip) return { clipId, error: "UNKNOWN_CLIP" as const };
+        if (!clip) {
+          checked.push(run.decisions.record(clipId, "checked", ["UNKNOWN_CLIP"]));
+          return { clipId, error: "UNKNOWN_CLIP" as const };
+        }
         const decision = run.draft.assess(clip);
+        const reasons = decision && !decision.allowed ? decision.reasons : [];
+        checked.push(run.decisions.record(clipId, "checked", reasons));
         if (!decision) return { clipId, license: clip.license };
         return {
           clipId,
@@ -71,5 +79,8 @@ export const createGetRightsTool = (run: RunContext) =>
           eligible: decision.allowed,
           ...(decision.allowed ? {} : { reasons: decision.reasons }),
         };
-      }),
+      });
+      run.emit({ type: "clips", decisions: checked });
+      return results;
+    },
   });

@@ -1,7 +1,9 @@
+import type { RunEvent } from "@clearframe/contracts";
 import { describe, expect, it } from "vitest";
 import type { Clip } from "../catalog/schema";
 import type { EmbeddingIndex } from "../retrieval/embeddings";
 import type { RunContext } from "./context";
+import { DecisionLog } from "./decisions";
 import { ManifestDraft, type ManifestWriter } from "./manifest";
 import { createGetRightsTool, createSearchClipsTool } from "./tools";
 
@@ -32,7 +34,8 @@ const ruleFreeDraft = (): ManifestWriter => ({
   },
 });
 
-function runWith(draft: ManifestWriter): RunContext {
+function runWith(draft: ManifestWriter): RunContext & { events: RunEvent[] } {
+  const events: RunEvent[] = [];
   return {
     data: {
       clips,
@@ -40,8 +43,11 @@ function runWith(draft: ManifestWriter): RunContext {
       index: { vectors: { clip_0001: [1, 0], clip_0002: [1, 0] } } as unknown as EmbeddingIndex,
     },
     draft,
+    decisions: new DecisionLog(clipsById),
     embedQuery: async () => ({ embedding: [1, 0], tokens: 3 }),
+    emit: (event) => events.push(event),
     stats: { embeddingTokens: 0 },
+    events,
   };
 }
 
@@ -87,6 +93,36 @@ describe("getRights", () => {
     const run = runWith(ruleFreeDraft());
     await expect(call(createGetRightsTool(run), { clipIds: ["clip_0002"] })).resolves.toEqual([
       { clipId: "clip_0002", license: clips[1]!.license },
+    ]);
+  });
+
+  it("announces the check, then streams each clip with the rule's reasons", async () => {
+    const run = runWith(new ManifestDraft(clipsById, usage));
+    await call(createGetRightsTool(run), { clipIds: ["clip_0001", "clip_0002", "clip_9999"] });
+    expect(run.events).toEqual([
+      { type: "checking_rights", clipIds: ["clip_0001", "clip_0002", "clip_9999"] },
+      {
+        type: "clips",
+        decisions: [
+          expect.objectContaining({ clipId: "clip_0001", outcome: "checked", reasons: [] }),
+          expect.objectContaining({
+            clipId: "clip_0002",
+            outcome: "checked",
+            reasons: ["TERRITORY_NOT_LICENSED"],
+          }),
+          expect.objectContaining({ clipId: "clip_9999", outcome: "checked", title: null }),
+        ],
+      },
+    ]);
+  });
+});
+
+describe("searchClips events", () => {
+  it("announces each search with its query and filters", async () => {
+    const run = runWith(new ManifestDraft(clipsById, usage));
+    await call(createSearchClipsTool(run), { query: "cooking", language: "es", limit: 5 });
+    expect(run.events).toEqual([
+      { type: "searching", query: "cooking", filters: { language: "es" } },
     ]);
   });
 });
