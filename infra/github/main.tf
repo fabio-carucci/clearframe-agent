@@ -260,6 +260,38 @@ data "aws_iam_policy_document" "ci_deploy" {
     ]
   }
 
+  # CloudFront takes certificates from us-east-1 only. Requests are limited to the site's domain,
+  # so code merged to main cannot obtain a certificate for any other name.
+  statement {
+    sid       = "RequestSiteCertificate"
+    actions   = ["acm:RequestCertificate"]
+    resources = ["arn:aws:acm:us-east-1:${local.account_id}:certificate/*"]
+
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "acm:DomainNames"
+      values   = [var.site_domain]
+    }
+
+    condition {
+      test     = "Null"
+      variable = "acm:DomainNames"
+      values   = ["false"]
+    }
+  }
+
+  statement {
+    sid = "ManageCertificates"
+    actions = [
+      "acm:DescribeCertificate",
+      "acm:ListTagsForCertificate",
+      "acm:AddTagsToCertificate",
+      "acm:RemoveTagsFromCertificate",
+      "acm:DeleteCertificate",
+    ]
+    resources = ["arn:aws:acm:us-east-1:${local.account_id}:certificate/*"]
+  }
+
   statement {
     sid       = "ManageUserPools"
     actions   = ["cognito-idp:*"]

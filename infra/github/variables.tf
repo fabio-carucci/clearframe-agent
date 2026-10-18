@@ -37,6 +37,12 @@ variable "eval_key_param" {
   default     = "/clearframe/ci/anthropic-api-key"
 }
 
+variable "site_domain" {
+  description = "The only domain the deploy role may request a TLS certificate for."
+  type        = string
+  default     = "clearframe.fabio-carucci.com"
+}
+
 variable "embedding_model_id" {
   type    = string
   default = "amazon.titan-embed-text-v2:0"

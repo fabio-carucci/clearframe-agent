@@ -7,6 +7,7 @@ locals {
   auth_domain_prefix = "clearframe-dev-6iit7"
   auth_domain        = "${local.auth_domain_prefix}.auth.${data.aws_region.current.region}.amazoncognito.com"
   auth_config_param  = "/clearframe/dev/auth-config"
+  domain_name        = "clearframe.fabio-carucci.com"
 }
 
 # Looked up by ARN, which needs only iam:GetPolicy and fails the plan if the boundary is missing.
@@ -32,11 +33,17 @@ module "api" {
 module "web" {
   source = "../../modules/web"
 
+  providers = {
+    aws           = aws
+    aws.us_east_1 = aws.us_east_1
+  }
+
   name_prefix             = local.name_prefix
   bucket_name             = "clearframe-dev-web-6iit7"
   site_dir                = "${path.root}/../../../apps/web/out"
   api_function_name       = module.api.function_name
   api_function_url_domain = module.api.function_url_domain
+  domain_name             = local.domain_name
   auth_domain             = local.auth_domain
 }
 
@@ -45,8 +52,9 @@ module "auth" {
 
   name_prefix   = local.name_prefix
   domain_prefix = local.auth_domain_prefix
-  callback_urls = ["${module.web.url}/"]
-  logout_urls   = ["${module.web.url}/"]
+  # The cloudfront.net name keeps working alongside the custom domain.
+  callback_urls = ["${module.web.url}/", "${module.web.cloudfront_url}/"]
+  logout_urls   = ["${module.web.url}/", "${module.web.cloudfront_url}/"]
 }
 
 # Cognito needs the CloudFront domain, CloudFront needs the Lambda, so the Lambda cannot take the
@@ -76,6 +84,15 @@ resource "aws_s3_object" "web_config" {
 
 output "web_url" {
   value = module.web.url
+}
+
+output "cloudfront_domain" {
+  description = "Point the custom domain's CNAME here."
+  value       = module.web.domain
+}
+
+output "certificate_validation_record" {
+  value = module.web.certificate_validation_record
 }
 
 output "function_name" {

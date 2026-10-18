@@ -84,6 +84,7 @@ resource "aws_cloudfront_distribution" "this" {
   comment             = "${var.name_prefix} web and api"
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
+  aliases             = [var.domain_name]
   http_version        = "http2and3"
 
   origin {
@@ -139,7 +140,9 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = aws_acm_certificate_validation.site.certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 }
 

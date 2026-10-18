@@ -123,7 +123,8 @@ contract, and folds it into the run's state with a pure reducer (`features/run/l
 works from phone to desktop: three panes on a desktop, two columns on a tablet, one on a phone,
 with clip details in a side sheet below desktop width.
 
-- **One domain.** CloudFront serves the page from a private S3 bucket and forwards `/api` to the
+- **One domain.** The site is served at `clearframe.fabio-carucci.com`, and at its cloudfront.net
+  name. CloudFront serves the page from a private S3 bucket and forwards `/api` to the
   Lambda. Both origins use origin access control, so neither the bucket nor the function URL is
   reachable from the internet, and there is no CORS to configure.
 - **Real sign-in.** Cognito managed login with the authorization code flow and PKCE
@@ -345,6 +346,14 @@ Deploying from scratch: apply `infra/bootstrap`, create the Anthropic key parame
 `infra/github`, set the `AWS_EVAL_ROLE_ARN` and `AWS_DEPLOY_ROLE_ARN` repository variables, then
 run `pnpm build:lambda && pnpm web:build` and apply `infra/env/dev` (or merge to `main`). Create users
 with `aws cognito-idp admin-create-user`; Cognito emails them a temporary password.
+
+The custom domain's DNS is hosted at Squarespace, outside Terraform, so two CNAME records are kept
+there by hand. The first is the certificate's validation record (`terraform output
+certificate_validation_record` in `infra/env/dev`): the first apply waits up to 30 minutes for it,
+and ACM needs it to renew the certificate, so it must stay. The second points the domain at the
+distribution (`terraform output cloudfront_domain`). The domain name appears in `infra/env/dev` and,
+as the only domain the deploy role may request a certificate for, in `infra/github`; a test keeps
+the two equal.
 
 ## Privacy
 
