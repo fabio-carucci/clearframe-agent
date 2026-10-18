@@ -114,10 +114,12 @@ rule, not from that text.
   Terraform writes next to the build, and the Lambda reads the same ids from SSM. Neither is baked
   in at build time, which breaks the api → CDN → Cognito dependency cycle and lets one build serve
   any environment.
-- **Headers.** A Content Security Policy limits where the page can send data to its own origin and
-  Cognito, so even a script injection could not exfiltrate a token elsewhere. Hashed assets are
-  cached for a year; `index.html` and `config.json` are revalidated, so deploys need no
-  invalidation.
+- **Headers.** A Content Security Policy limits the page's network requests to its own origin and
+  Cognito and forbids framing. It is not a full XSS defence: Next.js's inline hydration scripts
+  need `'unsafe-inline'`, and a CSP does not govern navigation, so an injected script could still
+  leave the page with a token. What limits that risk is not rendering untrusted HTML and one-hour
+  tokens. Hashed assets are cached for a year; `index.html` and `config.json` are revalidated, so
+  deploys need no invalidation.
 
 Two details of the private function URL behind CloudFront: CloudFront signs origin requests with
 its own `Authorization` header, so the user's token travels in `x-clearframe-access-token`; and
@@ -169,7 +171,7 @@ Every run gets a `runId`, returned in the manifest. The Lambda writes:
 - the manifest to S3 (`manifests/<day>/<runId>.json`) before the run record, so a record never
   points at a missing manifest;
 - a run record to DynamoDB with the caller, request, stop reason, per-step tool calls, tokens and
-  durations, cost and any internal error, keyed by `runId`, with a `byDay` index and a 90-day TTL;
+  durations, cost and any internal error, keyed by `runId`, with a 90-day TTL;
 - one JSON log line per step to CloudWatch, queryable with Logs Insights:
 
 ```

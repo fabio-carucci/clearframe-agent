@@ -83,31 +83,6 @@ resource "aws_dynamodb_table" "runs" {
     type = "S"
   }
 
-  attribute {
-    name = "day"
-    type = "S"
-  }
-
-  attribute {
-    name = "createdAt"
-    type = "S"
-  }
-
-  global_secondary_index {
-    name            = "byDay"
-    projection_type = "ALL"
-
-    key_schema {
-      attribute_name = "day"
-      key_type       = "HASH"
-    }
-
-    key_schema {
-      attribute_name = "createdAt"
-      key_type       = "RANGE"
-    }
-  }
-
   ttl {
     attribute_name = "expiresAt"
     enabled        = true

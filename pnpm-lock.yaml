@@ -26,6 +26,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@ai-sdk/anthropic':
+        specifier: ^4.0.81
+        version: 4.0.81(zod@4.6.7)
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1152.0
         version: 3.1152.0
@@ -44,6 +47,9 @@ importers:
       '@clearframe/core':
         specifier: workspace:*
         version: link:../../packages/core
+      ai:
+        specifier: ^7.0.142
+        version: 7.0.142(zod@4.6.7)
       aws-jwt-verify:
         specifier: 5.2.1
         version: 5.2.1

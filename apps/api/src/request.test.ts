@@ -22,9 +22,15 @@ describe("parseRunRequest", () => {
     });
   });
 
+  it("accepts yesterday in UTC, which is still today west of UTC", () => {
+    expect(
+      parseRunRequest({ prompt: "surf", territory: "ES", date: "2026-10-16" }, today),
+    ).toMatchObject({ ok: true, date: "2026-10-16" });
+  });
+
   it("rejects a past usage date, which would revive expired licenses", () => {
     expect(
-      parseRunRequest({ prompt: "surf", territory: "ES", date: "2020-01-01" }, today),
+      parseRunRequest({ prompt: "surf", territory: "ES", date: "2026-10-15" }, today),
     ).toMatchObject({
       ok: false,
     });

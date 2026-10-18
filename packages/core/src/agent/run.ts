@@ -7,11 +7,11 @@ import {
   type Step,
   type StopReason,
 } from "@clearframe/contracts";
-import type { FinishReason } from "ai";
+import type { FinishReason, LanguageModel } from "ai";
 import type { z } from "zod";
 import type { CatalogData } from "../catalog/load";
 import type { UsageRequest } from "../rights/check-training-rights";
-import { MAX_STEPS, TOKEN_BUDGET, createClipAgent } from "./agent";
+import { MAX_STEPS, RUN_TIMEOUT_MS, TOKEN_BUDGET, createClipAgent } from "./agent";
 import type { RunContext } from "./context";
 import { estimateCostUsd } from "./cost";
 import { DecisionLog } from "./decisions";
@@ -33,6 +33,9 @@ export interface RunDeps {
   data: CatalogData;
   embedQuery: RunContext["embedQuery"];
   runId?: string;
+  /** The model to run; the CLI and evals use the default Anthropic provider. */
+  model?: LanguageModel;
+  timeoutMs?: number;
   /** Receives every event of the run as it happens, ending with `completed`. */
   onEvent?: (event: RunEvent) => void;
   /** Eval-only seam for the no-rule ablation; production always uses ManifestDraft. */
@@ -83,8 +86,9 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
   let outcome: { finishReason: FinishReason; text: string } | { error: RunError };
 
   try {
-    const result = await createClipAgent(run).generate({
+    const result = await createClipAgent(run, deps.model).generate({
       prompt,
+      timeout: { totalMs: deps.timeoutMs ?? RUN_TIMEOUT_MS },
       onStepEnd: ({ stepNumber, usage, toolCalls }) => {
         const now = performance.now();
         const step: Step = {

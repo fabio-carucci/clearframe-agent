@@ -2,14 +2,18 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
 import { GetParametersCommand, SSMClient } from "@aws-sdk/client-ssm";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import type { LanguageModel } from "ai";
 import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { z } from "zod";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { MODEL_ID } from "@clearframe/core/agent/agent";
 import { runClipAgent } from "@clearframe/core/agent/run";
-import { type CatalogData, loadCatalogData } from "@clearframe/core/catalog/load";
+import { loadCatalogData } from "@clearframe/core/catalog/load";
 import { embedQuery } from "@clearframe/core/retrieval/embeddings";
 import { logEvent } from "./log";
 import { AwsRunStore } from "./run-store";
 import { type AccessTokenVerifier, AuthConfigSchema, createAccessTokenVerifier } from "./auth";
+import { cachedFor } from "./cache";
 import { type ResponseSink, compose } from "./compose";
 import { s3JsonReader } from "./s3-reader";
 
@@ -22,7 +26,12 @@ const env = z
   })
   .parse(process.env);
 
+/**
+ * Warm containers re-read both within these windows: a rotated Anthropic key, and a catalog
+ * where a license was revoked, take effect without a redeploy.
+ */
 const RUNTIME_CONFIG_TTL_MS = 5 * 60_000;
+const CATALOG_TTL_MS = 5 * 60_000;
 
 const s3 = new S3Client({});
 const ssm = new SSMClient({});
@@ -35,7 +44,10 @@ const store = new AwsRunStore({
   }),
 });
 
-async function fetchRuntimeConfig(): Promise<{ verifier: AccessTokenVerifier }> {
+async function fetchRuntimeConfig(): Promise<{
+  verifier: AccessTokenVerifier;
+  model: LanguageModel;
+}> {
   const { Parameters = [] } = await ssm.send(
     new GetParametersCommand({
       Names: [env.ANTHROPIC_KEY_PARAM, env.AUTH_CONFIG_PARAM],
@@ -47,37 +59,17 @@ async function fetchRuntimeConfig(): Promise<{ verifier: AccessTokenVerifier }> 
     if (!value) throw new Error(`Missing SSM parameter ${name}`);
     return value;
   };
-  // The Anthropic provider reads the key from the environment on every call.
-  process.env.ANTHROPIC_API_KEY = parameter(env.ANTHROPIC_KEY_PARAM);
   const authConfig = AuthConfigSchema.parse(JSON.parse(parameter(env.AUTH_CONFIG_PARAM)));
-  return { verifier: createAccessTokenVerifier(authConfig) };
+  return {
+    verifier: createAccessTokenVerifier(authConfig),
+    model: createAnthropic({ apiKey: parameter(env.ANTHROPIC_KEY_PARAM) })(MODEL_ID),
+  };
 }
 
-/**
- * Both caches drop a rejected promise so the next request retries. The runtime config also
- * expires, so a rotated Anthropic key reaches warm containers within RUNTIME_CONFIG_TTL_MS.
- */
-let runtimeConfig:
-  { value: Promise<{ verifier: AccessTokenVerifier }>; fetchedAt: number } | undefined;
-function getRuntimeConfig() {
-  if (!runtimeConfig || Date.now() - runtimeConfig.fetchedAt > RUNTIME_CONFIG_TTL_MS) {
-    const value = fetchRuntimeConfig().catch((error: unknown) => {
-      runtimeConfig = undefined;
-      throw error;
-    });
-    runtimeConfig = { value, fetchedAt: Date.now() };
-  }
-  return runtimeConfig.value;
-}
-
-let catalog: Promise<CatalogData> | undefined;
-const getCatalog = () =>
-  (catalog ??= loadCatalogData(s3JsonReader(s3, env.DATA_BUCKET, "data/")).catch(
-    (error: unknown) => {
-      catalog = undefined;
-      throw error;
-    },
-  ));
+const runtimeConfig = cachedFor(RUNTIME_CONFIG_TTL_MS, fetchRuntimeConfig);
+const catalog = cachedFor(CATALOG_TTL_MS, () =>
+  loadCatalogData(s3JsonReader(s3, env.DATA_BUCKET, "data/")),
+);
 
 function lambdaSink(responseStream: awslambda.ResponseStream): ResponseSink {
   let body: awslambda.ResponseStream | undefined;
@@ -100,8 +92,9 @@ export const handler = awslambda.streamifyResponse(
     await compose(
       event,
       {
-        verifier: async () => (await getRuntimeConfig()).verifier,
-        catalog: getCatalog,
+        verifier: async () => (await runtimeConfig()).verifier,
+        model: async () => (await runtimeConfig()).model,
+        catalog,
         embedQuery,
         runAgent: runClipAgent,
         store,

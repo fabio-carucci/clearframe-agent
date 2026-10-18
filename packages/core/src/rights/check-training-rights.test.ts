@@ -87,6 +87,13 @@ describe("checkTrainingRights", () => {
     },
   );
 
+  it.each(["2027-13-45", "not a date", ""])(
+    "throws on the malformed license expiry %j instead of reading it as not expired",
+    (expiresAt) => {
+      expect(() => checkTrainingRights({ ...cleanLicense, expiresAt }, usage)).toThrow();
+    },
+  );
+
   it("does not depend on the current date", () => {
     const expired = { ...cleanLicense, expiresAt: "2020-01-01" };
     expect(checkTrainingRights(expired, { ...usage, date: "2019-12-31" })).toEqual({

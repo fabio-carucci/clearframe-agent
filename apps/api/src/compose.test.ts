@@ -1,6 +1,7 @@
 import type { RunEvent } from "@clearframe/contracts";
 import type { RunResult } from "@clearframe/core/agent/run";
 import type { CatalogData } from "@clearframe/core/catalog/load";
+import type { LanguageModel } from "ai";
 import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { describe, expect, it, vi } from "vitest";
 import { ACCESS_TOKEN_HEADER } from "./auth";
@@ -46,6 +47,7 @@ function harness(runResult: RunResult = result) {
         return { sub: "user-1" };
       },
     }),
+    model: async () => ({}) as LanguageModel,
     catalog: async () => ({}) as CatalogData,
     embedQuery: async () => ({ embedding: [], tokens: 0 }),
     runAgent: async (_request, runDeps) => {
@@ -114,5 +116,21 @@ describe("compose", () => {
     expect(lines.map((line) => line.type)).toEqual(["started", "completed"]);
     expect(sink.chunks.every((chunk) => chunk.endsWith("\n"))).toBe(true);
     expect(save).toHaveBeenCalled();
+  });
+
+  it("withholds the result with 503 when the audit record cannot be saved", async () => {
+    const { sink, responseSink, deps, save } = harness();
+    save.mockRejectedValueOnce(new Error("DynamoDB throttled"));
+    await compose(event({}), deps, responseSink);
+    expect(sink.status).toBe(503);
+    expect(JSON.parse(sink.chunks.join(""))).toEqual({ error: expect.any(String) });
+  });
+
+  it("ends the stream with failed, not completed, when the audit record cannot be saved", async () => {
+    const { sink, responseSink, deps, save } = harness();
+    save.mockRejectedValueOnce(new Error("DynamoDB throttled"));
+    await compose(event({ headers: { accept: NDJSON } }), deps, responseSink);
+    const types = sink.chunks.map((chunk) => (JSON.parse(chunk) as RunEvent).type);
+    expect(types).toEqual(["started", "failed"]);
   });
 });

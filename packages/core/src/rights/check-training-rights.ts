@@ -14,6 +14,11 @@ export function checkTrainingRights(license: License, usage: UsageRequest): Righ
   if (!IsoDateSchema.safeParse(usage.date).success) {
     throw new Error(`Invalid usage date: ${JSON.stringify(usage.date)}`);
   }
+  // The catalog schema validates this too, but the rule must fail closed on its own: an
+  // unparseable date compares as false and would read as "not expired".
+  if (license.expiresAt !== null && !IsoDateSchema.safeParse(license.expiresAt).success) {
+    throw new Error(`Invalid license expiry: ${JSON.stringify(license.expiresAt)}`);
+  }
 
   const reasons: RightsViolation[] = [];
 

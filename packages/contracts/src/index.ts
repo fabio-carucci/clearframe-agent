@@ -115,7 +115,7 @@ const SearchFiltersSchema = z.object({
 
 /**
  * One line of the NDJSON stream POST /api sends when the client accepts application/x-ndjson.
- * The last event of a run is always `completed`.
+ * The last event of a run is `completed`, or `failed` when its audit record could not be saved.
  */
 export const RunEventSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("started"), runId: z.uuid(), request: ManifestSchema.shape.request }),
@@ -125,6 +125,8 @@ export const RunEventSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("clips"), decisions: z.array(ClipDecisionSchema) }),
   z.object({ type: z.literal("step"), step: StepSchema }),
   z.object({ type: z.literal("completed"), result: ComposeResponseSchema }),
+  /** Ends a stream instead of `completed` when the run could not be recorded for audit. */
+  z.object({ type: z.literal("failed"), error: z.string() }),
 ]);
 
 export type Genre = z.infer<typeof GenreSchema>;

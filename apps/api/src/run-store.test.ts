@@ -61,7 +61,6 @@ describe("AwsRunStore", () => {
     );
     expect(record).toMatchObject({
       runId: result.manifest.runId,
-      day: "2026-10-17",
       status: "error",
       userId: "user-123",
       errorCode: "provider_unavailable",

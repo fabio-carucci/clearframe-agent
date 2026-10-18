@@ -7,8 +7,6 @@ export const RUN_TTL_DAYS = 90;
 /** One DynamoDB item per agent run. The full manifest lives in S3 under `manifestKey`. */
 export interface RunRecord {
   runId: string;
-  /** Partition key of the byDay index: list a day's runs in createdAt order. */
-  day: string;
   createdAt: string;
   /** Epoch seconds; DynamoDB TTL deletes the item after this. */
   expiresAt: number;
@@ -41,7 +39,6 @@ export function toRunRecord(result: RunResult, createdAt: Date, userId: string):
   const { manifest, steps, error } = result;
   return {
     runId: manifest.runId,
-    day: createdAt.toISOString().slice(0, 10),
     createdAt: createdAt.toISOString(),
     expiresAt: Math.floor(createdAt.getTime() / 1000) + RUN_TTL_DAYS * 86_400,
     status: manifest.stopReason === "error" ? "error" : "ok",
