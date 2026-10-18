@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import {
   type EmbeddingIndex,
@@ -6,6 +5,7 @@ import {
   catalogFingerprint,
 } from "../retrieval/embeddings";
 import { type Clip, CatalogSchema } from "./schema";
+import { catalogVersion } from "./version";
 
 export type JsonReader = (file: string) => Promise<unknown>;
 
@@ -40,6 +40,6 @@ export async function loadCatalogData(
     clips,
     clipsById: new Map(clips.map((clip) => [clip.id, clip])),
     index,
-    version: createHash("sha256").update(JSON.stringify(clips)).digest("hex"),
+    version: catalogVersion(clips),
   };
 }
