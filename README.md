@@ -487,7 +487,6 @@ instance to honour an erasure request.
 - An RFC 3161 timestamp, so `issuedAt` does not rest on Clearframe alone, and proofs for single
   clips, which the per-clip digests already allow.
 - The notary reading licenses from the rights system of record instead of a bundled catalog.
-- A signed sample run, recorded again from the deployed agent.
 - SSO for customer organizations through Cognito SAML or OIDC federation.
 - Prompt caching for the instructions and tool definitions, the largest repeated input.
 - Real ingest: scene-level metadata extracted from video, and licenses from a rights system of record.

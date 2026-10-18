@@ -123,8 +123,9 @@ Each of these is load-bearing; most are pinned by a test.
     tabs opened before it.
 23. The page calls a clip cleared only once its run is recorded (`completed`). Before that the
     rule's verdicts are provisional, and after a `failed` run they issued no manifest.
-24. `features/run/sample-run.json` is a stream recorded from the deployed agent. Re-record it,
-    never edit or invent events; `sample.test.ts` checks it against the contract.
+24. `features/run/sample-run.json` is a stream recorded from the deployed agent. Re-record it with
+    `pnpm --filter @clearframe/web sample:save <recording.ndjson>`, never edit or invent events;
+    `sample.test.ts` checks it against the contract and its signature against the published keys.
 25. `GET /api/runs/:id` answers 404 for another user's run exactly as for a missing one, so run ids
     cannot be probed, and reads the manifest by the version id in the run record.
 26. Every manifest the API delivers carries a certificate from the notary that verifies with the
