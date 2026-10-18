@@ -37,10 +37,33 @@ variable "eval_key_param" {
   default     = "/clearframe/ci/anthropic-api-key"
 }
 
-variable "site_domain" {
-  description = "The only domain the deploy role may request a TLS certificate for."
+# Ids AWS generated for this stack's resources; see the ManageCdn statement in main.tf. A new
+# account starts with its first infra/env/dev apply done by an administrator, then sets these.
+
+variable "cloudfront_distribution_id" {
+  type    = string
+  default = "E2EJIBOAR3IF7I"
+}
+
+variable "cloudfront_origin_access_control_ids" {
+  type    = list(string)
+  default = ["E1BIO8IRE7OA9Y", "E21POSOOUP77GQ"]
+}
+
+variable "cloudfront_response_headers_policy_id" {
+  type    = string
+  default = "6c7cafaa-8c5d-41c4-a40d-a21c4ddc638d"
+}
+
+variable "certificate_id" {
+  description = "The site's ACM certificate in us-east-1."
   type        = string
-  default     = "clearframe.fabio-carucci.com"
+  default     = "a1c39d93-285d-4e2e-a9ba-13e6313ccf90"
+}
+
+variable "user_pool_id" {
+  type    = string
+  default = "eu-west-1_MWcI3MXEd"
 }
 
 variable "embedding_model_id" {

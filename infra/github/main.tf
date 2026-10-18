@@ -249,58 +249,46 @@ data "aws_iam_policy_document" "ci_deploy" {
     resources = ["arn:aws:s3:::${var.web_bucket}", "arn:aws:s3:::${var.web_bucket}/*"]
   }
 
+  # The account hosts other projects, so the CDN, sign-in and certificate permissions name this
+  # stack's resources by id instead of matching every one of their kind. AWS generates those ids:
+  # creating or replacing one of these resources is an administrator's job, who then updates the
+  # id in variables.tf.
   statement {
     sid     = "ManageCdn"
     actions = ["cloudfront:*"]
-    resources = [
-      "arn:aws:cloudfront::${local.account_id}:distribution/*",
-      "arn:aws:cloudfront::${local.account_id}:origin-access-control/*",
-      "arn:aws:cloudfront::${local.account_id}:response-headers-policy/*",
-      "arn:aws:cloudfront::${local.account_id}:function/${var.workload_prefix}-*",
-    ]
-  }
-
-  # CloudFront takes certificates from us-east-1 only. Requests are limited to the site's domain,
-  # so code merged to main cannot obtain a certificate for any other name.
-  statement {
-    sid       = "RequestSiteCertificate"
-    actions   = ["acm:RequestCertificate"]
-    resources = ["arn:aws:acm:us-east-1:${local.account_id}:certificate/*"]
-
-    condition {
-      test     = "ForAllValues:StringEquals"
-      variable = "acm:DomainNames"
-      values   = [var.site_domain]
-    }
-
-    condition {
-      test     = "Null"
-      variable = "acm:DomainNames"
-      values   = ["false"]
-    }
+    resources = concat(
+      ["arn:aws:cloudfront::${local.account_id}:distribution/${var.cloudfront_distribution_id}"],
+      [
+        for id in var.cloudfront_origin_access_control_ids :
+        "arn:aws:cloudfront::${local.account_id}:origin-access-control/${id}"
+      ],
+      [
+        "arn:aws:cloudfront::${local.account_id}:response-headers-policy/${var.cloudfront_response_headers_policy_id}",
+        "arn:aws:cloudfront::${local.account_id}:function/${var.workload_prefix}-*",
+      ],
+    )
   }
 
   statement {
-    sid = "ManageCertificates"
+    sid = "ManageCertificate"
     actions = [
       "acm:DescribeCertificate",
       "acm:ListTagsForCertificate",
       "acm:AddTagsToCertificate",
       "acm:RemoveTagsFromCertificate",
-      "acm:DeleteCertificate",
     ]
-    resources = ["arn:aws:acm:us-east-1:${local.account_id}:certificate/*"]
+    resources = ["arn:aws:acm:us-east-1:${local.account_id}:certificate/${var.certificate_id}"]
   }
 
   statement {
-    sid       = "ManageUserPools"
+    sid       = "ManageUserPool"
     actions   = ["cognito-idp:*"]
-    resources = ["arn:aws:cognito-idp:${local.region}:${local.account_id}:userpool/*"]
+    resources = ["arn:aws:cognito-idp:${local.region}:${local.account_id}:userpool/${var.user_pool_id}"]
   }
 
   statement {
-    sid       = "CreateUserPoolsAndReadDomains"
-    actions   = ["cognito-idp:CreateUserPool", "cognito-idp:DescribeUserPoolDomain"]
+    sid       = "ReadUserPoolDomains"
+    actions   = ["cognito-idp:DescribeUserPoolDomain"]
     resources = ["*"]
   }
 
