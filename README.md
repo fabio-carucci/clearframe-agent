@@ -31,8 +31,13 @@ app. The manifest that comes back, trimmed to one of the five clips:
 }
 ```
 
-The response wraps it as `{ manifest, steps }`, where `steps` lists every model call with its tools,
-tokens and duration.
+The response wraps it as `{ manifest, steps, decisions }`: `steps` lists every model call with its
+tools, tokens and duration, and `decisions` says what happened to each clip the agent touched:
+accepted, refused by the rule, or checked and not proposed by the model.
+
+Clients that send `accept: application/x-ndjson` get the run as it happens instead: one JSON line
+per event (a search starting, licenses being checked, clips accepted or refused, a step finishing),
+ending with the same result. The Lambda streams it through CloudFront with response streaming.
 
 ## The model proposes, the rule decides
 
