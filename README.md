@@ -79,7 +79,7 @@ resends the whole conversation and fewer steps means far fewer tokens.
 | Tool            | The model chooses    | What happens                                                                                                                                          |
 | --------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `searchClips`   | query text, filters  | Exact filters (language, genre, max duration) first, then cosine similarity on the descriptions. Only clips licensed for this request are searchable. |
-| `getRights`     | clip ids             | Returns each license and the rule's verdict for the request's territory and date.                                                                     |
+| `getRights`     | clip ids             | Returns each license and the rule's verdict for the request's territory and date, for requests about specific clips. Search results need no check.    |
 | `addToManifest` | clip ids and reasons | Runs the rule on every clip. Returns one outcome per clip, with rejection reasons, so the model learns why.                                           |
 
 **Limits.** The loop stops when the model answers with text, after 15 steps, or once input plus

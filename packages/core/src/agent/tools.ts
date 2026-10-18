@@ -55,7 +55,8 @@ export const createGetRightsTool = (run: RunContext) =>
       `Return the training license of up to ${MAX_BATCH} clips` +
       (run.draft.enforcesRights
         ? `, with whether it allows training in ${run.draft.usage.territory} on ` +
-          `${run.draft.usage.date}. Use it before adding clips to the manifest.`
+          `${run.draft.usage.date}. Search results are already licensed; use it when the ` +
+          "request asks about specific clips."
         : ". Use it before adding clips to the manifest."),
     inputSchema: z.object({
       clipIds: z.array(z.string()).min(1).max(MAX_BATCH),
