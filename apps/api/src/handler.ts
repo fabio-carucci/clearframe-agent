@@ -1,22 +1,16 @@
-import { randomUUID } from "node:crypto";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
 import { GetParametersCommand, SSMClient } from "@aws-sdk/client-ssm";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import type { LambdaFunctionURLEvent, LambdaFunctionURLResult } from "aws-lambda";
+import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { z } from "zod";
 import { runClipAgent } from "@clearframe/core/agent/run";
 import { type CatalogData, loadCatalogData } from "@clearframe/core/catalog/load";
 import { embedQuery } from "@clearframe/core/retrieval/embeddings";
 import { logEvent } from "./log";
 import { AwsRunStore } from "./run-store";
-import {
-  type AccessTokenVerifier,
-  AuthConfigSchema,
-  authenticate,
-  createAccessTokenVerifier,
-} from "./auth";
-import { parseRunRequest } from "./request";
+import { type AccessTokenVerifier, AuthConfigSchema, createAccessTokenVerifier } from "./auth";
+import { type ResponseSink, compose } from "./compose";
 import { s3JsonReader } from "./s3-reader";
 
 const env = z
@@ -85,71 +79,36 @@ const getCatalog = () =>
     },
   ));
 
-const json = (statusCode: number, body: unknown): LambdaFunctionURLResult => ({
-  statusCode,
-  headers: { "content-type": "application/json", "cache-control": "no-store" },
-  body: JSON.stringify(body),
-});
-
-function parseJsonBody(event: LambdaFunctionURLEvent): unknown {
-  if (!event.body) return undefined;
-  const raw = event.isBase64Encoded ? Buffer.from(event.body, "base64").toString() : event.body;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return undefined;
-  }
-}
-
-export async function handler(event: LambdaFunctionURLEvent): Promise<LambdaFunctionURLResult> {
-  if (event.requestContext.http.method !== "POST") {
-    return json(405, { error: "Use POST with a JSON body" });
-  }
-
-  const { verifier } = await getRuntimeConfig();
-  const principal = await authenticate(event.headers, verifier);
-  if (!principal) {
-    return json(401, { error: "Sign in again: the access token is missing, invalid or expired" });
-  }
-
-  const createdAt = new Date();
-  const request = parseRunRequest(parseJsonBody(event), createdAt.toISOString().slice(0, 10));
-  if (!request.ok) {
-    return json(400, { error: request.error, issues: request.issues });
-  }
-
-  const runId = randomUUID();
-  const { userId } = principal;
-  const { prompt, territory, date } = request;
-  logEvent("run_started", { runId, userId, territory, date });
-
-  const result = await runClipAgent(
-    { prompt, territory, date },
-    {
-      data: await getCatalog(),
-      embedQuery,
-      runId,
-      onStep: (step) => logEvent("step", { runId, ...step }),
+function lambdaSink(responseStream: awslambda.ResponseStream): ResponseSink {
+  let body: awslambda.ResponseStream | undefined;
+  return {
+    start(statusCode, contentType) {
+      body = awslambda.HttpResponseStream.from(responseStream, {
+        statusCode,
+        headers: { "content-type": contentType, "cache-control": "no-store" },
+      });
     },
-  );
-  const { manifest } = result;
-
-  try {
-    await store.save(result, createdAt, userId);
-  } catch (error) {
-    logEvent("trace_failed", { runId, error: String(error) });
-  }
-
-  logEvent("run_finished", {
-    runId,
-    userId,
-    stopReason: manifest.stopReason,
-    clipCount: manifest.clips.length,
-    rejectedCount: manifest.rejected.length,
-    costUsd: manifest.costUsd,
-    durationMs: manifest.durationMs,
-    ...(result.error && { errorCode: result.error.code, errorMessage: result.error.message }),
-  });
-
-  return json(manifest.stopReason === "error" ? 502 : 200, { manifest, steps: result.steps });
+    write(chunk) {
+      body?.write(chunk);
+    },
+    end: () => new Promise((resolve) => (body ?? responseStream).end(resolve)),
+  };
 }
+
+export const handler = awslambda.streamifyResponse(
+  async (event: LambdaFunctionURLEvent, responseStream) => {
+    await compose(
+      event,
+      {
+        verifier: async () => (await getRuntimeConfig()).verifier,
+        catalog: getCatalog,
+        embedQuery,
+        runAgent: runClipAgent,
+        store,
+        log: logEvent,
+        now: () => new Date(),
+      },
+      lambdaSink(responseStream),
+    );
+  },
+);
