@@ -1,11 +1,14 @@
-import type { Manifest } from "@clearframe/contracts";
-import { Download, ShieldCheck, TriangleAlert } from "lucide-react";
+import type { ClearanceCertificate, Manifest } from "@clearframe/contracts";
+import { BadgeCheck, Download, ShieldCheck, TriangleAlert } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatCount, formatRunTime, formatUsd, stopReasonLabel } from "./format";
 import type { LiveRun } from "./live-run";
 
-function downloadManifest(manifest: Manifest) {
-  const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: "application/json" });
+/** The signed envelope /verify reads: the manifest with its certificate, when it has one. */
+function downloadManifest(manifest: Manifest, certificate: ClearanceCertificate | undefined) {
+  const envelope = { manifest, certificate };
+  const blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -13,6 +16,14 @@ function downloadManifest(manifest: Manifest) {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+const signedOn = (iso: string) =>
+  new Date(iso).toLocaleString("en-GB", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
 function Figure({ label, value }: { label: string; value: string }) {
   return (
@@ -32,6 +43,7 @@ export function RunSummary({ run }: { run: LiveRun | null }) {
     );
   }
   const manifest = run.result?.manifest;
+  const certificate = run.result?.certificate;
   const headline =
     run.status === "running"
       ? "Composing"
@@ -105,6 +117,24 @@ export function RunSummary({ run }: { run: LiveRun | null }) {
           )}
           {manifest ? (
             <>
+              {certificate ? (
+                <p className="flex items-start gap-2 text-cleared">
+                  <BadgeCheck className="mt-px size-4 shrink-0" aria-hidden />
+                  <span>
+                    Signed with key{" "}
+                    <span className="font-mono">{certificate.keyId.slice(0, 8)}…</span> on{" "}
+                    {signedOn(certificate.issuedAt)}. Anyone with the file can{" "}
+                    <Link href="/verify" className="underline underline-offset-2">
+                      verify it
+                    </Link>
+                    .
+                  </span>
+                </p>
+              ) : (
+                <p className="text-muted-foreground">
+                  Not signed: issued before manifests were signed.
+                </p>
+              )}
               <p className="text-muted-foreground" title={manifest.catalogVersion}>
                 Catalog{" "}
                 <span className="font-mono text-foreground">
@@ -115,10 +145,10 @@ export function RunSummary({ run }: { run: LiveRun | null }) {
                 variant="outline"
                 size="sm"
                 className="mt-2"
-                onClick={() => downloadManifest(manifest)}
+                onClick={() => downloadManifest(manifest, certificate)}
               >
                 <Download aria-hidden />
-                Download manifest
+                {certificate ? "Download signed manifest" : "Download manifest"}
               </Button>
             </>
           ) : (

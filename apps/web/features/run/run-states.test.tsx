@@ -111,4 +111,24 @@ describe("a run as the user sees it", () => {
     render(<RunSummary run={finishedRun(result, 0, { ...audit, verified: false })} />);
     expect(screen.getByText(/cannot be verified/)).toBeTruthy();
   });
+
+  it("says whether the manifest is signed, and links to where anyone can verify it", () => {
+    const certificate = {
+      v: 1 as const,
+      alg: "ES256" as const,
+      keyId: "9c8a2f4e-1b3d-4e5f-8a7b-6c5d4e3f2a1b",
+      issuedAt: "2026-10-18T17:42:00.000Z",
+      runId,
+      digests: { manifest: "a".repeat(64), clips: ["b".repeat(64)] },
+      signature: "s".repeat(86),
+    };
+    render(<RunSummary run={finishedRun({ ...result, certificate }, 0)} />);
+    expect(screen.getByText(/Signed with key/)).toBeTruthy();
+    expect(screen.getByText("verify it").getAttribute("href")).toBe("/verify");
+    expect(screen.getByText("Download signed manifest")).toBeTruthy();
+    cleanup();
+
+    render(<RunSummary run={finishedRun(result, 0)} />);
+    expect(screen.getByText(/Not signed/)).toBeTruthy();
+  });
 });
