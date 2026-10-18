@@ -121,6 +121,33 @@ resource "aws_dynamodb_table" "runs" {
     type = "S"
   }
 
+  attribute {
+    name = "userId"
+    type = "S"
+  }
+
+  attribute {
+    name = "createdAt"
+    type = "S"
+  }
+
+  # Lists a user's runs newest first. Projects only what the list shows, so listing reads no steps.
+  global_secondary_index {
+    name               = "byUser"
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["prompt", "territory", "date", "stopReason", "clipCount", "rejectedCount", "costUsd"]
+
+    key_schema {
+      attribute_name = "userId"
+      key_type       = "HASH"
+    }
+
+    key_schema {
+      attribute_name = "createdAt"
+      key_type       = "RANGE"
+    }
+  }
+
   ttl {
     attribute_name = "expiresAt"
     enabled        = true

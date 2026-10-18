@@ -119,6 +119,9 @@ happens:
 - **Timeline.** One block per model call, sized by its duration and coloured by the tool it used,
   with a token track drawn like an audio waveform. While the run is live, a playhead moves and the
   current step grows at the end of the track, labelled with what the agent is doing.
+- **Your runs.** The last 20 runs of the signed-in user. Opening one reads its manifest back from
+  S3 by the version the run wrote and shows whether S3's SHA-256 matches the one recorded with the
+  run; the download is that locked version.
 
 The page reads the API's NDJSON stream with `fetch`, validates each event against the shared Zod
 contract, and folds it into the run's state with a pure reducer (`features/run/live-run.ts`). A
@@ -220,7 +223,9 @@ only gate.
 
 ## Tracing and cost
 
-Every run gets a `runId`, returned in the manifest. The Lambda writes:
+Every run gets a `runId`, returned in the manifest. `GET /api/runs` lists the caller's runs from
+the `byUser` index; `GET /api/runs/:id` returns one, answering 404 for another user's run as for
+a missing one. The Lambda writes:
 
 - the manifest to S3 (`manifests/<day>/<runId>.json`) before the run record, so a record never
   points at a missing manifest. The bucket is versioned, and each manifest is written with Object
@@ -255,11 +260,12 @@ Terraform, with state in S3 and native S3 locking. Three root stacks:
 | `web`  | Private site bucket, CloudFront distribution with two origin access controls, security headers, the `/api` edge gate |
 | `auth` | Cognito user pool (admin-only sign-up, optional TOTP MFA), managed login domain, PKCE app client                     |
 
-The Lambda role has seven permissions, each scoped to one resource: write its own log group, read
-`data/*`, write and lock `manifests/*`, `PutItem` on the runs table, `UpdateItem` on the quotas table, read
-two named SSM parameters (the Anthropic key and the Cognito ids), and invoke one Bedrock model. It
-cannot list the bucket, query a table or call any other model. Only the CloudFront distribution
-may invoke the function URL.
+The Lambda role has nine permissions, each scoped to one resource: write its own log group, read
+`data/*`, write and lock `manifests/*`, read manifest versions back, `PutItem` on the runs table,
+`GetItem` and `Query` on the runs table and its `byUser` index, `UpdateItem` on the quotas table,
+read two named SSM parameters (the Anthropic key and the Cognito ids), and invoke one Bedrock
+model. It cannot list the bucket, scan a table or call any other model. Only the CloudFront
+distribution may invoke the function URL.
 
 **Spend limits.** Every run costs model tokens, so spend is capped in layers:
 

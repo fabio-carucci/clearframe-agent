@@ -45,6 +45,12 @@ export const manifestKeyFor = (runId: string, createdAt: Date) =>
 /** A run record before its manifest is stored, which gives it the version and checksum. */
 export type RunRecordDraft = Omit<RunRecord, "manifestVersionId" | "manifestSha256">;
 
+/** A record as read back: runs saved before manifests carried a version and checksum lack them. */
+export type StoredRunRecord = RunRecordDraft & Partial<RunRecord>;
+
+/** The index that lists a user's runs, newest first. */
+export const RUNS_BY_USER_INDEX = "byUser";
+
 export function toRunRecord(result: RunResult, createdAt: Date, userId: string): RunRecordDraft {
   const { manifest, steps, error } = result;
   return {

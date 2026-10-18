@@ -43,15 +43,15 @@ packages/core       -> packages/contracts
 packages/contracts  -> zod only
 ```
 
-| Path                  | Contents                                                                                  |
-| --------------------- | ----------------------------------------------------------------------------------------- |
-| `packages/contracts/` | Zod schemas of the HTTP API: request, manifest, steps, response. Depends only on Zod.     |
-| `packages/core/`      | Catalog, rights rule, retrieval, agent loop, cost; scripts for the catalog and local runs |
-| `apps/api/`           | Lambda handler, Cognito token check, request validation, DynamoDB and S3 adapters, bundle |
-| `apps/web/`           | Static Next.js page; `features/` holds auth, compose (NDJSON client), run, workspace      |
-| `evals/`              | Cases, metrics, no-rule ablation draft, runner, committed reports                         |
-| `infra/`              | `bootstrap`, `github` (OIDC roles), modules `api`, `web`, `auth`, `env/dev`               |
-| `data/`               | Generated catalog and its embedding index, both committed                                 |
+| Path                  | Contents                                                                                      |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| `packages/contracts/` | Zod schemas of the HTTP API: request, manifest, steps, response. Depends only on Zod.         |
+| `packages/core/`      | Catalog, rights rule, retrieval, agent loop, cost; scripts for the catalog and local runs     |
+| `apps/api/`           | Lambda handler, Cognito token check, request validation, DynamoDB and S3 adapters, bundle     |
+| `apps/web/`           | Static Next.js page; `features/` holds auth, compose (NDJSON client), history, run, workspace |
+| `evals/`              | Cases, metrics, no-rule ablation draft, runner, committed reports                             |
+| `infra/`              | `bootstrap`, `github` (OIDC roles), modules `api`, `web`, `auth`, `env/dev`                   |
+| `data/`               | Generated catalog and its embedding index, both committed                                     |
 
 Workspace packages export TypeScript source (`@clearframe/core/agent/run` maps to
 `packages/core/src/agent/run.ts`). esbuild, Next.js (`transpilePackages`), tsx and Vitest compile it
@@ -118,6 +118,8 @@ Each of these is load-bearing; most are pinned by a test.
     rule's verdicts are provisional, and after a `failed` run they issued no manifest.
 24. `features/run/sample-run.json` is a stream recorded from the deployed agent. Re-record it,
     never edit or invent events; `sample.test.ts` checks it against the contract.
+25. `GET /api/runs/:id` answers 404 for another user's run exactly as for a missing one, so run ids
+    cannot be probed, and reads the manifest by the version id in the run record.
 
 ## Conventions
 

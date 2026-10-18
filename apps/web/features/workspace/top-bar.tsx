@@ -1,4 +1,4 @@
-import { LogOut } from "lucide-react";
+import { History, LogOut } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { formatCount, formatRunTime, formatUsd } from "../run/format";
@@ -9,6 +9,8 @@ import { activityBlock } from "../run/timeline-model";
 interface TopBarProps {
   run: LiveRun | null;
   account?: { email: string; signOut: () => void };
+  /** Opens the run history; absent where there is no history, as in the local preview. */
+  onOpenRuns?: () => void;
 }
 
 function Status({ run }: { run: LiveRun | null }) {
@@ -44,7 +46,7 @@ function Readout({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function TopBar({ run, account }: TopBarProps) {
+export function TopBar({ run, account, onOpenRuns }: TopBarProps) {
   const elapsedMs = useElapsed(run);
   const manifest = run?.result?.manifest;
   return (
@@ -79,6 +81,18 @@ export function TopBar({ run, account }: TopBarProps) {
               value={formatCount(manifest.usage.inputTokens + manifest.usage.outputTokens)}
             />
           </div>
+        )}
+        {onOpenRuns && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onOpenRuns}
+            disabled={run?.status === "running"}
+            aria-label="Your runs"
+          >
+            <History aria-hidden />
+            <span className="hidden sm:inline">Runs</span>
+          </Button>
         )}
         {account && (
           <div className="flex items-center gap-2">

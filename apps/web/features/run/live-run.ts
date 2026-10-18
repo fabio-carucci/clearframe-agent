@@ -3,6 +3,7 @@ import type {
   ComposeResponse,
   Manifest,
   ManifestEntry,
+  RunDetailResponse,
   RunEvent,
   Step,
 } from "@clearframe/contracts";
@@ -27,6 +28,8 @@ export interface LiveRun {
   decisions: ClipDecision[];
   steps: Step[];
   result: ComposeResponse | null;
+  /** For a run opened from the history: the S3 version read back and whether it verified. */
+  audit: RunDetailResponse["audit"] | null;
   error: string | null;
 }
 
@@ -39,11 +42,16 @@ export const startRun = (request: Manifest["request"], startedAt: number): LiveR
   decisions: [],
   steps: [],
   result: null,
+  audit: null,
   error: null,
 });
 
 /** A run that already happened, shown as it ended. */
-export const finishedRun = (result: ComposeResponse, startedAt: number): LiveRun => ({
+export const finishedRun = (
+  result: ComposeResponse,
+  startedAt: number,
+  audit: LiveRun["audit"] = null,
+): LiveRun => ({
   ...startRun(result.manifest.request, startedAt),
   status: "completed",
   runId: result.manifest.runId,
@@ -51,6 +59,7 @@ export const finishedRun = (result: ComposeResponse, startedAt: number): LiveRun
   decisions: result.decisions,
   steps: result.steps,
   result,
+  audit,
 });
 
 function mergeDecisions(current: ClipDecision[], updates: ClipDecision[]): ClipDecision[] {

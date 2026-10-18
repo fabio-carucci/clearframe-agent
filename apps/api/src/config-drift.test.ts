@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { EMBEDDING_MODEL_ID } from "@clearframe/core/retrieval/embeddings";
 import { describe, expect, it } from "vitest";
-import { RUN_TTL_DAYS } from "./run-record";
+import { RUNS_BY_USER_INDEX, RUN_TTL_DAYS } from "./run-record";
 
 /**
  * Some values live in both TypeScript and Terraform: the embedding model the Lambda may invoke,
@@ -26,5 +26,13 @@ describe("configuration shared with Terraform", () => {
     expect(Number(defaultOf(terraform("modules/api/variables.tf"), "run_retention_days"))).toBe(
       RUN_TTL_DAYS,
     );
+  });
+
+  it("queries the index Terraform creates and grants", () => {
+    const storage = terraform("modules/api/storage.tf");
+    expect(storage.match(/global_secondary_index \{\s*name\s*=\s*"([^"]+)"/)?.[1]).toBe(
+      RUNS_BY_USER_INDEX,
+    );
+    expect(terraform("modules/api/iam.tf")).toContain(`/index/${RUNS_BY_USER_INDEX}`);
   });
 });

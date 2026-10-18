@@ -14,8 +14,9 @@ import { logEvent } from "./log";
 import { AwsRunStore } from "./run-store";
 import { type AccessTokenVerifier, AuthConfigSchema, createAccessTokenVerifier } from "./auth";
 import { cachedFor } from "./cache";
-import { type ResponseSink, compose } from "./compose";
+import type { ResponseSink } from "./compose";
 import { DynamoRunQuota } from "./quota";
+import { route } from "./router";
 import { s3JsonReader } from "./s3-reader";
 
 const env = z
@@ -93,7 +94,7 @@ function lambdaSink(responseStream: awslambda.ResponseStream): ResponseSink {
 
 export const handler = awslambda.streamifyResponse(
   async (event: LambdaFunctionURLEvent, responseStream) => {
-    await compose(
+    await route(
       event,
       {
         verifier: async () => (await runtimeConfig()).verifier,
@@ -103,6 +104,7 @@ export const handler = awslambda.streamifyResponse(
         runAgent: runClipAgent,
         quota,
         store,
+        history: store,
         log: logEvent,
         now: () => new Date(),
       },

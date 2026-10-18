@@ -17,7 +17,7 @@ const inAnHour = () => Math.floor(Date.now() / 1000) + 3600;
 
 /** A CloudFront viewer-request event; a header overridden with undefined is left out. */
 function request(
-  overrides: { method?: string; headers?: Record<string, string | undefined> } = {},
+  overrides: { method?: string; uri?: string; headers?: Record<string, string | undefined> } = {},
 ) {
   const headers = {
     "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb924",
@@ -27,7 +27,7 @@ function request(
   return {
     request: {
       method: overrides.method ?? "POST",
-      uri: "/api",
+      uri: overrides.uri ?? "/api",
       headers: Object.fromEntries(
         Object.entries(headers).flatMap(([name, value]) =>
           value === undefined ? [] : [[name, { value }]],
@@ -50,8 +50,19 @@ describe("api gate (CloudFront Function)", () => {
     expect(handler(event)).toBe(event.request);
   });
 
-  it("rejects methods other than POST with 405", () => {
+  it("rejects methods other than POST on /api with 405", () => {
     expect(handler(request({ method: "GET" })).statusCode).toBe(405);
+  });
+
+  it("forwards reads of the run history, which have no body to hash", () => {
+    for (const uri of ["/api/runs", "/api/runs/11111111-1111-4111-8111-111111111111"]) {
+      const event = request({ method: "GET", uri, headers: { "x-amz-content-sha256": undefined } });
+      expect(handler(event)).toBe(event.request);
+    }
+  });
+
+  it("rejects writes to the run history with 405", () => {
+    expect(handler(request({ method: "POST", uri: "/api/runs" })).statusCode).toBe(405);
   });
 
   it("rejects a POST without the payload hash with 400", () => {

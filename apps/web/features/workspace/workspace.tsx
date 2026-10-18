@@ -2,6 +2,7 @@
 
 import type { RunEvent } from "@clearframe/contracts";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { BrandMark } from "@/components/brand-mark";
 import { Panel } from "@/components/panel";
@@ -11,6 +12,8 @@ import { useMediaQuery } from "@/lib/use-media-query";
 import { SignInScreen } from "../auth/sign-in-screen";
 import { type Session, useSession } from "../auth/use-session";
 import { type ComposeInput, composeLive } from "../compose/compose-stream";
+import { fetchRun } from "../history/history-client";
+import { RUNS_QUERY_KEY, RunHistory } from "../history/run-history";
 import { RequestPanel } from "../compose/request-panel";
 import { ClipBin } from "../run/clip-bin";
 import { ClipDetails } from "../run/clip-details";
@@ -42,7 +45,10 @@ function Editor({ session, recording }: EditorProps) {
   const [input, setInput] = useState<ComposeInput>(
     recorded?.manifest.request ?? { prompt: "", territory: "ES", date: today },
   );
-  const { run, start } = useLiveRun(recorded);
+  const { run, start, show } = useLiveRun(recorded);
+  const queryClient = useQueryClient();
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [opening, setOpening] = useState<string | null>(null);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState<DetailsTab>("run");
@@ -74,6 +80,31 @@ function Editor({ session, recording }: EditorProps) {
     if (failure) toast.error(failure);
   }, [failure, failedRun]);
 
+  // A run recorded on this page belongs at the top of the history.
+  const recordedHere = run?.status === "completed" && !run.audit ? run.runId : null;
+  useEffect(() => {
+    if (recordedHere) void queryClient.invalidateQueries({ queryKey: RUNS_QUERY_KEY });
+  }, [recordedHere, queryClient]);
+
+  const openRun = async (runId: string) => {
+    if (!session) return;
+    setOpening(runId);
+    try {
+      const detail = await fetchRun(await session.getAccessToken(), runId);
+      show(detail);
+      // Today, not the run's date: a past usage date would revive licenses since expired.
+      setInput({ ...detail.manifest.request, date: today });
+      setSelectedId(null);
+      setTab("run");
+      setHistoryOpen(false);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) session.expire(error.message);
+      else toast.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      setOpening(null);
+    }
+  };
+
   const select = (clipId: string) => {
     setSelectedId(clipId);
     setTab("clip");
@@ -82,7 +113,11 @@ function Editor({ session, recording }: EditorProps) {
 
   return (
     <div className="flex min-h-dvh flex-col lg:h-dvh">
-      <TopBar run={run} account={session} />
+      <TopBar
+        run={run}
+        account={session}
+        onOpenRuns={session ? () => setHistoryOpen(true) : undefined}
+      />
       <main className="grid flex-1 auto-rows-min grid-cols-[minmax(0,1fr)] gap-px bg-border md:grid-cols-[17rem_minmax(0,1fr)] lg:min-h-0 lg:auto-rows-auto lg:grid-cols-[19rem_minmax(0,1fr)_22rem] lg:grid-rows-[minmax(0,1fr)_13.5rem]">
         <RequestPanel
           value={input}
@@ -119,6 +154,16 @@ function Editor({ session, recording }: EditorProps) {
           <RunSummary run={run} />
         </Panel>
       </main>
+
+      {session && (
+        <RunHistory
+          open={historyOpen}
+          onOpenChange={setHistoryOpen}
+          getAccessToken={session.getAccessToken}
+          onOpen={(runId) => void openRun(runId)}
+          opening={opening}
+        />
+      )}
 
       <Sheet open={sheetOpen && !desktop && Boolean(selected)} onOpenChange={setSheetOpen}>
         <SheetContent className="w-full overflow-y-auto p-0 pt-10 sm:max-w-md">

@@ -7,9 +7,10 @@
 
 function handler(event) {
   const request = event.request;
-  if (request.method !== "POST") return reject(405, "Method Not Allowed");
+  const reading = request.uri === "/api/runs" || request.uri.indexOf("/api/runs/") === 0;
+  if (request.method !== (reading ? "GET" : "POST")) return reject(405, "Method Not Allowed");
   // Lambda refuses unsigned payloads, and CloudFront can only sign a POST that carries this hash.
-  if (!request.headers["x-amz-content-sha256"]) return reject(400, "Bad Request");
+  if (!reading && !request.headers["x-amz-content-sha256"]) return reject(400, "Bad Request");
 
   const token = request.headers["x-clearframe-access-token"];
   const claims = token ? claimsOf(token.value) : null;

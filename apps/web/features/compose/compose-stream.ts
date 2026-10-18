@@ -4,8 +4,7 @@ import {
   type RunEvent,
   RunEventSchema,
 } from "@clearframe/contracts";
-import { z } from "zod";
-import { ApiError } from "../../lib/api-error";
+import { ApiError, refusal } from "../../lib/api-error";
 
 /** What the form sends: the date is always set in the page, though the API would default it. */
 export type ComposeInput = Required<ComposeRequest>;
@@ -59,19 +58,6 @@ function parseEvent(line: string): RunEvent | null {
   const parsed = RunEventSchema.safeParse(json);
   if (!parsed.success) throw new ApiError("The API sent an event this page does not understand.");
   return parsed.data;
-}
-
-const ErrorBodySchema = z.object({ error: z.string() });
-
-async function refusal(response: Response): Promise<ApiError> {
-  if (response.status === 401) {
-    return new ApiError("Your session has expired. Sign in again to compose a dataset.", 401);
-  }
-  const body = ErrorBodySchema.safeParse(await response.json().catch(() => undefined));
-  return new ApiError(
-    body.success ? body.data.error : `The API answered with status ${response.status}.`,
-    response.status,
-  );
 }
 
 /**
