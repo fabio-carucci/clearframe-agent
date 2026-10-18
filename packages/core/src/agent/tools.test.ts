@@ -41,6 +41,7 @@ function runWith(draft: ManifestWriter): RunContext & { events: RunEvent[] } {
       clips,
       clipsById,
       index: { vectors: { clip_0001: [1, 0], clip_0002: [1, 0] } } as unknown as EmbeddingIndex,
+      version: "test",
     },
     draft,
     decisions: new DecisionLog(clipsById),

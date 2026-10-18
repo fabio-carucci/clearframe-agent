@@ -25,7 +25,7 @@ function setup() {
   const clipsById = new Map(clips.map((c) => [c.id, c]));
   const events: RunEvent[] = [];
   const run: RunContext = {
-    data: { clips, clipsById, index: {} as EmbeddingIndex },
+    data: { clips, clipsById, index: {} as EmbeddingIndex, version: "test" },
     draft: new ManifestDraft(clipsById, { territory: "ES", date: "2026-10-01" }),
     decisions: new DecisionLog(clipsById),
     embedQuery: async () => {

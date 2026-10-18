@@ -35,3 +35,11 @@ describe("toRunError", () => {
     expect(toRunError(new Error("x".repeat(2000))).message).toHaveLength(500);
   });
 });
+
+describe("toRunError on timeouts", () => {
+  it("maps the AI SDK's TimeoutError, even when wrapped, to timeout", () => {
+    const timeout = new DOMException("total timeout of 45000ms exceeded", "TimeoutError");
+    expect(toRunError(timeout).code).toBe("timeout");
+    expect(toRunError(new Error("aborted", { cause: timeout })).code).toBe("timeout");
+  });
+});
