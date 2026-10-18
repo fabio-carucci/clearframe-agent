@@ -115,6 +115,10 @@ importers:
       '@clearframe/core':
         specifier: workspace:*
         version: link:../packages/core
+    devDependencies:
+      prettier:
+        specifier: ^3.9.10
+        version: 3.9.10
 
   packages/contracts:
     dependencies:

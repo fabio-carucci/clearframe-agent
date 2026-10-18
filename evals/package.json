@@ -9,5 +9,8 @@
   "dependencies": {
     "@clearframe/contracts": "workspace:*",
     "@clearframe/core": "workspace:*"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
   }
 }
