@@ -147,5 +147,5 @@ export async function handler(event: LambdaFunctionURLEvent): Promise<LambdaFunc
     ...(result.error && { errorCode: result.error.code, errorMessage: result.error.message }),
   });
 
-  return json(manifest.stopReason === "error" ? 502 : 200, manifest);
+  return json(manifest.stopReason === "error" ? 502 : 200, { manifest, steps: result.steps });
 }

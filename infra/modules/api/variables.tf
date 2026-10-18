@@ -38,6 +38,12 @@ variable "permissions_boundary_arn" {
   }
 }
 
+variable "cors_allow_origins" {
+  description = "Browser origins allowed to call the function URL. The bearer token is still required."
+  type        = list(string)
+  default     = []
+}
+
 variable "embedding_model_id" {
   type    = string
   default = "amazon.titan-embed-text-v2:0"

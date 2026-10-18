@@ -45,6 +45,14 @@ resource "aws_lambda_function" "agent" {
 resource "aws_lambda_function_url" "agent" {
   function_name      = aws_lambda_function.agent.function_name
   authorization_type = "NONE"
+
+  cors {
+    allow_origins  = var.cors_allow_origins
+    allow_methods  = ["POST"]
+    allow_headers  = ["authorization", "content-type"]
+    expose_headers = []
+    max_age        = 3600
+  }
 }
 
 # A NONE-auth URL needs both statements; the bearer token check happens in the handler.
