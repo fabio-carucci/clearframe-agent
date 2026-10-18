@@ -247,14 +247,16 @@ may invoke the function URL.
 
 - A CloudFront Function on `/api` rejects requests the Lambda would refuse anyway (not a POST, no
   body hash, a missing, malformed, expired or non-access token) before they invoke it. It cannot
-  check signatures, so the Lambda still verifies every token.
+  check signatures, so a forged token still reaches the Lambda, which rejects it in milliseconds:
+  a flood of those costs little but can take the account's concurrency. A per-IP rate limit in
+  AWS WAF would stop it, at about $6 a month, and is left out of this demo.
 - Each user may start 20 runs per UTC day (`daily_run_limit`). The Lambda counts them with one
   conditional, atomic DynamoDB update before it loads anything. Over the limit the answer is `429`;
   if the update fails, the request fails instead of running uncounted.
 - Each run stops at 15 steps, 150,000 tokens or 45 seconds.
 - Reserved concurrency would keep a flood from starving the account, but this account's limit is
-  10 concurrent executions and AWS keeps 10 unreserved, so none can be reserved until the quota is
-  raised (Service Quotas, code `L-B99A9384`).
+  10 concurrent executions and AWS keeps 10 unreserved, so none can be reserved until the quota
+  increase requested through Service Quotas (code `L-B99A9384`) is granted.
 
 **CI.** GitHub Actions assume AWS roles through OIDC, so no AWS keys live in GitHub. The trust
 policies match GitHub's immutable subject, which carries the owner and repository ids, so a

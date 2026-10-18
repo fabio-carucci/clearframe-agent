@@ -1,7 +1,7 @@
-// CloudFront Function (cloudfront-js-2.0), viewer request on /api. It turns away at the edge the
-// requests the Lambda would reject anyway, so a flood of them cannot take the account's few
-// concurrent executions. It cannot check the token's signature (the runtime has no RSA), so the
-// Lambda still verifies every token it receives.
+// CloudFront Function (cloudfront-js-2.0), viewer request on /api. It turns away, without invoking
+// the Lambda, requests with no well-formed, unexpired access token. It cannot check the token's
+// signature (the runtime has no RSA), so a forged token still reaches the Lambda, which rejects
+// it: a flood of forged tokens is bounded only by the account's Lambda concurrency.
 //
 // The runtime calls a top-level function named handler and does not support `export`.
 

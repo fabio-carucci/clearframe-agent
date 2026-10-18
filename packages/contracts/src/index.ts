@@ -51,6 +51,7 @@ export const ManifestEntrySchema = z.object({
   genre: GenreSchema,
   language: LanguageSchema,
   durationSec: z.number().int().positive(),
+  /** Written by the model, so a prompt can steer it; nothing here is checked by the rule. */
   reason: z.string().min(1),
   /** The license the rule cleared the clip on, kept so the manifest proves the clearance alone. */
   license: LicenseSchema,
@@ -79,6 +80,7 @@ export const ManifestSchema = z.object({
   clips: z.array(ManifestEntrySchema),
   rejected: z.array(RejectionSchema),
   stopReason: StopReasonSchema,
+  /** The model's own account of the run. Counts and verdicts come from `clips` and `rejected`. */
   summary: z.string(),
   usage: z.object({
     steps: z.number().int().nonnegative(),
@@ -137,6 +139,7 @@ export const RunEventSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("searching"), query: z.string(), filters: SearchFiltersSchema }),
   z.object({ type: z.literal("checking_rights"), clipIds: z.array(z.string()) }),
   z.object({ type: z.literal("proposing"), clipIds: z.array(z.string()) }),
+  /** Provisional: decisions as the rule makes them. Only `completed` issues a manifest. */
   z.object({ type: z.literal("clips"), decisions: z.array(ClipDecisionSchema) }),
   z.object({ type: z.literal("step"), step: StepSchema }),
   z.object({ type: z.literal("completed"), result: ComposeResponseSchema }),
