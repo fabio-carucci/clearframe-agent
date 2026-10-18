@@ -71,7 +71,7 @@ export async function compose(
   }
 
   const createdAt = deps.now();
-  const request = parseRunRequest(parseJsonBody(event), createdAt.toISOString().slice(0, 10));
+  const request = parseRunRequest(parseJsonBody(event), createdAt);
   if (!request.ok) {
     return sendJson(400, { error: request.error, issues: request.issues });
   }

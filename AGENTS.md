@@ -67,7 +67,9 @@ Each of these is load-bearing; most are pinned by a test.
 3. The manifest is built from the draft, never parsed from model text.
 4. `checkTrainingRights` stays pure (no clock, no I/O) and fails closed: a license is invalid on
    its expiry day, and a malformed date throws.
-5. The API rejects usage dates in the past, which would revive expired licenses.
+5. The API rejects usage dates in the past, which would revive expired licenses. A date is past
+   once it is past everywhere: the earliest accepted is the date at UTC-12, so `now` is needed,
+   not just today's date.
 6. Nothing under `apps/` or `packages/` imports from `evals/`. The rule-free draft exists only
    there.
 7. Raw provider error messages never reach API callers; callers get `RunError.code`.
