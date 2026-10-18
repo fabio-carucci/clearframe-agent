@@ -33,9 +33,19 @@ const result: RunResult = {
 
 const createdAt = new Date("2026-10-17T18:30:00.000Z");
 
-function recordingStore() {
+const stored = {
+  VersionId: "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY",
+  ChecksumSHA256: "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg=",
+};
+
+function recordingStore(response: object = stored) {
   const sent: unknown[] = [];
-  const client = { send: async (command: unknown) => void sent.push(command) };
+  const client = {
+    send: async (command: unknown) => {
+      sent.push(command);
+      return command instanceof PutObjectCommand ? response : {};
+    },
+  };
   const store = new AwsRunStore({
     tableName: "runs",
     bucket: "data-bucket",
@@ -74,6 +84,24 @@ describe("AwsRunStore", () => {
       expiresAt: createdAt.getTime() / 1000 + RUN_TTL_DAYS * 86_400,
     });
     expect((sent[1] as PutCommand).input.Item).toEqual(record);
+  });
+
+  it("records which version of the manifest the run wrote, and its checksum", async () => {
+    const { store, sent } = recordingStore();
+    const record = await store.save(result, createdAt, "user-123");
+    expect(record).toMatchObject({
+      manifestVersionId: stored.VersionId,
+      manifestSha256: stored.ChecksumSHA256,
+    });
+    expect((sent[1] as PutCommand).input.Item).toMatchObject({
+      manifestVersionId: stored.VersionId,
+    });
+  });
+
+  it("writes no run record when S3 does not say which version it stored", async () => {
+    const { store, sent } = recordingStore({});
+    await expect(store.save(result, createdAt, "user-123")).rejects.toThrow("no version");
+    expect(sent).toHaveLength(1);
   });
 
   it("locks the manifest in governance mode until the run record expires", async () => {

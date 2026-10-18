@@ -29,6 +29,12 @@ export interface RunRecord {
   costUsd: number;
   durationMs: number;
   manifestKey: string;
+  /**
+   * The locked S3 version and SHA-256 of the manifest written for this run. A later write to the
+   * same key makes a new current version; these identify the one the run produced.
+   */
+  manifestVersionId: string;
+  manifestSha256: string;
   errorCode?: string;
   /** Internal only: may name ARNs or accounts, never returned to API callers. */
   errorMessage?: string;
@@ -37,7 +43,10 @@ export interface RunRecord {
 export const manifestKeyFor = (runId: string, createdAt: Date) =>
   `manifests/${createdAt.toISOString().slice(0, 10)}/${runId}.json`;
 
-export function toRunRecord(result: RunResult, createdAt: Date, userId: string): RunRecord {
+/** A run record before its manifest is stored, which gives it the version and checksum. */
+export type RunRecordDraft = Omit<RunRecord, "manifestVersionId" | "manifestSha256">;
+
+export function toRunRecord(result: RunResult, createdAt: Date, userId: string): RunRecordDraft {
   const { manifest, steps, error } = result;
   return {
     runId: manifest.runId,
