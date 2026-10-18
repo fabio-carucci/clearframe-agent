@@ -1,7 +1,8 @@
 "use client";
 
 import type { RunEvent } from "@clearframe/contracts";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { BrandMark } from "@/components/brand-mark";
 import { Panel } from "@/components/panel";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -60,6 +61,13 @@ function Editor({ session, recording }: EditorProps) {
       );
     }
   };
+
+  // The Run tab shows the error too, but it may be hidden behind the Clip tab or below the fold.
+  const failure = run?.status === "failed" ? run.error : null;
+  const failedRun = failure ? run?.startedAt : undefined;
+  useEffect(() => {
+    if (failure) toast.error(failure);
+  }, [failure, failedRun]);
 
   const select = (clipId: string) => {
     setSelectedId(clipId);
