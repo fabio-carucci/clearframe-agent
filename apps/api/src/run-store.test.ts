@@ -76,6 +76,18 @@ describe("AwsRunStore", () => {
     expect((sent[1] as PutCommand).input.Item).toEqual(record);
   });
 
+  it("locks the manifest in governance mode until the run record expires", async () => {
+    const { store, sent } = recordingStore();
+    const record = await store.save(result, createdAt, "user-123");
+
+    expect((sent[0] as PutObjectCommand).input).toMatchObject({
+      ObjectLockMode: "GOVERNANCE",
+      ObjectLockRetainUntilDate: new Date(record.expiresAt * 1000),
+      ChecksumAlgorithm: "SHA256",
+    });
+    expect(record.catalogVersion).toBe(result.manifest.catalogVersion);
+  });
+
   it("never overwrites an existing run", async () => {
     const { store, sent } = recordingStore();
     await store.save(result, createdAt, "user-123");

@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "workload_boundary" {
 
   statement {
     sid       = "DataBucketObjects"
-    actions   = ["s3:GetObject", "s3:PutObject"]
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:PutObjectRetention"]
     resources = ["arn:aws:s3:::${var.data_bucket}/*"]
   }
 
@@ -290,6 +290,15 @@ data "aws_iam_policy_document" "ci_deploy" {
     sid       = "DescribeParameters"
     actions   = ["ssm:DescribeParameters"]
     resources = ["*"]
+  }
+
+  # Manifests are locked in governance mode; without this, s3:* would let CI delete them or
+  # shorten their retention.
+  statement {
+    sid       = "NeverBypassManifestRetention"
+    effect    = "Deny"
+    actions   = ["s3:BypassGovernanceRetention"]
+    resources = ["arn:aws:s3:::${var.data_bucket}/*"]
   }
 
   statement {

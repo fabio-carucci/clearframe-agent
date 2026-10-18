@@ -46,6 +46,22 @@ resource "aws_s3_bucket_policy" "data" {
   policy = data.aws_iam_policy_document.data_bucket.json
 }
 
+resource "aws_s3_bucket_versioning" "data" {
+  bucket = aws_s3_bucket.data.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# No default retention: the Lambda locks each manifest as it writes it, and catalog uploads stay
+# replaceable. Irreversible: once enabled, Object Lock stays on and versioning cannot be suspended.
+resource "aws_s3_bucket_object_lock_configuration" "data" {
+  bucket = aws_s3_bucket.data.id
+
+  depends_on = [aws_s3_bucket_versioning.data]
+}
+
 resource "aws_s3_bucket_lifecycle_configuration" "data" {
   bucket = aws_s3_bucket.data.id
 
@@ -60,7 +76,29 @@ resource "aws_s3_bucket_lifecycle_configuration" "data" {
     expiration {
       days = var.run_retention_days
     }
+
+    # In a versioned bucket, expiration only hides a manifest behind a delete marker. This deletes
+    # it the day after, once its Object Lock retention has passed.
+    noncurrent_version_expiration {
+      noncurrent_days = 1
+    }
   }
+
+  rule {
+    id     = "expire-replaced-catalogs"
+    status = "Enabled"
+
+    filter {
+      prefix = "data/"
+    }
+
+    # A replaced catalog is kept as long as the manifests that may have been cleared against it.
+    noncurrent_version_expiration {
+      noncurrent_days = var.run_retention_days
+    }
+  }
+
+  depends_on = [aws_s3_bucket_versioning.data]
 }
 
 resource "aws_s3_object" "catalog" {

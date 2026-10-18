@@ -41,7 +41,8 @@ resource "aws_lambda_function" "agent" {
     log_group  = aws_cloudwatch_log_group.agent.name
   }
 
-  depends_on = [aws_iam_role_policy.agent]
+  # The handler writes manifests with Object Lock retention, which fails on a bucket without it.
+  depends_on = [aws_iam_role_policy.agent, aws_s3_bucket_object_lock_configuration.data]
 }
 
 # Private: only principals granted lambda:InvokeFunctionUrl can call it. The web module grants
