@@ -11,6 +11,7 @@ locals {
   embedding_model_arn = "arn:aws:bedrock:${local.region}::foundation-model/${var.embedding_model_id}"
   ssm_parameters      = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.ssm_prefix}*"
   anthropic_key_param = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.ssm_prefix}anthropic-api-key"
+  auth_config_param   = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.ssm_prefix}auth-config"
 }
 
 resource "aws_iam_openid_connect_provider" "github" {
@@ -246,6 +247,54 @@ data "aws_iam_policy_document" "ci_deploy" {
       variable = "iam:PassedToService"
       values   = ["lambda.amazonaws.com"]
     }
+  }
+
+  statement {
+    sid       = "ManageWebBucket"
+    actions   = ["s3:*"]
+    resources = ["arn:aws:s3:::${var.web_bucket}", "arn:aws:s3:::${var.web_bucket}/*"]
+  }
+
+  statement {
+    sid     = "ManageCdn"
+    actions = ["cloudfront:*"]
+    resources = [
+      "arn:aws:cloudfront::${local.account_id}:distribution/*",
+      "arn:aws:cloudfront::${local.account_id}:origin-access-control/*",
+      "arn:aws:cloudfront::${local.account_id}:response-headers-policy/*",
+    ]
+  }
+
+  statement {
+    sid       = "ManageUserPools"
+    actions   = ["cognito-idp:*"]
+    resources = ["arn:aws:cognito-idp:${local.region}:${local.account_id}:userpool/*"]
+  }
+
+  statement {
+    sid       = "CreateUserPoolsAndReadDomains"
+    actions   = ["cognito-idp:CreateUserPool", "cognito-idp:DescribeUserPoolDomain"]
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "ManageAuthConfigParameter"
+    actions = [
+      "ssm:PutParameter",
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:DeleteParameter",
+      "ssm:AddTagsToResource",
+      "ssm:RemoveTagsFromResource",
+      "ssm:ListTagsForResource",
+    ]
+    resources = [local.auth_config_param]
+  }
+
+  statement {
+    sid       = "DescribeParameters"
+    actions   = ["ssm:DescribeParameters"]
+    resources = ["*"]
   }
 
   statement {
