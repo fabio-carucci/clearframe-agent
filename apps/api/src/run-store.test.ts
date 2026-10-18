@@ -1,6 +1,7 @@
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { describe, expect, it } from "vitest";
+import type { ClearanceCertificate } from "@clearframe/contracts";
 import type { RunResult } from "@clearframe/core/agent/run";
 import { RUN_TTL_DAYS } from "./run-record";
 import { AwsRunStore } from "./run-store";
@@ -34,6 +35,16 @@ const result: RunResult = {
 
 const createdAt = new Date("2026-10-17T18:30:00.000Z");
 
+const certificate: ClearanceCertificate = {
+  v: 1,
+  alg: "ES256",
+  keyId: "9c8a2f4e-1b3d-4e5f-8a7b-6c5d4e3f2a1b",
+  issuedAt: "2026-10-17T18:30:01.000Z",
+  runId: result.manifest.runId,
+  digests: { manifest: "a".repeat(64), clips: [] },
+  signature: "s".repeat(86),
+};
+
 const stored = {
   VersionId: "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY",
   ChecksumSHA256: "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg=",
@@ -59,14 +70,14 @@ function recordingStore(response: object = stored) {
 describe("AwsRunStore", () => {
   it("writes the manifest to S3 before the run record to DynamoDB", async () => {
     const { store, sent } = recordingStore();
-    await store.save(result, createdAt, "user-123");
+    await store.save(result, certificate, createdAt, "user-123");
     expect(sent[0]).toBeInstanceOf(PutObjectCommand);
     expect(sent[1]).toBeInstanceOf(PutCommand);
   });
 
   it("stores a record that points at the manifest and expires after the TTL", async () => {
     const { store, sent } = recordingStore();
-    const record = await store.save(result, createdAt, "user-123");
+    const record = await store.save(result, certificate, createdAt, "user-123");
 
     expect((sent[0] as PutObjectCommand).input.Key).toBe(
       "manifests/2026-10-17/11111111-1111-4111-8111-111111111111.json",
@@ -89,7 +100,7 @@ describe("AwsRunStore", () => {
 
   it("records which version of the manifest the run wrote, and its checksum", async () => {
     const { store, sent } = recordingStore();
-    const record = await store.save(result, createdAt, "user-123");
+    const record = await store.save(result, certificate, createdAt, "user-123");
     expect(record).toMatchObject({
       manifestVersionId: stored.VersionId,
       manifestSha256: stored.ChecksumSHA256,
@@ -101,13 +112,15 @@ describe("AwsRunStore", () => {
 
   it("writes no run record when S3 does not say which version it stored", async () => {
     const { store, sent } = recordingStore({});
-    await expect(store.save(result, createdAt, "user-123")).rejects.toThrow("no version");
+    await expect(store.save(result, certificate, createdAt, "user-123")).rejects.toThrow(
+      "no version",
+    );
     expect(sent).toHaveLength(1);
   });
 
   it("locks the manifest in governance mode until the run record expires", async () => {
     const { store, sent } = recordingStore();
-    const record = await store.save(result, createdAt, "user-123");
+    const record = await store.save(result, certificate, createdAt, "user-123");
 
     expect((sent[0] as PutObjectCommand).input).toMatchObject({
       ObjectLockMode: "GOVERNANCE",
@@ -119,7 +132,7 @@ describe("AwsRunStore", () => {
 
   it("never overwrites an existing run", async () => {
     const { store, sent } = recordingStore();
-    await store.save(result, createdAt, "user-123");
+    await store.save(result, certificate, createdAt, "user-123");
     expect((sent[1] as PutCommand).input.ConditionExpression).toBe("attribute_not_exists(runId)");
   });
 
@@ -161,12 +174,13 @@ describe("AwsRunStore", () => {
 
   it("reads back the recorded manifest version with checksum validation on", async () => {
     const sent: unknown[] = [];
+    let body: unknown = { manifest: result.manifest, certificate };
     const s3 = {
       send: async (command: unknown) => {
         sent.push(command);
         return {
           ChecksumSHA256: stored.ChecksumSHA256,
-          Body: { transformToString: async () => JSON.stringify(result.manifest) },
+          Body: { transformToString: async () => JSON.stringify(body) },
         };
       },
     };
@@ -181,7 +195,7 @@ describe("AwsRunStore", () => {
       manifestVersionId: stored.VersionId,
       manifestSha256: stored.ChecksumSHA256,
     } as never;
-    expect(await store.readManifest(record)).toMatchObject({ verified: true });
+    expect(await store.readManifest(record)).toMatchObject({ verified: true, certificate });
     expect((sent[0] as GetObjectCommand).input).toMatchObject({
       Key: "manifests/k.json",
       VersionId: stored.VersionId,
@@ -189,5 +203,18 @@ describe("AwsRunStore", () => {
     });
     const unverifiable = { manifestKey: "manifests/k.json" } as never;
     expect(await store.readManifest(unverifiable)).toMatchObject({ verified: false });
+
+    body = result.manifest;
+    const legacy = await store.readManifest(record);
+    expect(legacy).toMatchObject({ manifest: result.manifest });
+    expect(legacy).not.toHaveProperty("certificate");
+  });
+
+  it("stores the signed envelope, and records which key signed it", async () => {
+    const { store, sent } = recordingStore();
+    const record = await store.save(result, certificate, createdAt, "user-123");
+    const body = JSON.parse(String((sent[0] as PutObjectCommand).input.Body));
+    expect(body).toEqual({ manifest: result.manifest, certificate });
+    expect(record.signingKeyId).toBe(certificate.keyId);
   });
 });

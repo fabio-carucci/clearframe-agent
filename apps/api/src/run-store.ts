@@ -6,10 +6,12 @@ import {
   QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 import {
+  type ClearanceCertificate,
   type Manifest,
   ManifestSchema,
   type RunSummary,
   RunSummarySchema,
+  SignedManifestSchema,
 } from "@clearframe/contracts";
 import type { RunResult } from "@clearframe/core/agent/run";
 import {
@@ -20,14 +22,27 @@ import {
 } from "./run-record";
 
 export interface RunStore {
-  save(result: RunResult, createdAt: Date, userId: string): Promise<RunRecord>;
+  save(
+    result: RunResult,
+    certificate: ClearanceCertificate,
+    createdAt: Date,
+    userId: string,
+  ): Promise<RunRecord>;
+}
+
+/** A stored manifest, read back; manifests stored before signing existed have no certificate. */
+export interface StoredManifest {
+  manifest: Manifest;
+  certificate?: ClearanceCertificate;
+  /** S3 returned the checksum recorded with the run, for the version recorded with it. */
+  verified: boolean;
 }
 
 export interface RunHistory {
   listRuns(userId: string, limit: number): Promise<RunSummary[]>;
   findRun(runId: string): Promise<StoredRunRecord | null>;
   /** The manifest version the run wrote; null if it is in a format this code no longer reads. */
-  readManifest(record: StoredRunRecord): Promise<{ manifest: Manifest; verified: boolean } | null>;
+  readManifest(record: StoredRunRecord): Promise<StoredManifest | null>;
 }
 
 export interface AwsRunStoreConfig {
@@ -40,8 +55,13 @@ export interface AwsRunStoreConfig {
 export class AwsRunStore implements RunStore, RunHistory {
   constructor(private readonly config: AwsRunStoreConfig) {}
 
-  async save(result: RunResult, createdAt: Date, userId: string): Promise<RunRecord> {
-    const draft = toRunRecord(result, createdAt, userId);
+  async save(
+    result: RunResult,
+    certificate: ClearanceCertificate,
+    createdAt: Date,
+    userId: string,
+  ): Promise<RunRecord> {
+    const draft = toRunRecord(result, certificate, createdAt, userId);
     const { tableName, bucket, s3, dynamo } = this.config;
 
     // Manifest first: a run record must never point at a manifest that was not written.
@@ -49,7 +69,8 @@ export class AwsRunStore implements RunStore, RunHistory {
       new PutObjectCommand({
         Bucket: bucket,
         Key: draft.manifestKey,
-        Body: JSON.stringify(result.manifest),
+        // The same signed envelope the page downloads, so the stored copy verifies on its own.
+        Body: JSON.stringify({ manifest: result.manifest, certificate }),
         ContentType: "application/json",
         // Kept unchanged as long as its run record. Governance mode, not compliance: an
         // administrator can still delete it early, for instance to honour an erasure request.
@@ -102,9 +123,7 @@ export class AwsRunStore implements RunStore, RunHistory {
     return (Item as StoredRunRecord | undefined) ?? null;
   }
 
-  async readManifest(
-    record: StoredRunRecord,
-  ): Promise<{ manifest: Manifest; verified: boolean } | null> {
+  async readManifest(record: StoredRunRecord): Promise<StoredManifest | null> {
     const object = await this.config.s3.send(
       new GetObjectCommand({
         Bucket: this.config.bucket,
@@ -114,12 +133,18 @@ export class AwsRunStore implements RunStore, RunHistory {
         ChecksumMode: "ENABLED",
       }),
     );
-    const manifest = ManifestSchema.safeParse(
-      JSON.parse((await object.Body?.transformToString()) ?? "null"),
-    );
-    if (!manifest.success) return null;
+    const body: unknown = JSON.parse((await object.Body?.transformToString()) ?? "null");
+    // Runs stored before signing existed hold the bare manifest.
+    const signed = SignedManifestSchema.safeParse(body);
+    const bare = signed.success ? null : ManifestSchema.safeParse(body);
+    const manifest = signed.success ? signed.data.manifest : bare?.success ? bare.data : null;
+    if (!manifest) return null;
     const verified =
       record.manifestSha256 !== undefined && object.ChecksumSHA256 === record.manifestSha256;
-    return { manifest: manifest.data, verified };
+    return {
+      manifest,
+      ...(signed.success && { certificate: signed.data.certificate }),
+      verified,
+    };
   }
 }
