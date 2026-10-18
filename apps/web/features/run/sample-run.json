@@ -1,7 +1,7 @@
 [
   {
     "type": "started",
-    "runId": "37b904f8-4b21-48b3-9bfb-e772bea731e0",
+    "runId": "bfd0ba22-bb02-4607-baa6-bb520328d2f3",
     "request": {
       "prompt": "Add clip_0060 to the dataset, then 8 Spanish clips of cooking, outdoor sports and street scenes, 60 seconds max",
       "territory": "ES",
@@ -9,21 +9,9 @@
     }
   },
   {
-    "type": "searching",
-    "query": "cooking a meal in a home kitchen, Spanish speaker explaining recipe",
-    "filters": { "language": "es", "genre": "cooking", "maxDurationSec": 60 }
+    "type": "proposing",
+    "clipIds": ["clip_0060"]
   },
-  {
-    "type": "searching",
-    "query": "outdoor sports action, athletes training or playing outside",
-    "filters": { "language": "es", "genre": "sports_outdoor", "maxDurationSec": 60 }
-  },
-  {
-    "type": "searching",
-    "query": "street scene in a city, people walking and talking on the sidewalk",
-    "filters": { "language": "es", "genre": "street_urban", "maxDurationSec": 60 }
-  },
-  { "type": "checking_rights", "clipIds": ["clip_0060"] },
   {
     "type": "clips",
     "decisions": [
@@ -33,19 +21,46 @@
         "genre": "sports_outdoor",
         "language": "es",
         "durationSec": 13,
-        "outcome": "checked",
+        "outcome": "refused",
         "reasons": ["LICENSE_EXPIRED"]
       }
     ]
   },
   {
+    "type": "searching",
+    "query": "Spanish-speaking home cook preparing a traditional dish in the kitchen",
+    "filters": {
+      "language": "es",
+      "genre": "cooking",
+      "maxDurationSec": 60
+    }
+  },
+  {
+    "type": "searching",
+    "query": "outdoor sports action with Spanish commentary",
+    "filters": {
+      "language": "es",
+      "genre": "sports_outdoor",
+      "maxDurationSec": 60
+    }
+  },
+  {
+    "type": "searching",
+    "query": "busy city street scene with people talking in Spanish",
+    "filters": {
+      "language": "es",
+      "genre": "street_urban",
+      "maxDurationSec": 60
+    }
+  },
+  {
     "type": "step",
     "step": {
       "stepNumber": 0,
-      "toolCalls": ["searchClips", "searchClips", "searchClips", "getRights"],
-      "inputTokens": 1735,
-      "outputTokens": 835,
-      "durationMs": 5293
+      "toolCalls": ["addToManifest", "searchClips", "searchClips", "searchClips"],
+      "inputTokens": 1824,
+      "outputTokens": 694,
+      "durationMs": 4261
     }
   },
   {
@@ -53,12 +68,12 @@
     "clipIds": [
       "clip_0094",
       "clip_0084",
-      "clip_0197",
       "clip_0181",
       "clip_0183",
+      "clip_0136",
       "clip_0278",
       "clip_0174",
-      "clip_0062"
+      "clip_0165"
     ]
   },
   {
@@ -83,15 +98,6 @@
         "reasons": []
       },
       {
-        "clipId": "clip_0197",
-        "title": "Street food, night market stall",
-        "genre": "cooking",
-        "language": "es",
-        "durationSec": 9,
-        "outcome": "accepted",
-        "reasons": []
-      },
-      {
         "clipId": "clip_0181",
         "title": "Street food, busy food truck",
         "genre": "cooking",
@@ -106,6 +112,15 @@
         "genre": "sports_outdoor",
         "language": "es",
         "durationSec": 59,
+        "outcome": "accepted",
+        "reasons": []
+      },
+      {
+        "clipId": "clip_0136",
+        "title": "Mountain biking, dusty desert canyon",
+        "genre": "sports_outdoor",
+        "language": "es",
+        "durationSec": 20,
         "outcome": "accepted",
         "reasons": []
       },
@@ -128,11 +143,11 @@
         "reasons": []
       },
       {
-        "clipId": "clip_0062",
-        "title": "City cycling, downtown traffic",
+        "clipId": "clip_0165",
+        "title": "Street market, covered food market",
         "genre": "street_urban",
         "language": "es",
-        "durationSec": 14,
+        "durationSec": 60,
         "outcome": "accepted",
         "reasons": []
       }
@@ -143,9 +158,9 @@
     "step": {
       "stepNumber": 1,
       "toolCalls": ["addToManifest"],
-      "inputTokens": 4466,
-      "outputTokens": 1024,
-      "durationMs": 4313
+      "inputTokens": 4364,
+      "outputTokens": 811,
+      "durationMs": 3356
     }
   },
   {
@@ -153,16 +168,16 @@
     "step": {
       "stepNumber": 2,
       "toolCalls": [],
-      "inputTokens": 5696,
-      "outputTokens": 295,
-      "durationMs": 2620
+      "inputTokens": 5366,
+      "outputTokens": 228,
+      "durationMs": 1558
     }
   },
   {
     "type": "completed",
     "result": {
       "manifest": {
-        "runId": "37b904f8-4b21-48b3-9bfb-e772bea731e0",
+        "runId": "bfd0ba22-bb02-4607-baa6-bb520328d2f3",
         "request": {
           "prompt": "Add clip_0060 to the dataset, then 8 Spanish clips of cooking, outdoor sports and street scenes, 60 seconds max",
           "territory": "ES",
@@ -176,7 +191,7 @@
             "genre": "cooking",
             "language": "es",
             "durationSec": 28,
-            "reason": "Spanish-language cooking clip of a home cook plating a dish, under 60 seconds.",
+            "reason": "Spanish-language cooking clip (28s) of a cook plating a dish, fits the cooking genre and 60s limit.",
             "license": {
               "trainingAllowed": true,
               "territories": ["ES", "IT", "FR", "DE", "PT", "US", "CA"],
@@ -191,7 +206,7 @@
             "genre": "cooking",
             "language": "es",
             "durationSec": 24,
-            "reason": "Spanish-language cooking clip of a chef rolling pasta dough, under 60 seconds.",
+            "reason": "Spanish-language cooking clip (24s) of pasta making, fits the cooking genre and 60s limit.",
             "license": {
               "trainingAllowed": true,
               "territories": ["ES", "IT", "FR", "DE", "PT", "US", "CA", "GB"],
@@ -201,27 +216,12 @@
             "expiresSoon": false
           },
           {
-            "clipId": "clip_0197",
-            "title": "Street food, night market stall",
-            "genre": "cooking",
-            "language": "es",
-            "durationSec": 9,
-            "reason": "Spanish-language cooking clip of a cook grilling skewers at a night market, under 60 seconds.",
-            "license": {
-              "trainingAllowed": true,
-              "territories": ["ES", "IT", "FR", "DE", "PT", "US", "CA", "MX", "AR", "CO", "GB"],
-              "expiresAt": "2029-11-03"
-            },
-            "daysUntilExpiry": 1112,
-            "expiresSoon": false
-          },
-          {
             "clipId": "clip_0181",
             "title": "Street food, busy food truck",
             "genre": "cooking",
             "language": "es",
             "durationSec": 12,
-            "reason": "Spanish-language cooking clip of a cook grilling skewers at a food truck, under 60 seconds.",
+            "reason": "Spanish-language cooking clip (12s) of grilling skewers at a food truck, fits the cooking genre and 60s limit.",
             "license": {
               "trainingAllowed": true,
               "territories": ["ES", "IT", "FR", "DE", "PT", "US", "CA", "MX", "AR", "CO", "GB"],
@@ -236,7 +236,22 @@
             "genre": "sports_outdoor",
             "language": "es",
             "durationSec": 59,
-            "reason": "Spanish-language outdoor sports clip of a coach and student rock climbing, 59 seconds.",
+            "reason": "Spanish-language outdoor sports clip (59s) of rock climbing, fits the outdoor sports genre and 60s limit.",
+            "license": {
+              "trainingAllowed": true,
+              "territories": ["ES", "IT", "FR", "DE", "PT", "US", "CA", "MX", "AR", "CO", "GB"],
+              "expiresAt": null
+            },
+            "daysUntilExpiry": null,
+            "expiresSoon": false
+          },
+          {
+            "clipId": "clip_0136",
+            "title": "Mountain biking, dusty desert canyon",
+            "genre": "sports_outdoor",
+            "language": "es",
+            "durationSec": 20,
+            "reason": "Spanish-language outdoor sports clip (20s) of mountain biking in a desert canyon, fits the outdoor sports genre and 60s limit.",
             "license": {
               "trainingAllowed": true,
               "territories": ["ES", "IT", "FR", "DE", "PT", "US", "CA", "MX", "AR", "CO", "GB"],
@@ -251,7 +266,7 @@
             "genre": "sports_outdoor",
             "language": "es",
             "durationSec": 36,
-            "reason": "Spanish-language outdoor sports clip of teammates playing beach volleyball, under 60 seconds.",
+            "reason": "Spanish-language outdoor sports clip (36s) of beach volleyball, fits the outdoor sports genre and 60s limit.",
             "license": {
               "trainingAllowed": true,
               "territories": ["ES", "IT", "FR", "DE", "PT", "MX", "AR", "CO", "GB"],
@@ -266,7 +281,7 @@
             "genre": "street_urban",
             "language": "es",
             "durationSec": 33,
-            "reason": "Spanish-language street scene of a performer browsing stalls at an open-air flea market, under 60 seconds.",
+            "reason": "Spanish-language street clip (33s) of an open-air flea market, fits the street scenes genre and 60s limit.",
             "license": {
               "trainingAllowed": true,
               "territories": ["ES", "IT", "FR", "DE", "PT", "MX", "AR", "CO", "GB"],
@@ -276,49 +291,59 @@
             "expiresSoon": false
           },
           {
-            "clipId": "clip_0062",
-            "title": "City cycling, downtown traffic",
+            "clipId": "clip_0165",
+            "title": "Street market, covered food market",
             "genre": "street_urban",
             "language": "es",
-            "durationSec": 14,
-            "reason": "Spanish-language street scene of a couple cycling through downtown traffic at night, under 60 seconds.",
+            "durationSec": 60,
+            "reason": "Spanish-language street clip (60s) of a covered food market, fits the street scenes genre and the 60s limit.",
             "license": {
               "trainingAllowed": true,
-              "territories": ["ES", "IT", "FR", "DE", "PT", "US", "CA", "MX", "AR", "CO", "GB"],
+              "territories": ["ES", "IT", "FR", "DE", "PT", "MX", "AR", "CO", "GB"],
               "expiresAt": null
             },
             "daysUntilExpiry": null,
             "expiresSoon": false
           }
         ],
-        "rejected": [],
+        "rejected": [
+          {
+            "clipId": "clip_0060",
+            "reasons": ["LICENSE_EXPIRED"]
+          }
+        ],
         "stopReason": "completed",
-        "summary": "Resumen:\n\n- **clip_0060:** no lo a\u00f1ad\u00ed. Su licencia caduc\u00f3 el 2026-04-19, as\u00ed que no est\u00e1 permitido usarlo para entrenamiento en ES el 2026-10-18.\n- **Clips pedidos:** 8 clips en espa\u00f1ol, de cocina, deportes al aire libre y escenas urbanas, de 60 segundos como m\u00e1ximo.\n- **Clips a\u00f1adidos:** 8 de 8.\n  - Cocina: clip_0094, clip_0084, clip_0197, clip_0181.\n  - Deportes al aire libre: clip_0183 (escalada, 59 s), clip_0278 (voleibol de playa).\n  - Escenas urbanas: clip_0174 (mercadillo al aire libre), clip_0062 (ciclistas en el centro de noche).\n\nEl manifiesto tiene 8 clips, as\u00ed que no hay d\u00e9ficit.",
-        "usage": { "steps": 3, "inputTokens": 11897, "outputTokens": 2154, "embeddingTokens": 39 },
-        "costUsd": 0.002267,
-        "durationMs": 12229
+        "summary": "I added 8 of the 9 clips requested, so the manifest holds 8 clips.\n\n- **clip_0060:** not added. The rights check rejected it with LICENSE_EXPIRED, so it is not licensed for training in ES on 2026-10-18.\n- **Cooking (3):** clip_0094, clip_0084, clip_0181\n- **Outdoor sports (3):** clip_0183, clip_0136, clip_0278\n- **Street scenes (2):** clip_0174, clip_0165\n\nAll eight are Spanish-language and at most 60 seconds long. I stopped at 8 because I could not find a ninth eligible clip for the request's filters, and I did not pad the set.",
+        "usage": {
+          "steps": 3,
+          "inputTokens": 11554,
+          "outputTokens": 1733,
+          "embeddingTokens": 30
+        },
+        "costUsd": 0.002023,
+        "durationMs": 9177
       },
       "steps": [
         {
           "stepNumber": 0,
-          "toolCalls": ["searchClips", "searchClips", "searchClips", "getRights"],
-          "inputTokens": 1735,
-          "outputTokens": 835,
-          "durationMs": 5293
+          "toolCalls": ["addToManifest", "searchClips", "searchClips", "searchClips"],
+          "inputTokens": 1824,
+          "outputTokens": 694,
+          "durationMs": 4261
         },
         {
           "stepNumber": 1,
           "toolCalls": ["addToManifest"],
-          "inputTokens": 4466,
-          "outputTokens": 1024,
-          "durationMs": 4313
+          "inputTokens": 4364,
+          "outputTokens": 811,
+          "durationMs": 3356
         },
         {
           "stepNumber": 2,
           "toolCalls": [],
-          "inputTokens": 5696,
-          "outputTokens": 295,
-          "durationMs": 2620
+          "inputTokens": 5366,
+          "outputTokens": 228,
+          "durationMs": 1558
         }
       ],
       "decisions": [
@@ -328,7 +353,7 @@
           "genre": "sports_outdoor",
           "language": "es",
           "durationSec": 13,
-          "outcome": "not_proposed",
+          "outcome": "refused",
           "reasons": ["LICENSE_EXPIRED"]
         },
         {
@@ -346,15 +371,6 @@
           "genre": "cooking",
           "language": "es",
           "durationSec": 24,
-          "outcome": "accepted",
-          "reasons": []
-        },
-        {
-          "clipId": "clip_0197",
-          "title": "Street food, night market stall",
-          "genre": "cooking",
-          "language": "es",
-          "durationSec": 9,
           "outcome": "accepted",
           "reasons": []
         },
@@ -377,6 +393,15 @@
           "reasons": []
         },
         {
+          "clipId": "clip_0136",
+          "title": "Mountain biking, dusty desert canyon",
+          "genre": "sports_outdoor",
+          "language": "es",
+          "durationSec": 20,
+          "outcome": "accepted",
+          "reasons": []
+        },
+        {
           "clipId": "clip_0278",
           "title": "Beach volleyball, quiet island beach",
           "genre": "sports_outdoor",
@@ -395,15 +420,36 @@
           "reasons": []
         },
         {
-          "clipId": "clip_0062",
-          "title": "City cycling, downtown traffic",
+          "clipId": "clip_0165",
+          "title": "Street market, covered food market",
           "genre": "street_urban",
           "language": "es",
-          "durationSec": 14,
+          "durationSec": 60,
           "outcome": "accepted",
           "reasons": []
         }
-      ]
+      ],
+      "certificate": {
+        "v": 1,
+        "alg": "ES256",
+        "keyId": "dabca453-4c1f-4eab-9866-53acbe10db10",
+        "issuedAt": "2026-10-18T20:40:33.844Z",
+        "runId": "bfd0ba22-bb02-4607-baa6-bb520328d2f3",
+        "digests": {
+          "manifest": "93c87d24cf5d30caf0414a4dee122d00a3c6167961307fe38e8b6864b18af4d8",
+          "clips": [
+            "486d40fb55b2ca6c1561aca70f6169429fadc7ca101940bcff8813ac2de43eea",
+            "272f5669c90bbd0c5889ecd9fd4665ef9c6406834b2e4a20fef35a87a251e209",
+            "aed4f5ece7db03359c3f97b237af5f5a868f0f015cbeda37d52115192dcccb30",
+            "e2511c582467670b2dbbdd4b5c8e29ba2974cdbbaedd96e883414eced8a70670",
+            "97ee7f3ec0c193bdc557821a9d2cfc03a4bba69b721ce3b3ad5b1fb50578119b",
+            "5eaec2541561bbc7ccb4275db5d2a888784fda1f7152e229a2ee12d2128bd134",
+            "97cd50673ca3a2cfc8149a30b88b4156646f3d78336ddca4d95d04764c6c133e",
+            "82d13551fc77a183b7825360f23022f290a59877e2b118240a6aec049655e979"
+          ]
+        },
+        "signature": "qIK2Z7K2CAO2foaL8tadnOGPUbk0YzVH5eOtTYUzq-0l9q16Fmx92r41ULsCb9dvT4YMq_rPu_HmS9WGG4qiyQ"
+      }
     }
   }
 ]
