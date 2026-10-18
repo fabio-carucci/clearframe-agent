@@ -6,11 +6,11 @@ node_modules/
 dist/
 
 # Web
-web/.next/
-web/out/
-web/next-env.d.ts
-web/public/config.json
-web/tsconfig.tsbuildinfo
+apps/web/.next/
+apps/web/out/
+apps/web/next-env.d.ts
+apps/web/public/config.json
+apps/web/tsconfig.tsbuildinfo
 
 # Terraform
 .terraform/

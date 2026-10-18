@@ -233,6 +233,24 @@ for the same reason. There is no shared API token: callers present short-lived C
 | Static export on S3 and CloudFront            | Next.js on Vercel             | Nothing to render on a server, and it keeps the API private behind the same CDN.     |
 | `ToolLoopAgent` from the AI SDK               | A hand-written loop           | Standard loop with `stopWhen` hooks; control stays in the tools and stop conditions. |
 
+## Repository
+
+A pnpm workspace:
+
+```
+apps/api            Lambda: handler, Cognito token check, DynamoDB and S3 adapters
+apps/web            Static Next.js page
+packages/contracts  Zod schemas of the HTTP API, shared by the Lambda and the page
+packages/core       Catalog, rights rule, retrieval, agent loop, cost
+evals               Eval cases, metrics, runner and reports
+infra               Terraform stacks and modules
+data                Synthetic catalog and its embedding index
+```
+
+The page and the Lambda import the same contract package, so the shape of a request and a manifest
+is defined once. `packages/core` holds no storage or HTTP code, so the agent runs the same way from
+the CLI, the eval runner and the Lambda.
+
 ## Running it
 
 Requirements: Node 22+, pnpm, an Anthropic API key, and an AWS profile that can invoke Titan Text

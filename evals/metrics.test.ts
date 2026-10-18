@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Manifest } from "../src/agent/manifest";
-import type { Clip } from "../src/catalog/schema";
+import type { Manifest } from "@clearframe/contracts";
+import type { Clip } from "@clearframe/core/catalog/schema";
 import type { EvalCase } from "./cases";
 import { eligibleClipIds, filterPrecision, recall, rightsViolations, summarize } from "./metrics";
 

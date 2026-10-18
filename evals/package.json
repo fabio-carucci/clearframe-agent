@@ -1,0 +1,13 @@
+{
+  "name": "@clearframe/evals",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@clearframe/contracts": "workspace:*",
+    "@clearframe/core": "workspace:*"
+  }
+}

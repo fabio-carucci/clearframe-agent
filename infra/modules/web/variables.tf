@@ -8,7 +8,7 @@ variable "bucket_name" {
 }
 
 variable "site_dir" {
-  description = "Local directory with the Next.js static export. Run `pnpm --filter @clearframe/web build` first."
+  description = "Local directory with the Next.js static export. Run `pnpm web:build` first."
   type        = string
 }
 

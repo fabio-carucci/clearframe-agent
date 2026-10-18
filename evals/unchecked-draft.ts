@@ -1,11 +1,7 @@
-import type {
-  ManifestEntry,
-  ManifestWriter,
-  ProposalOutcome,
-  Rejection,
-} from "../src/agent/manifest";
-import type { Clip } from "../src/catalog/schema";
-import type { UsageRequest } from "../src/rights/check-training-rights";
+import type { ManifestEntry, Rejection } from "@clearframe/contracts";
+import type { ManifestWriter, ProposalOutcome } from "@clearframe/core/agent/manifest";
+import type { Clip } from "@clearframe/core/catalog/schema";
+import type { UsageRequest } from "@clearframe/core/rights/check-training-rights";
 
 /**
  * Ablation only: a draft that trusts the model and skips the rights rule, to measure how many

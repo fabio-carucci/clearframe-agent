@@ -1,5 +1,5 @@
 {
-  "name": "clearframe-agent",
+  "name": "clearframe",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,36 +8,21 @@
     "node": ">=22"
   },
   "scripts": {
-    "catalog:generate": "tsx scripts/generate-catalog.ts",
-    "catalog:embed": "tsx scripts/embed-catalog.ts",
-    "agent": "tsx --env-file-if-exists=.env scripts/run-agent.ts",
+    "typecheck": "pnpm -r typecheck",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "agent": "tsx --env-file-if-exists=.env packages/core/scripts/run-agent.ts",
     "eval": "tsx --env-file-if-exists=.env evals/run-evals.ts",
     "eval:no-rule": "tsx --env-file-if-exists=.env evals/run-evals.ts --no-rule",
-    "build:lambda": "tsx scripts/build-lambda.ts",
+    "catalog:generate": "tsx packages/core/scripts/generate-catalog.ts",
+    "catalog:embed": "tsx --env-file-if-exists=.env packages/core/scripts/embed-catalog.ts",
+    "build:lambda": "pnpm --filter @clearframe/api build",
     "web:dev": "pnpm --filter @clearframe/web dev",
-    "web:build": "pnpm --filter @clearframe/web build",
-    "web:typecheck": "pnpm --filter @clearframe/web typecheck"
-  },
-  "dependencies": {
-    "@ai-sdk/amazon-bedrock": "^5.0.117",
-    "@ai-sdk/anthropic": "^4.0.81",
-    "@aws-sdk/client-dynamodb": "^3.1152.0",
-    "@aws-sdk/client-s3": "^3.1152.0",
-    "@aws-sdk/client-ssm": "^3.1152.0",
-    "@aws-sdk/credential-providers": "^3.1152.0",
-    "@aws-sdk/lib-dynamodb": "^3.1152.0",
-    "ai": "^7.0.142",
-    "aws-jwt-verify": "5.2.1",
-    "zod": "^4.6.7"
+    "web:build": "pnpm --filter @clearframe/web build"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.164",
     "@types/node": "^26.6.5",
-    "esbuild": "^0.28.2",
     "prettier": "^3.9.10",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",

@@ -14,7 +14,7 @@ variable "data_dir" {
 }
 
 variable "lambda_dist_dir" {
-  description = "Local directory with the esbuild output (index.mjs). Run `pnpm build:lambda` first."
+  description = "Local directory with the esbuild output (index.mjs). Run `pnpm build:lambda` first; it writes apps/api/dist."
   type        = string
 }
 
