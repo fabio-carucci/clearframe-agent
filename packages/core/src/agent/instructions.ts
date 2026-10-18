@@ -12,13 +12,17 @@ export function buildInstructions(usage: Readonly<UsageRequest>, enforcesRights:
     "Read the request and work out the constraints it implies: spoken language, genre, maximum " +
       "clip duration, and how many clips are wanted.",
     "Call searchClips with an English description of the scenes and those constraints as " +
-      "filters. Search again with different descriptions if you need more candidates.",
+      "filters. Search again with different descriptions if you need more candidates." +
+      (enforcesRights
+        ? ` It only returns clips licensed for ${territory} on ${date}, ranked among all that ` +
+          "match the filters, so an empty result means none exists: do not search again with " +
+          "the same filters."
+        : ""),
     ...(enforcesRights
       ? [
           "Call addToManifest with the clips that meet every constraint of the request, each " +
-            "with a one-sentence reason tied to the request. You do not need to check licenses " +
-            `first: search only returns clips licensed for ${territory} on ${date}, and ` +
-            "addToManifest checks every license again.",
+            "with a one-sentence reason tied to the request. It checks every license again, so " +
+            "you do not need to check licenses first.",
         ]
       : [
           "Call getRights on the candidates you want to keep, and only propose clips that are " +
