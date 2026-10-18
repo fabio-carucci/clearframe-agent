@@ -49,6 +49,7 @@ export function recordedResult(events: RunEvent[]): ComposeResponse {
 export function replay(
   events: RunEvent[],
   onEvent: (event: RunEvent) => void,
+  signal?: AbortSignal,
 ): Promise<ComposeResponse> {
   return new Promise((resolve, reject) => {
     let result: ComposeResponse;
@@ -58,11 +59,15 @@ export function replay(
       reject(error);
       return;
     }
-    for (const { atMs, event } of scheduleReplay(events)) {
+    const timers = scheduleReplay(events).map(({ atMs, event }) =>
       setTimeout(() => {
         onEvent(event);
         if (event.type === "completed") resolve(result);
-      }, atMs);
-    }
+      }, atMs),
+    );
+    signal?.addEventListener("abort", () => {
+      for (const timer of timers) clearTimeout(timer);
+      reject(signal.reason);
+    });
   });
 }

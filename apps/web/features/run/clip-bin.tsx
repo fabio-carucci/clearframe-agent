@@ -4,24 +4,25 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ClipFrame } from "./clip-frame";
 import { formatCount, genreLabel, languageLabel, rejectionLabel } from "./format";
-import { type BinClip, type LiveRun, binClips } from "./live-run";
+import type { BinClip, LiveRun } from "./live-run";
 
 interface ClipBinProps {
   run: LiveRun | null;
+  clips: BinClip[];
   selectedId: string | null;
   onSelect: (clipId: string) => void;
   className?: string;
 }
 
 function Counts({ clips }: { clips: BinClip[] }) {
-  const cleared = clips.filter((clip) => clip.outcome === "accepted").length;
+  const accepted = clips.filter((clip) => clip.outcome === "accepted").length;
   const refused = clips.filter((clip) => clip.outcome === "refused").length;
   if (clips.length === 0) return null;
   return (
     <p className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
       <span className="inline-flex items-center gap-1.5">
         <span className="size-2 rounded-full bg-cleared" aria-hidden />
-        {formatCount(cleared)} cleared
+        {formatCount(accepted)} {clips[0]?.standing === "final" ? "cleared" : "accepted"}
       </span>
       <span className="inline-flex items-center gap-1.5">
         <span className="size-2 rounded-full bg-refused" aria-hidden />
@@ -65,8 +66,7 @@ function Searching() {
   );
 }
 
-export function ClipBin({ run, selectedId, onSelect, className }: ClipBinProps) {
-  const clips = run ? binClips(run) : [];
+export function ClipBin({ run, clips, selectedId, onSelect, className }: ClipBinProps) {
   return (
     <Panel title="Clips" actions={<Counts clips={clips} />} className={className}>
       {clips.length === 0 ? (
@@ -98,6 +98,7 @@ export function ClipBin({ run, selectedId, onSelect, className }: ClipBinProps) 
                     language={clip.language}
                     durationSec={clip.durationSec}
                     outcome={clip.outcome}
+                    standing={clip.standing}
                     refusal={
                       run && clip.reasons[0]
                         ? rejectionLabel(clip.reasons[0], run.request)

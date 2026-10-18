@@ -98,9 +98,15 @@
   font-weight: 550;
 }
 
-.frame[data-outcome="accepted"] .status {
+.frame[data-outcome="accepted"][data-standing="final"] .status {
   background: var(--cleared);
   color: #08201a;
+}
+
+/* Accepted by the rule, not yet on record: outlined, so it does not read as cleared. */
+.frame[data-outcome="accepted"][data-standing="recording"] .status {
+  box-shadow: inset 0 0 0 1px var(--cleared);
+  color: var(--cleared);
 }
 
 .frame[data-outcome="checked"] .status,

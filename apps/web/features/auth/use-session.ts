@@ -11,11 +11,17 @@ export type Session =
   | { status: "loading" }
   | { status: "unavailable"; message: string }
   | { status: "preview" }
-  | { status: "signedOut"; signIn: () => void }
+  | {
+      status: "signedOut";
+      signIn: () => void;
+      /** Why the user was signed out, if not by choice. */ notice: string | null;
+    }
   | {
       status: "signedIn";
       email: string;
       getAccessToken: () => Promise<string>;
+      /** Drops the session the API refused, so the page asks to sign in again. */
+      expire: (notice: string) => void;
       signOut: () => void;
     };
 
@@ -26,9 +32,12 @@ let pendingSignIn: Promise<User> | undefined;
 async function restoreUser(manager: UserManager): Promise<User | null> {
   const url = new URL(window.location.href);
   if (isSignInCallback(url)) {
-    const user = await (pendingSignIn ??= manager.signinRedirectCallback());
-    window.history.replaceState(null, "", "/");
-    return user;
+    try {
+      return await (pendingSignIn ??= manager.signinRedirectCallback());
+    } finally {
+      // The code is spent either way; leaving it in the URL would retry it on every reload.
+      window.history.replaceState(null, "", "/");
+    }
   }
   const user = await manager.getUser();
   return user && !user.expired ? user : null;
@@ -36,7 +45,8 @@ async function restoreUser(manager: UserManager): Promise<User | null> {
 
 async function accessToken(manager: UserManager): Promise<string> {
   const current = await manager.getUser();
-  const user = current && !current.expired ? current : await manager.signinSilent();
+  const user =
+    current && !current.expired ? current : await manager.signinSilent().catch(() => null);
   if (!user) throw new ApiError("Your session has expired. Sign in again.", 401);
   return user.access_token;
 }
@@ -53,13 +63,18 @@ export function useSession(): Session {
     [config.data],
   );
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!manager) return;
     let active = true;
     restoreUser(manager)
       .then((restored) => active && setUser(restored))
-      .catch(() => active && setUser(null));
+      .catch(() => {
+        if (!active) return;
+        setNotice("Sign-in did not complete. Try again.");
+        setUser(null);
+      });
     const onLoaded = (loaded: User) => setUser(loaded);
     const onUnloaded = () => setUser(null);
     manager.events.addUserLoaded(onLoaded);
@@ -78,12 +93,18 @@ export function useSession(): Session {
   if (config.data === null) return { status: "preview" };
   if (!manager || user === undefined) return { status: "loading" };
   const webConfig: WebConfig = config.data;
-  if (!user) return { status: "signedOut", signIn: () => void manager.signinRedirect() };
+  if (!user) {
+    return { status: "signedOut", signIn: () => void manager.signinRedirect(), notice };
+  }
 
   return {
     status: "signedIn",
     email: typeof user.profile.email === "string" ? user.profile.email : "Signed in",
     getAccessToken: () => accessToken(manager),
+    expire: (message) => {
+      setNotice(message);
+      void manager.removeUser();
+    },
     signOut: () => {
       // Cognito's logout ends the hosted sign-in session but leaves the refresh token valid for
       // hours. Revoking it stops new access tokens; one already issued still works until it

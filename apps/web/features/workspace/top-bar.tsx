@@ -3,11 +3,11 @@ import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { formatCount, formatRunTime, formatUsd } from "../run/format";
 import type { LiveRun } from "../run/live-run";
+import { useElapsed } from "../run/use-live-run";
 import { activityBlock } from "../run/timeline-model";
 
 interface TopBarProps {
   run: LiveRun | null;
-  elapsedMs: number;
   account?: { email: string; signOut: () => void };
 }
 
@@ -44,7 +44,8 @@ function Readout({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function TopBar({ run, elapsedMs, account }: TopBarProps) {
+export function TopBar({ run, account }: TopBarProps) {
+  const elapsedMs = useElapsed(run);
   const manifest = run?.result?.manifest;
   return (
     <header className="grid h-14 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-border bg-card px-4">

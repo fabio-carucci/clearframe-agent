@@ -26,6 +26,21 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 function Verdict({ clip, request }: { clip: BinClip; request: Manifest["request"] }) {
   switch (clip.outcome) {
     case "accepted":
+      if (clip.standing === "unrecorded") {
+        return (
+          <p className="text-muted-foreground">
+            The rule accepted this clip, but the run was not recorded, so no manifest includes it.
+          </p>
+        );
+      }
+      if (clip.standing === "recording") {
+        return (
+          <p className="text-muted-foreground">
+            The rule accepted this clip for {request.territory} on {longDate(request.date)}. It is
+            cleared once the run is recorded.
+          </p>
+        );
+      }
       return (
         <p className="flex items-start gap-2 text-cleared">
           <ShieldCheck className="mt-px size-4 shrink-0" aria-hidden />
@@ -60,11 +75,14 @@ function Verdict({ clip, request }: { clip: BinClip; request: Manifest["request"
 function License({ clip, request }: { clip: BinClip; request: Manifest["request"] }) {
   const entry = clip.entry;
   if (!entry) {
-    return clip.outcome === "accepted" ? (
+    if (clip.outcome !== "accepted") return null;
+    return (
       <p className="text-muted-foreground">
-        The license snapshot arrives when the run is recorded.
+        {clip.standing === "unrecorded"
+          ? "No license snapshot: the run was not recorded."
+          : "The license snapshot arrives when the run is recorded."}
       </p>
-    ) : null;
+    );
   }
   const { license, daysUntilExpiry, expiresSoon } = entry;
   return (
@@ -113,6 +131,7 @@ export function ClipDetails({ clip, request }: { clip: BinClip; request: Manifes
         language={clip.language}
         durationSec={clip.durationSec}
         outcome={clip.outcome}
+        standing={clip.standing}
         refusal={clip.reasons[0] && rejectionLabel(clip.reasons[0], request)}
         endsInDays={clip.entry?.expiresSoon ? clip.entry.daysUntilExpiry : null}
       />

@@ -1,11 +1,12 @@
 "use client";
 
 import type { RunEvent } from "@clearframe/contracts";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { BrandMark } from "@/components/brand-mark";
 import { Panel } from "@/components/panel";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { ApiError } from "@/lib/api-error";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { SignInScreen } from "../auth/sign-in-screen";
 import { type Session, useSession } from "../auth/use-session";
@@ -19,7 +20,7 @@ import { recordedResult, replay } from "../run/replay";
 import { RunSummary } from "../run/run-summary";
 import { SAMPLE_RECORDING } from "../run/sample";
 import { Timeline } from "../run/timeline";
-import { useElapsed, useLiveRun } from "../run/use-live-run";
+import { useLiveRun } from "../run/use-live-run";
 import { TopBar } from "./top-bar";
 
 const localToday = () => {
@@ -42,23 +43,27 @@ function Editor({ session, recording }: EditorProps) {
     recorded?.manifest.request ?? { prompt: "", territory: "ES", date: today },
   );
   const { run, start } = useLiveRun(recorded);
-  const elapsedMs = useElapsed(run);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState<DetailsTab>("run");
   const [sheetOpen, setSheetOpen] = useState(false);
-  const selected =
-    run && selectedId ? binClips(run).find((c) => c.clipId === selectedId) : undefined;
+  const clips = useMemo(() => (run ? binClips(run) : []), [run]);
+  const selected = clips.find((clip) => clip.clipId === selectedId);
 
   const begin = () => {
     setSelectedId(null);
     setTab("run");
     if (recording) {
-      void start(input, (onEvent) => replay(recording, onEvent));
+      void start(input, (onEvent, signal) => replay(recording, onEvent, signal));
     } else if (session) {
-      void start(input, async (onEvent) =>
-        composeLive(await session.getAccessToken(), input, onEvent),
-      );
+      void start(input, async (onEvent, signal) => {
+        try {
+          return await composeLive(await session.getAccessToken(), input, onEvent, signal);
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 401) session.expire(error.message);
+          throw error;
+        }
+      });
     }
   };
 
@@ -77,7 +82,7 @@ function Editor({ session, recording }: EditorProps) {
 
   return (
     <div className="flex min-h-dvh flex-col lg:h-dvh">
-      <TopBar run={run} elapsedMs={elapsedMs} account={session} />
+      <TopBar run={run} account={session} />
       <main className="grid flex-1 auto-rows-min grid-cols-[minmax(0,1fr)] gap-px bg-border md:grid-cols-[17rem_minmax(0,1fr)] lg:min-h-0 lg:auto-rows-auto lg:grid-cols-[19rem_minmax(0,1fr)_22rem] lg:grid-rows-[minmax(0,1fr)_13.5rem]">
         <RequestPanel
           value={input}
@@ -95,15 +100,21 @@ function Editor({ session, recording }: EditorProps) {
           onChange={setInput}
           onSubmit={begin}
         />
-        <ClipBin run={run} selectedId={selectedId} onSelect={select} className="min-h-72" />
+        <ClipBin
+          run={run}
+          clips={clips}
+          selectedId={selectedId}
+          onSelect={select}
+          className="min-h-72"
+        />
         <DetailsPanel
           run={run}
-          selectedId={selectedId}
+          clip={selected}
           tab={tab}
           onTabChange={setTab}
           className="hidden lg:flex"
         />
-        <Timeline run={run} elapsedMs={elapsedMs} className="md:col-span-2 lg:col-span-3" />
+        <Timeline run={run} className="md:col-span-2 lg:col-span-3" />
         <Panel title="Run" className="md:col-span-2 lg:hidden">
           <RunSummary run={run} />
         </Panel>
@@ -146,7 +157,7 @@ export function Workspace() {
         </Centered>
       );
     case "signedOut":
-      return <SignInScreen onSignIn={session.signIn} />;
+      return <SignInScreen onSignIn={session.signIn} notice={session.notice} />;
     case "preview":
       return <Editor recording={SAMPLE_RECORDING} />;
     case "signedIn":
