@@ -26,6 +26,7 @@ const result: RunResult = {
       durationMs: 900,
     },
   ],
+  decisions: [],
   error: { code: "provider_unavailable", message: "APICallError: overloaded" },
 };
 

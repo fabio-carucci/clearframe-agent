@@ -86,6 +86,8 @@ Each of these is load-bearing; most are pinned by a test.
     the `api`, `web` and `auth` modules.
 15. `packages/contracts` depends only on Zod, because it ships to the browser. `packages/core` holds
     no storage or HTTP adapters; those live in `apps/api`.
+16. Run events are emitted by the tools through `RunContext.emit`, and `emit` never throws into the
+    run: a client that disconnects must not stop a run from finishing and being recorded.
 
 ## Conventions
 

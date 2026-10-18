@@ -84,11 +84,48 @@ export const StepSchema = z.object({
   durationMs: z.number().nonnegative(),
 });
 
+/**
+ * What happened to one clip the agent touched. `checked` exists only while a run is going: by the
+ * end every checked clip was accepted, refused by the rule, or not proposed by the model.
+ * Catalog fields are null for ids the catalog does not know.
+ */
+export const ClipDecisionSchema = z.object({
+  clipId: z.string(),
+  title: z.string().nullable(),
+  genre: GenreSchema.nullable(),
+  language: LanguageSchema.nullable(),
+  durationSec: z.number().int().positive().nullable(),
+  outcome: z.enum(["checked", "accepted", "refused", "not_proposed"]),
+  /** The rule's reasons when it refuses or would refuse the clip; empty when it is eligible. */
+  reasons: z.array(z.enum(PROPOSAL_REJECTIONS)),
+});
+
 /** Response of POST /api, also sent with status 502 when a run fails part-way. */
 export const ComposeResponseSchema = z.object({
   manifest: ManifestSchema,
   steps: z.array(StepSchema),
+  decisions: z.array(ClipDecisionSchema),
 });
+
+const SearchFiltersSchema = z.object({
+  language: LanguageSchema.optional(),
+  genre: GenreSchema.optional(),
+  maxDurationSec: z.number().int().positive().optional(),
+});
+
+/**
+ * One line of the NDJSON stream POST /api sends when the client accepts application/x-ndjson.
+ * The last event of a run is always `completed`.
+ */
+export const RunEventSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("started"), runId: z.uuid(), request: ManifestSchema.shape.request }),
+  z.object({ type: z.literal("searching"), query: z.string(), filters: SearchFiltersSchema }),
+  z.object({ type: z.literal("checking_rights"), clipIds: z.array(z.string()) }),
+  z.object({ type: z.literal("proposing"), clipIds: z.array(z.string()) }),
+  z.object({ type: z.literal("clips"), decisions: z.array(ClipDecisionSchema) }),
+  z.object({ type: z.literal("step"), step: StepSchema }),
+  z.object({ type: z.literal("completed"), result: ComposeResponseSchema }),
+]);
 
 export type Genre = z.infer<typeof GenreSchema>;
 export type Language = z.infer<typeof LanguageSchema>;
@@ -100,4 +137,6 @@ export type Rejection = z.infer<typeof RejectionSchema>;
 export type StopReason = z.infer<typeof StopReasonSchema>;
 export type Manifest = z.infer<typeof ManifestSchema>;
 export type Step = z.infer<typeof StepSchema>;
+export type ClipDecision = z.infer<typeof ClipDecisionSchema>;
 export type ComposeResponse = z.infer<typeof ComposeResponseSchema>;
+export type RunEvent = z.infer<typeof RunEventSchema>;

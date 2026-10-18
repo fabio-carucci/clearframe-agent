@@ -1,5 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { type Manifest, ManifestSchema, type Step, type StopReason } from "@clearframe/contracts";
+import {
+  type ClipDecision,
+  type Manifest,
+  ManifestSchema,
+  type RunEvent,
+  type Step,
+  type StopReason,
+} from "@clearframe/contracts";
 import type { FinishReason } from "ai";
 import type { z } from "zod";
 import type { CatalogData } from "../catalog/load";
@@ -7,6 +14,7 @@ import type { UsageRequest } from "../rights/check-training-rights";
 import { MAX_STEPS, TOKEN_BUDGET, createClipAgent } from "./agent";
 import type { RunContext } from "./context";
 import { estimateCostUsd } from "./cost";
+import { DecisionLog } from "./decisions";
 import { type RunError, toRunError } from "./errors";
 import { ManifestDraft, type ManifestWriter } from "./manifest";
 
@@ -17,6 +25,7 @@ export type RunRequest = z.infer<typeof RunRequestSchema>;
 export interface RunResult {
   manifest: Manifest;
   steps: Step[];
+  decisions: ClipDecision[];
   error?: RunError;
 }
 
@@ -24,7 +33,8 @@ export interface RunDeps {
   data: CatalogData;
   embedQuery: RunContext["embedQuery"];
   runId?: string;
-  onStep?: (step: Step) => void;
+  /** Receives every event of the run as it happens, ending with `completed`. */
+  onEvent?: (event: RunEvent) => void;
   /** Eval-only seam for the no-rule ablation; production always uses ManifestDraft. */
   createDraft?: (data: CatalogData, usage: UsageRequest) => ManifestWriter;
 }
@@ -49,12 +59,24 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
 
   const createDraft =
     deps.createDraft ?? ((data, usage) => new ManifestDraft(data.clipsById, usage));
+  const emit = (event: RunEvent) => {
+    try {
+      deps.onEvent?.(event);
+    } catch {
+      // A listener that fails, such as a stream the client closed, must not stop the run:
+      // it still has to finish and be recorded.
+    }
+  };
+
   const run: RunContext = {
     data: deps.data,
     draft: createDraft(deps.data, { territory, date }),
+    decisions: new DecisionLog(deps.data.clipsById),
     embedQuery: deps.embedQuery,
+    emit,
     stats: { embeddingTokens: 0 },
   };
+  emit({ type: "started", runId, request: { prompt, territory, date } });
 
   const steps: Step[] = [];
   let stepStartedAt = performance.now();
@@ -74,7 +96,7 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
         };
         stepStartedAt = now;
         steps.push(step);
-        deps.onStep?.(step);
+        emit({ type: "step", step });
       },
     });
     outcome = { finishReason: result.finishReason, text: result.text };
@@ -114,5 +136,8 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
     durationMs: Math.round(performance.now() - startedAt),
   });
 
-  return { manifest, steps, ...("error" in outcome && { error: outcome.error }) };
+  const decisions = run.decisions.final();
+  emit({ type: "completed", result: { manifest, steps, decisions } });
+
+  return { manifest, steps, decisions, ...("error" in outcome && { error: outcome.error }) };
 }

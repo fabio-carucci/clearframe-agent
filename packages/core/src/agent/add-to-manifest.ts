@@ -21,8 +21,17 @@ export const createAddToManifestTool = (run: RunContext) =>
         .min(1)
         .max(MAX_BATCH),
     }),
-    execute: async ({ items }) => ({
-      outcomes: items.map(({ clipId, reason }) => run.draft.propose(clipId, reason)),
-      manifestSize: run.draft.entries.length,
-    }),
+    execute: async ({ items }) => {
+      run.emit({ type: "proposing", clipIds: items.map((item) => item.clipId) });
+      const outcomes = items.map(({ clipId, reason }) => run.draft.propose(clipId, reason));
+      run.emit({
+        type: "clips",
+        decisions: outcomes.map((outcome) =>
+          outcome.status === "accepted"
+            ? run.decisions.record(outcome.clipId, "accepted", [])
+            : run.decisions.record(outcome.clipId, "refused", outcome.reasons),
+        ),
+      });
+      return { outcomes, manifestSize: run.draft.entries.length };
+    },
   });

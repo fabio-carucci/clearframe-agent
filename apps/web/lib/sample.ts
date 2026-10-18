@@ -84,4 +84,5 @@ export const SAMPLE_RUN: ComposeResponse = {
     },
     { stepNumber: 3, toolCalls: [], inputTokens: 5225, outputTokens: 324, durationMs: 2331 },
   ],
+  decisions: [],
 };

@@ -1,3 +1,4 @@
+import type { RunEvent } from "@clearframe/contracts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Clip } from "../catalog/schema";
 import type { EmbeddingIndex } from "../retrieval/embeddings";
@@ -92,5 +93,43 @@ describe("runClipAgent", () => {
       runClipAgent({ prompt: "surf", territory: "Spain", date: "2026-10-17" }, deps),
     ).rejects.toThrow();
     expect(createClipAgent).not.toHaveBeenCalled();
+  });
+
+  it("streams started, each step and completed, and returns the final clip decisions", async () => {
+    fakeAgent((run) => async ({ onStepEnd }) => {
+      run.decisions.record("clip_0001", "checked", []);
+      onStepEnd({
+        stepNumber: 0,
+        usage: { inputTokens: 50, outputTokens: 5 },
+        toolCalls: [{ toolName: "getRights" }],
+      });
+      return { finishReason: "stop", text: "done" };
+    });
+    const events: RunEvent[] = [];
+
+    const { decisions } = await runClipAgent(
+      { prompt: "surf", territory: "ES", date: "2026-10-17" },
+      { ...deps, onEvent: (event) => events.push(event) },
+    );
+
+    expect(events.map((event) => event.type)).toEqual(["started", "step", "completed"]);
+    expect(decisions).toEqual([
+      expect.objectContaining({ clipId: "clip_0001", outcome: "not_proposed" }),
+    ]);
+    expect(events.at(-1)).toMatchObject({ type: "completed", result: { decisions } });
+  });
+
+  it("finishes the run even when the event listener throws", async () => {
+    fakeAgent(() => async () => ({ finishReason: "stop", text: "done" }));
+    const { manifest } = await runClipAgent(
+      { prompt: "surf", territory: "ES", date: "2026-10-17" },
+      {
+        ...deps,
+        onEvent: () => {
+          throw new Error("client went away");
+        },
+      },
+    );
+    expect(manifest.stopReason).toBe("completed");
   });
 });
