@@ -46,14 +46,14 @@ function recordingStore() {
 describe("AwsRunStore", () => {
   it("writes the manifest to S3 before the run record to DynamoDB", async () => {
     const { store, sent } = recordingStore();
-    await store.save(result, createdAt);
+    await store.save(result, createdAt, "user-123");
     expect(sent[0]).toBeInstanceOf(PutObjectCommand);
     expect(sent[1]).toBeInstanceOf(PutCommand);
   });
 
   it("stores a record that points at the manifest and expires after the TTL", async () => {
     const { store, sent } = recordingStore();
-    const record = await store.save(result, createdAt);
+    const record = await store.save(result, createdAt, "user-123");
 
     expect((sent[0] as PutObjectCommand).input.Key).toBe(
       "manifests/2026-10-17/11111111-1111-4111-8111-111111111111.json",
@@ -62,6 +62,7 @@ describe("AwsRunStore", () => {
       runId: result.manifest.runId,
       day: "2026-10-17",
       status: "error",
+      userId: "user-123",
       errorCode: "provider_unavailable",
       errorMessage: "APICallError: overloaded",
       territory: "ES",
@@ -76,7 +77,7 @@ describe("AwsRunStore", () => {
 
   it("never overwrites an existing run", async () => {
     const { store, sent } = recordingStore();
-    await store.save(result, createdAt);
+    await store.save(result, createdAt, "user-123");
     expect((sent[1] as PutCommand).input.ConditionExpression).toBe("attribute_not_exists(runId)");
   });
 });

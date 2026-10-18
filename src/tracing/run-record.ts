@@ -12,6 +12,8 @@ export interface RunRecord {
   /** Epoch seconds; DynamoDB TTL deletes the item after this. */
   expiresAt: number;
   status: "ok" | "error";
+  /** Cognito subject of the caller, so cost can be attributed per user. */
+  userId: string;
   model: string;
   prompt: string;
   territory: string;
@@ -34,7 +36,7 @@ export interface RunRecord {
 export const manifestKeyFor = (runId: string, createdAt: Date) =>
   `manifests/${createdAt.toISOString().slice(0, 10)}/${runId}.json`;
 
-export function toRunRecord(result: RunResult, createdAt: Date): RunRecord {
+export function toRunRecord(result: RunResult, createdAt: Date, userId: string): RunRecord {
   const { manifest, steps, error } = result;
   return {
     runId: manifest.runId,
@@ -42,6 +44,7 @@ export function toRunRecord(result: RunResult, createdAt: Date): RunRecord {
     createdAt: createdAt.toISOString(),
     expiresAt: Math.floor(createdAt.getTime() / 1000) + RUN_TTL_DAYS * 86_400,
     status: manifest.stopReason === "error" ? "error" : "ok",
+    userId,
     model: MODEL_ID,
     ...manifest.request,
     stopReason: manifest.stopReason,

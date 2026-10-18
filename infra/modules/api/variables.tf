@@ -23,8 +23,8 @@ variable "anthropic_key_param" {
   type        = string
 }
 
-variable "api_token_param" {
-  description = "Name of the SecureString SSM parameter with the bearer token callers must send. Created outside Terraform."
+variable "auth_config_param" {
+  description = "Name of the String SSM parameter holding the Cognito user pool and client ids the Lambda verifies tokens against. Read at runtime to avoid a dependency cycle between the API, the CDN and Cognito."
   type        = string
 }
 

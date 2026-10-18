@@ -4,7 +4,7 @@ import type { RunResult } from "../agent/run";
 import { type RunRecord, toRunRecord } from "./run-record";
 
 export interface RunStore {
-  save(result: RunResult, createdAt: Date): Promise<RunRecord>;
+  save(result: RunResult, createdAt: Date, userId: string): Promise<RunRecord>;
 }
 
 export interface AwsRunStoreConfig {
@@ -17,8 +17,8 @@ export interface AwsRunStoreConfig {
 export class AwsRunStore implements RunStore {
   constructor(private readonly config: AwsRunStoreConfig) {}
 
-  async save(result: RunResult, createdAt: Date): Promise<RunRecord> {
-    const record = toRunRecord(result, createdAt);
+  async save(result: RunResult, createdAt: Date, userId: string): Promise<RunRecord> {
+    const record = toRunRecord(result, createdAt, userId);
     const { tableName, bucket, s3, dynamo } = this.config;
 
     // Manifest first: a run record must never point at a manifest that was not written.

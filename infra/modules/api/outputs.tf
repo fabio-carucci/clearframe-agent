@@ -2,6 +2,10 @@ output "function_url" {
   value = aws_lambda_function_url.agent.function_url
 }
 
+output "function_url_domain" {
+  value = trimsuffix(trimprefix(aws_lambda_function_url.agent.function_url, "https://"), "/")
+}
+
 output "function_name" {
   value = aws_lambda_function.agent.function_name
 }

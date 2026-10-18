@@ -6,12 +6,8 @@ An agent that assembles **rights-cleared video datasets for AI training**. You d
 dataset you need; the agent searches a clip catalog, checks every license, and returns a validated
 manifest: the clips it chose, why, what it refused, and what the request cost.
 
-```bash
-curl -X POST "$URL" -H "authorization: Bearer $TOKEN" -H "content-type: application/json" \
-  -d '{"prompt": "5 clip di natura in inglese", "territory": "ES"}'
-```
-
-The response, trimmed to one of the five clips:
+A signed-in user sends `{"prompt": "5 clip di natura in inglese", "territory": "ES"}` from the web
+app. The manifest that comes back, trimmed to one of the five clips:
 
 ```json
 {
@@ -35,6 +31,9 @@ The response, trimmed to one of the five clips:
 }
 ```
 
+The response wraps it as `{ manifest, steps }`, where `steps` lists every model call with its tools,
+tokens and duration.
+
 ## The model proposes, the rule decides
 
 The model is good at reading a request and finding relevant footage. It is not a legal control. So
@@ -51,8 +50,12 @@ expired clips into the dataset in **3 of 8** runs. With the rule in code: **0**.
 
 ```mermaid
 flowchart LR
-    client([Client]) -->|POST + bearer token| url[Lambda function URL]
-    url --> handler[Handler<br/>auth, validation]
+    user([Browser]) -->|sign in, PKCE| cognito[Cognito<br/>managed login]
+    user -->|/| cdn[CloudFront]
+    user -->|/api + access token| cdn
+    cdn -->|OAC| site[(S3<br/>static Next.js app)]
+    cdn -->|OAC, SigV4| url[Private Lambda<br/>function URL]
+    url --> handler[Handler<br/>JWT check, validation]
     handler --> loop[Agent loop<br/>Claude Haiku 5.5<br/>AI SDK ToolLoopAgent]
     loop -->|searchClips| search[Rights-aware search<br/>cosine over Titan V2 embeddings]
     loop -->|getRights| rights[checkTrainingRights]
@@ -86,6 +89,38 @@ malformed date throws instead of being read as "not expired". It reports every v
 **Retrieval.** 300 clips with 512-dimension Titan Text Embeddings V2 vectors, held in memory. Brute
 force cosine similarity is sub-millisecond at this size; a vector database would add a service to
 run without changing results. Past a few tens of thousands of clips, pgvector would be the next step.
+
+## Web app
+
+A single page, built with Next.js, React, TanStack Query and Tailwind, exported as static files.
+Users sign in with Cognito, describe a dataset, and see the clips the rule accepted, the ones it
+refused with the reason in plain words, each step the agent took, and the cost. The agent's own
+summary is shown separately and labelled as written by the model, because the lists come from the
+rule, not from that text.
+
+- **One domain.** CloudFront serves the page from a private S3 bucket and forwards `/api` to the
+  Lambda. Both origins use origin access control, so neither the bucket nor the function URL is
+  reachable from the internet, and there is no CORS to configure.
+- **Real sign-in.** Cognito managed login with the authorization code flow and PKCE
+  (`oidc-client-ts`), admin-created users only, one-hour access tokens. The Lambda verifies each
+  token with `aws-jwt-verify` and records the caller in the run record, so cost can be attributed
+  per user.
+- **Runtime configuration.** The page reads its Cognito settings from a `config.json` that
+  Terraform writes next to the build, and the Lambda reads the same ids from SSM. Neither is baked
+  in at build time, which breaks the api → CDN → Cognito dependency cycle and lets one build serve
+  any environment.
+- **Headers.** A Content Security Policy limits where the page can send data to its own origin and
+  Cognito, so even a script injection could not exfiltrate a token elsewhere. Hashed assets are
+  cached for a year; `index.html` and `config.json` are revalidated, so deploys need no
+  invalidation.
+
+Two details of the private function URL behind CloudFront: CloudFront signs origin requests with
+its own `Authorization` header, so the user's token travels in `x-clearframe-access-token`; and
+Lambda rejects unsigned payloads, so the browser sends the body's SHA-256 in
+`x-amz-content-sha256`.
+
+`pnpm web:dev` runs the page locally. Without a `config.json` it shows a recorded production run,
+with sign-in and live runs turned off.
 
 ## Evals
 
@@ -128,8 +163,8 @@ Every run gets a `runId`, returned in the manifest. The Lambda writes:
 
 - the manifest to S3 (`manifests/<day>/<runId>.json`) before the run record, so a record never
   points at a missing manifest;
-- a run record to DynamoDB with request, stop reason, per-step tool calls, tokens and durations,
-  cost and any internal error, keyed by `runId`, with a `byDay` index and a 90-day TTL;
+- a run record to DynamoDB with the caller, request, stop reason, per-step tool calls, tokens and
+  durations, cost and any internal error, keyed by `runId`, with a `byDay` index and a 90-day TTL;
 - one JSON log line per step to CloudWatch, queryable with Logs Insights:
 
 ```
@@ -138,7 +173,8 @@ filter event = "run_finished" | stats count(), avg(costUsd), pct(durationMs, 95)
 
 A typical request costs about **$0.002**: almost all of it is Haiku input tokens, since each step
 resends the conversation. Idle, the stack costs effectively nothing: Lambda and DynamoDB bill per
-request, S3 holds about 2 MB, and SSM standard parameters are free.
+request, S3 holds a few MB, CloudFront and Cognito stay inside their free tiers at this volume, and
+SSM standard parameters are free.
 
 ## Infrastructure
 
@@ -148,11 +184,18 @@ Terraform, with state in S3 and native S3 locking. Three root stacks:
 | ----------------- | ---------------- | ----------------------------------------------------------------------- |
 | `infra/bootstrap` | an administrator | The state bucket: versioned, encrypted, public access blocked, TLS only |
 | `infra/github`    | an administrator | GitHub OIDC provider, CI roles, the workload permissions boundary       |
-| `infra/env/dev`   | CI, on `main`    | The `api` module: Lambda, function URL, data bucket, runs table, logs   |
+| `infra/env/dev`   | CI, on `main`    | The `api`, `web` and `auth` modules, wired together                     |
+
+| Module | Contents                                                                                         |
+| ------ | ------------------------------------------------------------------------------------------------ |
+| `api`  | Lambda, private function URL, data bucket, runs table, log group, the Lambda role                |
+| `web`  | Private site bucket, CloudFront distribution with two origin access controls, security headers   |
+| `auth` | Cognito user pool (admin-only sign-up, optional TOTP MFA), managed login domain, PKCE app client |
 
 The Lambda role has six permissions, each scoped to one resource: write its own log group, read
-`data/*`, write `manifests/*`, `PutItem` on the runs table, read two named SSM parameters, and
-invoke one Bedrock model. It cannot list the bucket, query the table or call any other model.
+`data/*`, write `manifests/*`, `PutItem` on the runs table, read two named SSM parameters (the
+Anthropic key and the Cognito ids), and invoke one Bedrock model. It cannot list the bucket, query
+the table or call any other model. Only the CloudFront distribution may invoke the function URL.
 
 **CI.** GitHub Actions assume AWS roles through OIDC, so no AWS keys live in GitHub. The trust
 policies match GitHub's immutable subject, which carries the owner and repository ids, so a
@@ -164,27 +207,31 @@ re-created repository with the same name cannot assume them.
   and the `env/dev` state, and can create IAM roles only with a permissions boundary attached, so
   it cannot mint a role more powerful than the boundary.
 
-Pull requests run format, typecheck, tests, the Lambda build, `terraform validate` and the eval
-suite. Merges to `main` deploy `dev`. Every action is pinned to a commit SHA.
+Pull requests run format, typecheck, tests, the Lambda and web builds, `terraform validate` and the
+eval suite. Merges to `main` deploy `dev`. Every action is pinned to a commit SHA, and pnpm refuses
+packages published less than a day ago.
 
-**Secrets.** The Anthropic key and the API token are SSM `SecureString` parameters created with the
-AWS CLI, never through Terraform, whose state would hold them in plain text. The Lambda re-reads
-them every five minutes, so a rotated token stops working promptly.
+**Secrets.** The Anthropic key is an SSM `SecureString` parameter created with the AWS CLI, never
+through Terraform, whose state would hold it in plain text; Cognito users are created with the CLI
+for the same reason. There is no shared API token: callers present short-lived Cognito tokens.
 
 ## Decisions
 
-| Decision                                      | Instead of                   | Why                                                                                  |
-| --------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------ |
-| Rule in code, enforced at the only write path | Rule in the prompt           | Prompt-only failed 3 of 8 injection runs.                                            |
-| Territory and date as explicit API fields     | Parsed from the request text | They are contractual parameters; the model must not set what the rule checks.        |
-| Manifest built from accepted clips            | Model's final answer         | The model's summary is sometimes wrong about counts; the data is not.                |
-| Batched tools                                 | One clip per call            | Each step resends the conversation, so fewer steps cost far fewer tokens.            |
-| Claude Haiku 5.5, medium effort               | Sonnet 5.5                   | About 20× cheaper; evals show 100% precision and recall on this task.                |
-| In-memory cosine over 300 vectors             | A vector database            | Sub-millisecond, nothing to operate. pgvector past tens of thousands of clips.       |
-| Titan V2 embeddings on Bedrock                | Voyage, local models         | IAM auth from the Lambda role, no second API key, no model in the bundle.            |
-| DynamoDB records and JSON logs                | OpenTelemetry and X-Ray      | Covers per-run cost and steps with no collector to run; OTel is the next step.       |
-| Function URL with a bearer token              | API Gateway with Cognito     | One endpoint, one client; enough for a dev stack.                                    |
-| `ToolLoopAgent` from the AI SDK               | A hand-written loop          | Standard loop with `stopWhen` hooks; control stays in the tools and stop conditions. |
+| Decision                                      | Instead of                    | Why                                                                                  |
+| --------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------ |
+| Rule in code, enforced at the only write path | Rule in the prompt            | Prompt-only failed 3 of 8 injection runs.                                            |
+| Territory and date as explicit API fields     | Parsed from the request text  | They are contractual parameters; the model must not set what the rule checks.        |
+| Manifest built from accepted clips            | Model's final answer          | The model's summary is sometimes wrong about counts; the data is not.                |
+| Batched tools                                 | One clip per call             | Each step resends the conversation, so fewer steps cost far fewer tokens.            |
+| Claude Haiku 5.5, medium effort               | Sonnet 5.5                    | About 20× cheaper; evals show 100% precision and recall on this task.                |
+| In-memory cosine over 300 vectors             | A vector database             | Sub-millisecond, nothing to operate. pgvector past tens of thousands of clips.       |
+| Titan V2 embeddings on Bedrock                | Voyage, local models          | IAM auth from the Lambda role, no second API key, no model in the bundle.            |
+| DynamoDB records and JSON logs                | OpenTelemetry and X-Ray       | Covers per-run cost and steps with no collector to run; OTel is the next step.       |
+| Private function URL behind CloudFront        | Public URL or API Gateway     | One domain, no CORS, nothing public to abuse; WAF can attach to the distribution.    |
+| Cognito access tokens verified in the Lambda  | A shared bearer token         | Per-user identity and cost, tokens that expire, revocation by disabling a user.      |
+| Managed identity provider                     | An auth library (Better Auth) | The page is static and the Lambda stateless; there is no server or session store.    |
+| Static export on S3 and CloudFront            | Next.js on Vercel             | Nothing to render on a server, and it keeps the API private behind the same CDN.     |
+| `ToolLoopAgent` from the AI SDK               | A hand-written loop           | Standard loop with `stopWhen` hooks; control stays in the tools and stop conditions. |
 
 ## Running it
 
@@ -196,25 +243,29 @@ pnpm install
 cp .env.example .env            # add ANTHROPIC_API_KEY
 pnpm test
 pnpm agent --territory ES "100 outdoor sports clips in Spanish, licensed for training, 30 seconds max"
+pnpm web:dev                    # the page, with a recorded run
 ```
 
 The catalog is synthetic and deterministic (seed 42): 300 clips, of which 30 cannot be used for
 training, 30 are licensed only in Asia-Pacific and 30 have expired, so the rule always has
 something to refuse.
 
-Deploying from scratch: apply `infra/bootstrap`, create the two SSM parameters, apply
+Deploying from scratch: apply `infra/bootstrap`, create the Anthropic key parameter, apply
 `infra/github`, set the `AWS_EVAL_ROLE_ARN` and `AWS_DEPLOY_ROLE_ARN` repository variables, then
-run `pnpm build:lambda` and apply `infra/env/dev` (or merge to `main`).
+run `pnpm build:lambda && pnpm web:build` and apply `infra/env/dev` (or merge to `main`). Create users
+with `aws cognito-idp admin-create-user`; Cognito emails them a temporary password.
 
 ## Privacy
 
-Run records store the request prompt, which a user could fill with personal data. Records expire
-after 90 days, manifests after 90 days, logs after 14, and only the Lambda role can write them.
+Run records store the caller's Cognito id and the request prompt, which a user could fill with
+personal data. Records expire after 90 days, manifests after 90 days, logs after 14, and only the
+Lambda role can write them.
 
 ## Next steps
 
 - OpenTelemetry traces from the AI SDK, exported to X-Ray or a vendor, alongside the run records.
 - Separate AWS accounts per environment under AWS Organizations, with `staging` and `prod` stacks.
-- API Gateway or CloudFront in front of the function, for per-client auth, rate limiting and WAF.
+- AWS WAF on the distribution, with per-user rate limits and a monthly cost cap per user.
+- SSO for customer organizations through Cognito SAML or OIDC federation.
 - Prompt caching for the instructions and tool definitions, the largest repeated input.
 - Real ingest: scene-level metadata extracted from video, and licenses from a rights system of record.

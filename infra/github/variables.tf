@@ -20,6 +20,11 @@ variable "data_bucket" {
   default = "clearframe-dev-data-6iit7"
 }
 
+variable "web_bucket" {
+  type    = string
+  default = "clearframe-dev-web-6iit7"
+}
+
 variable "ssm_prefix" {
   description = "SSM path that holds the dev secrets."
   type        = string
