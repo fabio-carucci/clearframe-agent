@@ -117,11 +117,42 @@ export const ClipDecisionSchema = z.object({
   reasons: z.array(z.enum(PROPOSAL_REJECTIONS)),
 });
 
+const Sha256HexSchema = z.string().regex(/^[0-9a-f]{64}$/);
+
+/**
+ * Clearframe's signature over a manifest: a SHA-256 of the manifest without its clips, one per
+ * clip in order, then an ECDSA P-256 signature over the certificate without `signature`, so a
+ * change can be traced to a clip. `@clearframe/contracts/certificate` builds and checks it.
+ */
+export const ClearanceCertificateSchema = z.object({
+  v: z.literal(1),
+  alg: z.literal("ES256"),
+  /** The KMS key id (its UUID, not its ARN, which names the account). */
+  keyId: z.string().min(1),
+  /** When the manifest was signed; inside the signed bytes, so it is proven too. */
+  issuedAt: z.iso.datetime(),
+  runId: z.uuid(),
+  digests: z.object({
+    manifest: Sha256HexSchema,
+    clips: z.array(Sha256HexSchema),
+  }),
+  /** Raw r‖s, 64 bytes, base64url. */
+  signature: z.string().min(1),
+});
+
 /** Response of POST /api, also sent with status 502 when a run fails part-way. */
 export const ComposeResponseSchema = z.object({
   manifest: ManifestSchema,
   steps: z.array(StepSchema),
   decisions: z.array(ClipDecisionSchema),
+  /** Every manifest the API issues is signed; manifests issued before signing existed are not. */
+  certificate: ClearanceCertificateSchema.optional(),
+});
+
+/** What the API stores in S3 and the page downloads: the manifest with its certificate. */
+export const SignedManifestSchema = z.object({
+  manifest: ManifestSchema,
+  certificate: ClearanceCertificateSchema,
 });
 
 /** One past run in GET /api/runs, newest first. */
@@ -191,6 +222,8 @@ export type Step = z.infer<typeof StepSchema>;
 export type ClipDecision = z.infer<typeof ClipDecisionSchema>;
 export type ComposeResponse = z.infer<typeof ComposeResponseSchema>;
 export type RunEvent = z.infer<typeof RunEventSchema>;
+export type ClearanceCertificate = z.infer<typeof ClearanceCertificateSchema>;
+export type SignedManifest = z.infer<typeof SignedManifestSchema>;
 export type RunSummary = z.infer<typeof RunSummarySchema>;
 export type RunListResponse = z.infer<typeof RunListResponseSchema>;
 export type RunDetailResponse = z.infer<typeof RunDetailResponseSchema>;
