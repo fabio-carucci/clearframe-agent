@@ -79,6 +79,14 @@ resource "aws_cloudfront_function" "api_gate" {
   code    = file("${path.module}/api-gate.js")
 }
 
+resource "aws_cloudfront_function" "site_router" {
+  name    = "${var.name_prefix}-site-router"
+  runtime = "cloudfront-js-2.0"
+  comment = "Serves /verify and other exported pages from their .html objects"
+  publish = true
+  code    = file("${path.module}/site-router.js")
+}
+
 resource "aws_cloudfront_distribution" "this" {
   enabled             = true
   comment             = "${var.name_prefix} web and api"
@@ -115,6 +123,11 @@ resource "aws_cloudfront_distribution" "this" {
     cache_policy_id            = local.cache_policy_optimized
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
     compress                   = true
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.site_router.arn
+    }
   }
 
   # POST /api runs the agent; GET /api/runs and /api/runs/:id read the history.

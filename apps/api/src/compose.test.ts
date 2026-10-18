@@ -5,7 +5,29 @@ import type { LanguageModel } from "ai";
 import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { describe, expect, it, vi } from "vitest";
 import { ACCESS_TOKEN_HEADER } from "./auth";
+import { verifySignedManifest } from "@clearframe/contracts/certificate";
 import { type ComposeDeps, NDJSON, type ResponseSink, compose } from "./compose";
+import type { ManifestSigner } from "./signer";
+
+const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, [
+  "sign",
+  "verify",
+]);
+const spki = new Uint8Array(await crypto.subtle.exportKey("spki", pair.publicKey));
+const keys = [{ keyId: "test-key", spki: btoa(String.fromCharCode(...spki)) }];
+
+/** Signs like KMS does after derToRaw: ECDSA P-256 over SHA-256, raw r‖s. */
+const webCryptoSigner: ManifestSigner = {
+  keyId: "test-key",
+  sign: async (input) =>
+    new Uint8Array(
+      await crypto.subtle.sign(
+        { name: "ECDSA", hash: "SHA-256" },
+        pair.privateKey,
+        new Uint8Array(input),
+      ),
+    ),
+};
 
 const result: RunResult = {
   manifest: {
@@ -64,6 +86,7 @@ function harness(runResult: RunResult = result) {
       return runResult;
     },
     quota: { consume },
+    signer: { keyId: webCryptoSigner.keyId, sign: vi.fn(webCryptoSigner.sign) },
     store: { save },
     log: () => {},
     now: () => new Date("2026-10-18T10:00:00Z"),
@@ -109,12 +132,18 @@ describe("compose", () => {
     const { sink, responseSink, deps, save } = harness();
     await compose(event({}), deps, responseSink);
     expect(sink).toMatchObject({ status: 200, contentType: "application/json", ended: true });
-    expect(JSON.parse(sink.chunks.join(""))).toEqual({
+    expect(JSON.parse(sink.chunks.join(""))).toMatchObject({
       manifest: result.manifest,
       steps: result.steps,
       decisions: result.decisions,
+      certificate: { keyId: "test-key", runId: result.manifest.runId },
     });
-    expect(save).toHaveBeenCalledWith(result, expect.any(Date), "user-1");
+    expect(save).toHaveBeenCalledWith(
+      result,
+      expect.objectContaining({ keyId: "test-key", runId: result.manifest.runId }),
+      expect.any(Date),
+      "user-1",
+    );
   });
 
   it("answers 502 with the partial manifest when the run failed", async () => {
@@ -145,6 +174,30 @@ describe("compose", () => {
   it("ends the stream with failed, not completed, when the audit record cannot be saved", async () => {
     const { sink, responseSink, deps, save } = harness();
     save.mockRejectedValueOnce(new Error("DynamoDB throttled"));
+    await compose(event({ headers: { accept: NDJSON } }), deps, responseSink);
+    const types = sink.chunks.map((chunk) => (JSON.parse(chunk) as RunEvent).type);
+    expect(types).toEqual(["started", "failed"]);
+  });
+
+  it("issues a manifest whose certificate verifies, as a third party would check it", async () => {
+    const { sink, responseSink, deps } = harness();
+    await compose(event({}), deps, responseSink);
+    const { manifest, certificate } = JSON.parse(sink.chunks.join(""));
+    expect((await verifySignedManifest({ manifest, certificate }, keys)).status).toBe("valid");
+  });
+
+  it("withholds the manifest with 503 and saves nothing when it cannot be signed", async () => {
+    const { sink, responseSink, deps, save } = harness();
+    vi.mocked(deps.signer.sign).mockRejectedValueOnce(new Error("KMS throttled"));
+    await compose(event({}), deps, responseSink);
+    expect(sink.status).toBe(503);
+    expect(JSON.parse(sink.chunks.join(""))).toEqual({ error: expect.stringMatching(/signed/) });
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it("ends the stream with failed when the manifest cannot be signed", async () => {
+    const { sink, responseSink, deps } = harness();
+    vi.mocked(deps.signer.sign).mockRejectedValueOnce(new Error("KMS throttled"));
     await compose(event({ headers: { accept: NDJSON } }), deps, responseSink);
     const types = sink.chunks.map((chunk) => (JSON.parse(chunk) as RunEvent).type);
     expect(types).toEqual(["started", "failed"]);

@@ -227,10 +227,10 @@ Every run gets a `runId`, returned in the manifest. `GET /api/runs` lists the ca
 the `byUser` index; `GET /api/runs/:id` returns one, answering 404 for another user's run as for
 a missing one. The Lambda writes:
 
-- the manifest to S3 (`manifests/<day>/<runId>.json`) before the run record, so a record never
-  points at a missing manifest. The bucket is versioned, and each manifest is written with Object
-  Lock in governance mode until its record expires, with a SHA-256 checksum that S3 stores with
-  it;
+- the signed manifest, `{ manifest, certificate }`, to S3 (`manifests/<day>/<runId>.json`) before
+  the run record, so a record never points at a missing manifest. The bucket is versioned, and
+  each one is written with Object Lock in governance mode until its record expires, with a
+  SHA-256 checksum that S3 stores with it;
 - a run record to DynamoDB with the caller, request, stop reason, per-step tool calls, tokens and
   durations, cost and any internal error, keyed by `runId`, with a 90-day TTL;
 - one JSON log line per step to CloudWatch, queryable with Logs Insights:
@@ -238,6 +238,40 @@ a missing one. The Lambda writes:
 ```
 filter event = "run_finished" | stats count(), avg(costUsd), pct(durationMs, 95) by stopReason
 ```
+
+## Verify a manifest
+
+Every manifest the API issues is signed, and the page downloads the same signed file S3 stores:
+`{ manifest, certificate }`. Anyone holding it can check it at `/verify`, without an account and
+without a call to the server: the page checks the signature with the public key `config.json`
+publishes, recomputes every digest, and names the clip that changed if one did. A manifest without
+a certificate, issued before signing existed, reads "Not signed", never valid.
+
+**What a valid signature proves:** that Clearframe issued this manifest at that time, with those
+license snapshots and that catalog version, and that it has not changed since. **What it does
+not:** that the catalog's licenses are legally sound; anything about the model's own text
+(reasons, summary), which is signed, so unchanged, but still the model's; and more than the trust
+due to whoever controls the key, which is Clearframe's pipeline.
+
+How it is built:
+
+- The certificate carries a SHA-256 of the manifest without its clips and one per clip, so a
+  verifier can say which clip changed, plus when it was signed and with which key. The signature
+  covers all of that, `issuedAt` included.
+- Both sides hash the same bytes: RFC 8785 canonical JSON, implemented once in
+  `packages/contracts`, which the Lambda and the page import. Digests are taken over the JSON as
+  given, so a field added to a clip reads as a change rather than being dropped by a schema.
+- An ECDSA P-256 key in KMS signs; the private key never leaves KMS. The Lambda sends the SHA-256
+  of the input with `MessageType: DIGEST` (RAW is limited to 4 KB) and converts KMS's DER
+  signature to the raw r‖s that WebCrypto verifies.
+- Only the agent role may call `kms:Sign` on that key, and only for a SHA-256 digest. The key
+  belongs to an administrator in `infra/github`; CI may read its public key but is denied signing
+  and changing who can.
+- A run that cannot be signed is not delivered, like one whose audit record cannot be saved.
+- Asymmetric KMS keys do not rotate: a new key has a new id, and `signingKeys` in `config.json`
+  must keep every key that ever signed.
+
+The key costs about $1 a month, plus $0.15 per 10,000 signatures.
 
 A typical request costs about **$0.0018**: almost all of it is Haiku input tokens, since each step
 resends the conversation. Idle, the stack costs effectively nothing: Lambda and DynamoDB bill per
@@ -248,23 +282,23 @@ SSM standard parameters are free.
 
 Terraform, with state in S3 and native S3 locking. Three root stacks:
 
-| Stack             | Applied by       | Contents                                                                |
-| ----------------- | ---------------- | ----------------------------------------------------------------------- |
-| `infra/bootstrap` | an administrator | The state bucket: versioned, encrypted, public access blocked, TLS only |
-| `infra/github`    | an administrator | GitHub OIDC provider, CI roles, the workload permissions boundary       |
-| `infra/env/dev`   | CI, on `main`    | The `api`, `web` and `auth` modules, wired together                     |
+| Stack             | Applied by       | Contents                                                                                    |
+| ----------------- | ---------------- | ------------------------------------------------------------------------------------------- |
+| `infra/bootstrap` | an administrator | The state bucket: versioned, encrypted, public access blocked, TLS only                     |
+| `infra/github`    | an administrator | GitHub OIDC provider, CI roles, the workload permissions boundary, the manifest signing key |
+| `infra/env/dev`   | CI, on `main`    | The `api`, `web` and `auth` modules, wired together                                         |
 
-| Module | Contents                                                                                                             |
-| ------ | -------------------------------------------------------------------------------------------------------------------- |
-| `api`  | Lambda, private function URL, data bucket, runs and quotas tables, log group, the Lambda role                        |
-| `web`  | Private site bucket, CloudFront distribution with two origin access controls, security headers, the `/api` edge gate |
-| `auth` | Cognito user pool (admin-only sign-up, optional TOTP MFA), managed login domain, PKCE app client                     |
+| Module | Contents                                                                                                                                                    |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api`  | Lambda, private function URL, data bucket, runs and quotas tables, log group, the Lambda role                                                               |
+| `web`  | Private site bucket, CloudFront distribution with two origin access controls, security headers, the `/api` edge gate, the site router that serves `/verify` |
+| `auth` | Cognito user pool (admin-only sign-up, optional TOTP MFA), managed login domain, PKCE app client                                                            |
 
-The Lambda role has nine permissions, each scoped to one resource: write its own log group, read
+The Lambda role has ten permissions, each scoped to one resource: write its own log group, read
 `data/*`, write and lock `manifests/*`, read manifest versions back, `PutItem` on the runs table,
 `GetItem` and `Query` on the runs table and its `byUser` index, `UpdateItem` on the quotas table,
-read two named SSM parameters (the Anthropic key and the Cognito ids), and invoke one Bedrock
-model. It cannot list the bucket, scan a table or call any other model. Only the CloudFront
+read two named SSM parameters (the Anthropic key and the Cognito ids), invoke one Bedrock model,
+and sign SHA-256 digests with the manifest signing key. It cannot list the bucket, scan a table or call any other model. Only the CloudFront
 distribution may invoke the function URL.
 
 **Spend limits.** Every run costs model tokens, so spend is capped in layers:
@@ -320,6 +354,8 @@ for the same reason. There is no shared API token: callers present short-lived C
 | Rule in code, enforced at the only write path  | Rule in the prompt            | Prompt-only failed 3 of 8 injection runs.                                             |
 | License snapshot and catalog hash per manifest | A pointer to the live catalog | Licenses change; a manifest must show what it was cleared on, alone.                  |
 | Object Lock, governance mode, 90 days          | Compliance mode               | Tamper-proof for the Lambda and CI, yet an administrator can honour erasure requests. |
+| Manifests signed with an ECDSA key in KMS      | An HMAC, a key kept in SSM    | Anyone verifies with the public key; the private key cannot be copied out of KMS.     |
+| A digest per clip in the certificate           | One digest of the manifest    | A verifier can name the clip that changed, not just say something did.                |
 | Expiring licenses flagged, not refused         | Refusing them                 | The rule decides on the usage date; how long training runs is the buyer's call.       |
 | Territory and date as explicit API fields      | Parsed from the request text  | They are contractual parameters; the model must not set what the rule checks.         |
 | Manifest built from accepted clips             | Model's final answer          | The model's summary is sometimes wrong about counts; the data is not.                 |
@@ -405,6 +441,11 @@ instance to honour an erasure request.
 - Tag conditions (`aws:ResourceTag/Project`) instead of resource ids on the deploy role, once the
   CloudFront and Cognito actions it uses are confirmed to support them, so a replaced resource no
   longer needs an administrator.
+- Signing keys published somewhere durable (`/.well-known/clearframe-keys.json`), with a written
+  rotation procedure; a `verify-manifest` CLI for offline checks; an RFC 3161 timestamp, so
+  `issuedAt` does not rest on Clearframe alone; and proofs for single clips, which the per-clip
+  digests already allow.
+- A signed sample run, recorded again from the deployed agent.
 - SSO for customer organizations through Cognito SAML or OIDC federation.
 - Prompt caching for the instructions and tool definitions, the largest repeated input.
 - Real ingest: scene-level metadata extracted from video, and licenses from a rights system of record.

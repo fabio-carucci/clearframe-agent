@@ -21,6 +21,7 @@ page and Cognito sign-in.
 | Lambda bundle (`apps/api/dist`)         | `pnpm build:lambda`                                     |
 | Web app: dev server, static export      | `pnpm web:dev`, `pnpm web:build`                        |
 | Add a shadcn/ui component (in apps/web) | `pnpm dlx shadcn@4.22.0 add <name>`                     |
+| Sign and verify with the real KMS key   | `pnpm --filter @clearframe/api sign-check <key ARN>`    |
 
 `pnpm agent`, `pnpm eval` and `pnpm catalog:embed` call Anthropic and Amazon Bedrock and cost real
 money (an eval run is about $0.05). They read `.env` (see `.env.example`) and an AWS profile. Ask
@@ -43,15 +44,15 @@ packages/core       -> packages/contracts
 packages/contracts  -> zod only
 ```
 
-| Path                  | Contents                                                                                      |
-| --------------------- | --------------------------------------------------------------------------------------------- |
-| `packages/contracts/` | Zod schemas of the HTTP API: request, manifest, steps, response. Depends only on Zod.         |
-| `packages/core/`      | Catalog, rights rule, retrieval, agent loop, cost; scripts for the catalog and local runs     |
-| `apps/api/`           | Lambda handler, Cognito token check, request validation, DynamoDB and S3 adapters, bundle     |
-| `apps/web/`           | Static Next.js page; `features/` holds auth, compose (NDJSON client), history, run, workspace |
-| `evals/`              | Cases, metrics, no-rule ablation draft, runner, committed reports                             |
-| `infra/`              | `bootstrap`, `github` (OIDC roles), modules `api`, `web`, `auth`, `env/dev`                   |
-| `data/`               | Generated catalog and its embedding index, both committed                                     |
+| Path                  | Contents                                                                                              |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `packages/contracts/` | Zod schemas of the HTTP API: request, manifest, steps, response. Depends only on Zod.                 |
+| `packages/core/`      | Catalog, rights rule, retrieval, agent loop, cost; scripts for the catalog and local runs             |
+| `apps/api/`           | Lambda handler, Cognito token check, request validation, DynamoDB and S3 adapters, bundle             |
+| `apps/web/`           | Static Next.js page; `features/` holds auth, compose (NDJSON client), history, run, verify, workspace |
+| `evals/`              | Cases, metrics, no-rule ablation draft, runner, committed reports                                     |
+| `infra/`              | `bootstrap`, `github` (OIDC roles), modules `api`, `web`, `auth`, `env/dev`                           |
+| `data/`               | Generated catalog and its embedding index, both committed                                             |
 
 Workspace packages export TypeScript source (`@clearframe/core/agent/run` maps to
 `packages/core/src/agent/run.ts`). esbuild, Next.js (`transpilePackages`), tsx and Vitest compile it
@@ -120,6 +121,16 @@ Each of these is load-bearing; most are pinned by a test.
     never edit or invent events; `sample.test.ts` checks it against the contract.
 25. `GET /api/runs/:id` answers 404 for another user's run exactly as for a missing one, so run ids
     cannot be probed, and reads the manifest by the version id in the run record.
+26. Every manifest the API delivers is signed, and the S3 object is the same signed envelope. A run
+    that cannot be signed is not delivered.
+27. `canonicalJson`, the certificate's signing input and `verifySignedManifest` exist only in
+    `packages/contracts/src/certificate.ts` and `canonical-json.ts`. No other code builds the bytes
+    a signature covers; never use `JSON.stringify` for them.
+28. Only the agent role may call `kms:Sign`, and only for a SHA-256 digest. CI may neither sign nor
+    change who signs; the key belongs to an administrator in `infra/github`.
+29. The page verifies locally and never asks the server whether a manifest is valid. A manifest
+    without a certificate is "Not signed", never valid. Keys stay in `signingKeys` for as long as
+    any certificate they signed may be checked.
 
 ## Conventions
 

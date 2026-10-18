@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { ComposeResponse, RunEvent } from "@clearframe/contracts";
+import type { ClearanceCertificate, ComposeResponse, RunEvent } from "@clearframe/contracts";
 import type { RunDeps, runClipAgent } from "@clearframe/core/agent/run";
 import type { CatalogData } from "@clearframe/core/catalog/load";
 import type { LanguageModel } from "ai";
@@ -9,6 +9,7 @@ import type { RunQuota } from "./quota";
 import { parseRunRequest } from "./request";
 import { sendJson as respond } from "./respond";
 import type { RunStore } from "./run-store";
+import { type ManifestSigner, signManifest } from "./signer";
 
 export const NDJSON = "application/x-ndjson";
 
@@ -27,6 +28,7 @@ export interface ComposeDeps {
   embedQuery: RunDeps["embedQuery"];
   runAgent: typeof runClipAgent;
   quota: RunQuota;
+  signer: ManifestSigner;
   store: RunStore;
   log: (event: string, fields?: Record<string, unknown>) => void;
   now: () => Date;
@@ -43,12 +45,14 @@ function parseJsonBody(event: LambdaFunctionURLEvent): unknown {
 }
 
 const NOT_RECORDED = "The run could not be recorded for audit, so no manifest was issued.";
+const NOT_SIGNED = "The manifest could not be signed, so it was not issued.";
 
 /**
  * Handles POST /api. Clients that accept application/x-ndjson get every run event as one JSON
  * line as it happens; others get the final result as one JSON body. Either way the result is
- * only delivered once its audit record is saved: a manifest without a trace proves nothing. The
- * decisions streamed before it are provisional, and a stream that ends with `failed` issued none.
+ * only delivered once it is signed and its audit record saved: a manifest without a trace, or
+ * one a third party cannot verify, proves nothing. The decisions streamed before it are
+ * provisional, and a stream that ends with `failed` issued none.
  */
 export async function compose(
   event: LambdaFunctionURLEvent,
@@ -104,15 +108,24 @@ export async function compose(
     },
   );
   const { manifest, steps, decisions } = result;
-  const response = { manifest, steps, decisions } satisfies ComposeResponse;
 
-  let recorded = true;
+  let certificate: ClearanceCertificate | undefined;
   try {
-    await deps.store.save(result, createdAt, userId);
+    certificate = await signManifest(manifest, deps.signer, deps.now());
   } catch (error) {
-    recorded = false;
-    deps.log("trace_failed", { runId, error: String(error) });
+    deps.log("signing_failed", { runId, error: String(error) });
   }
+
+  let failure = certificate ? null : NOT_SIGNED;
+  if (certificate) {
+    try {
+      await deps.store.save(result, certificate, createdAt, userId);
+    } catch (error) {
+      failure = NOT_RECORDED;
+      deps.log("trace_failed", { runId, error: String(error) });
+    }
+  }
+  const response = { manifest, steps, decisions, certificate } satisfies ComposeResponse;
 
   deps.log("run_finished", {
     runId,
@@ -127,10 +140,10 @@ export async function compose(
 
   if (streaming) {
     writeEvent(
-      recorded ? { type: "completed", result: response } : { type: "failed", error: NOT_RECORDED },
+      failure ? { type: "failed", error: failure } : { type: "completed", result: response },
     );
     return sink.end();
   }
-  if (!recorded) return sendJson(503, { error: NOT_RECORDED });
+  if (failure) return sendJson(503, { error: failure });
   return sendJson(manifest.stopReason === "error" ? 502 : 200, response);
 }

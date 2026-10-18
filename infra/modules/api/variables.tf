@@ -28,6 +28,16 @@ variable "auth_config_param" {
   type        = string
 }
 
+variable "signing_key_arn" {
+  description = "KMS key (ECC_NIST_P256, SIGN_VERIFY) that signs every manifest's clearance certificate."
+  type        = string
+
+  validation {
+    condition     = can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[0-9a-f-]{36}$", var.signing_key_arn))
+    error_message = "signing_key_arn must be a KMS key ARN, not an alias."
+  }
+}
+
 variable "permissions_boundary_arn" {
   description = "Boundary attached to the agent role. The CI deploy role can only create roles that carry it."
   type        = string

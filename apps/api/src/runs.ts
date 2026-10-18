@@ -51,7 +51,7 @@ export async function getRun(
     });
   }
 
-  const { manifest, verified } = stored;
+  const { manifest, certificate, verified } = stored;
   const decisions: ClipDecision[] = [
     ...manifest.clips.map(({ clipId, title, genre, language, durationSec }) => ({
       clipId,
@@ -76,6 +76,7 @@ export async function getRun(
     manifest,
     steps: record.steps,
     decisions,
+    certificate,
     createdAt: record.createdAt,
     audit: {
       manifestVersionId: record.manifestVersionId ?? null,

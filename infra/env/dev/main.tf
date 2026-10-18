@@ -17,6 +17,16 @@ data "aws_iam_policy" "workload_boundary" {
   arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/clearframe-dev-boundary"
 }
 
+# Created by an administrator in infra/github. Looked up by alias, so a plan without the key
+# fails before changing anything.
+data "aws_kms_key" "manifest_signing" {
+  key_id = "alias/${local.name_prefix}-manifest-signing"
+}
+
+data "aws_kms_public_key" "manifest_signing" {
+  key_id = data.aws_kms_key.manifest_signing.arn
+}
+
 module "api" {
   source = "../../modules/api"
 
@@ -28,6 +38,7 @@ module "api" {
   lambda_dist_dir     = "${path.root}/../../../apps/api/dist"
   anthropic_key_param = "/clearframe/dev/anthropic-api-key"
   auth_config_param   = local.auth_config_param
+  signing_key_arn     = data.aws_kms_key.manifest_signing.arn
 }
 
 module "web" {
@@ -79,6 +90,12 @@ resource "aws_s3_object" "web_config" {
     issuer     = module.auth.issuer
     clientId   = module.auth.client_id
     authDomain = module.auth.domain
+    # Every key that ever signed must stay listed: KMS asymmetric keys do not rotate, so a new key
+    # gets a new id, and removing an old one makes its certificates unverifiable.
+    signingKeys = [{
+      keyId = data.aws_kms_key.manifest_signing.id
+      spki  = data.aws_kms_public_key.manifest_signing.public_key
+    }]
   })
 }
 

@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "build": "tsx scripts/build.ts",
-    "typecheck": "tsc --noEmit -p ."
+    "typecheck": "tsc --noEmit -p .",
+    "sign-check": "tsx scripts/sign-check.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.81",
     "@aws-sdk/client-dynamodb": "^3.1152.0",
+    "@aws-sdk/client-kms": "^3.1152.0",
     "@aws-sdk/client-s3": "^3.1152.0",
     "@aws-sdk/client-ssm": "^3.1152.0",
     "@aws-sdk/lib-dynamodb": "^3.1152.0",
