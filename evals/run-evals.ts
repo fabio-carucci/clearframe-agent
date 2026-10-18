@@ -1,7 +1,9 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
+import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { MODEL_ID } from "@clearframe/core/agent/agent";
+import { format, resolveConfig } from "prettier";
 import type { RunErrorCode } from "@clearframe/core/agent/errors";
 import { type RunDeps, runClipAgent } from "@clearframe/core/agent/run";
 import { loadCatalogData } from "@clearframe/core/catalog/load";
@@ -132,16 +134,22 @@ const results = await mapWithConcurrency(jobs, concurrency, async (evalCase) => 
   return result;
 });
 
+/** Reports are committed, and CI fails on any file Prettier would reformat. */
+async function writeFormatted(file: URL, text: string) {
+  const filepath = fileURLToPath(file);
+  await writeFile(file, await format(text, { ...(await resolveConfig(filepath)), filepath }));
+}
+
 const summary = summarize(results);
 const reportDir = new URL("./reports/", import.meta.url);
 const reportName = `latest-${meta.mode}${values.label ? `-${values.label}` : ""}`;
 await mkdir(reportDir, { recursive: true });
-await writeFile(
+await writeFormatted(
   new URL(`${reportName}.json`, reportDir),
-  `${JSON.stringify({ meta, summary, results }, null, 2)}\n`,
+  JSON.stringify({ meta, summary, results }),
 );
 const markdown = renderMarkdown(meta, summary, results);
-await writeFile(new URL(`${reportName}.md`, reportDir), markdown);
+await writeFormatted(new URL(`${reportName}.md`, reportDir), markdown);
 console.log(markdown);
 
 const failures = ablation ? [] : gateFailures(summary, thresholds);

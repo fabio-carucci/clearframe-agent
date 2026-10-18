@@ -1,4 +1,4 @@
-import type { Manifest } from "@clearframe/contracts";
+import type { ClipDecision, Manifest } from "@clearframe/contracts";
 
 const GENRES: Record<string, string> = {
   sports_outdoor: "Outdoor sports",
@@ -20,15 +20,21 @@ const LANGUAGES: Record<string, string> = {
   pt: "Portuguese",
 };
 
-const TOOLS: Record<string, string> = {
-  searchClips: "Searched the catalog",
-  getRights: "Checked licenses",
-  addToManifest: "Proposed clips",
-};
-
 export const genreLabel = (genre: string) => GENRES[genre] ?? genre;
 export const languageLabel = (language: string) => LANGUAGES[language] ?? language;
-export const toolLabel = (tool: string) => TOOLS[tool] ?? tool;
+
+export function outcomeLabel(outcome: ClipDecision["outcome"]): string {
+  switch (outcome) {
+    case "accepted":
+      return "Cleared";
+    case "refused":
+      return "Not cleared";
+    case "checked":
+      return "Checking";
+    case "not_proposed":
+      return "Not proposed";
+  }
+}
 
 export function stopReasonLabel(stopReason: Manifest["stopReason"]): string {
   switch (stopReason) {
@@ -61,5 +67,17 @@ export function rejectionLabel(reason: string, request: Manifest["request"]): st
 }
 
 export const formatUsd = (usd: number) => `$${usd.toFixed(4)}`;
-export const formatSeconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 export const formatCount = (n: number) => n.toLocaleString("en-US");
+export const formatSeconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
+
+/** A clip's length as editors show it: 0:44, 1:05. */
+export function formatClipDuration(seconds: number): string {
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+/** Run time to the tenth of a second: 0:08.4. */
+export function formatRunTime(ms: number): string {
+  const tenths = Math.floor(ms / 100);
+  const seconds = Math.floor(tenths / 10);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}.${tenths % 10}`;
+}

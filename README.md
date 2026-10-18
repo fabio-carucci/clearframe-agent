@@ -104,11 +104,24 @@ run without changing results. Past a few tens of thousands of clips, pgvector wo
 
 ## Web app
 
-A single page, built with Next.js, React, TanStack Query and Tailwind, exported as static files.
-Users sign in with Cognito, describe a dataset, and see the clips the rule accepted, the ones it
-refused with the reason in plain words, each step the agent took, and the cost. The agent's own
-summary is shown separately and labelled as written by the model, because the lists come from the
-rule, not from that text.
+A single page laid out like a video editor, built with Next.js, React, shadcn/ui and Tailwind and
+exported as static files. Users sign in with Cognito, describe a dataset, and watch the run as it
+happens:
+
+- **Clips.** Every clip the agent touches appears as a frame marked with the rule's decision:
+  cleared, not cleared (shown as offline media, with the reason), or checked and left out. A clip
+  whose license ends within 30 days of the usage date carries an expiry flag.
+- **Details.** The selected clip with the license snapshot the rule decided on, and the run's
+  cost, tokens, steps, audit ids and manifest download. The agent's own note is labelled as
+  written by the model, because the clips and verdicts come from the rule, not from that text.
+- **Timeline.** One block per model call, sized by its duration and coloured by the tool it used,
+  with a token track drawn like an audio waveform. While the run is live, a playhead moves and the
+  current step grows at the end of the track, labelled with what the agent is doing.
+
+The page reads the API's NDJSON stream with `fetch`, validates each event against the shared Zod
+contract, and folds it into the run's state with a pure reducer (`features/run/live-run.ts`). It
+works from phone to desktop: three panes on a desktop, two columns on a tablet, one on a phone,
+with clip details in a side sheet below desktop width.
 
 - **One domain.** CloudFront serves the page from a private S3 bucket and forwards `/api` to the
   Lambda. Both origins use origin access control, so neither the bucket nor the function URL is
@@ -116,7 +129,8 @@ rule, not from that text.
 - **Real sign-in.** Cognito managed login with the authorization code flow and PKCE
   (`oidc-client-ts`), admin-created users only, one-hour access tokens. The Lambda verifies each
   token with `aws-jwt-verify` and records the caller in the run record, so cost can be attributed
-  per user.
+  per user. Signing out revokes the refresh token; an access token already issued stays valid
+  until it expires, since the Lambda verifies tokens offline.
 - **Runtime configuration.** The page reads its Cognito settings from a `config.json` that
   Terraform writes next to the build, and the Lambda reads the same ids from SSM. Neither is baked
   in at build time, which breaks the api → CDN → Cognito dependency cycle and lets one build serve
@@ -133,8 +147,8 @@ its own `Authorization` header, so the user's token travels in `x-clearframe-acc
 Lambda rejects unsigned payloads, so the browser sends the body's SHA-256 in
 `x-amz-content-sha256`.
 
-`pnpm web:dev` runs the page locally. Without a `config.json` it shows a recorded production run,
-with sign-in and live runs turned off.
+`pnpm web:dev` runs the page locally. Without a `config.json` it opens a run recorded from the
+deployed agent's stream, which it can replay at its original pace; sign-in and live runs are off.
 
 ## Evals
 
@@ -298,7 +312,7 @@ A pnpm workspace:
 
 ```
 apps/api            Lambda: handler, Cognito token check, DynamoDB and S3 adapters
-apps/web            Static Next.js page
+apps/web            Static Next.js page, by feature: auth, compose, run, workspace
 packages/contracts  Zod schemas of the HTTP API, shared by the Lambda and the page
 packages/core       Catalog, rights rule, retrieval, agent loop, cost
 evals               Eval cases, metrics, runner and reports

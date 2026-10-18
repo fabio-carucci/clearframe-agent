@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Instrument_Sans } from "next/font/google";
+import { Archivo, Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const instrumentSans = Instrument_Sans({
-  subsets: ["latin"],
-  variable: "--font-instrument-sans",
-});
+const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
+const archivo = Archivo({ subsets: ["latin"], axes: ["wdth"], variable: "--font-archivo" });
 
 export const metadata: Metadata = {
   title: "Clearframe",
@@ -16,9 +16,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={instrumentSans.variable}>
-      <body className="min-h-dvh font-sans antialiased">
-        <Providers>{children}</Providers>
+    <html
+      lang="en"
+      className={`dark ${geistSans.variable} ${geistMono.variable} ${archivo.variable}`}
+    >
+      <body className="min-h-dvh font-sans text-sm antialiased">
+        <Providers>
+          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+        </Providers>
       </body>
     </html>
   );

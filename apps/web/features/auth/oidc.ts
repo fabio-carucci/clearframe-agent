@@ -11,6 +11,8 @@ export function createUserManager(config: WebConfig): UserManager {
     response_type: "code",
     scope: "openid email",
     userStore: new WebStorageStateStore({ store: window.sessionStorage }),
+    // Cognito's discovery document does not list its revocation endpoint.
+    metadataSeed: { revocation_endpoint: `https://${config.authDomain}/oauth2/revoke` },
   });
 }
 
