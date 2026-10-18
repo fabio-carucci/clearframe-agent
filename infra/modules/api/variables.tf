@@ -49,6 +49,12 @@ variable "run_retention_days" {
   default     = 90
 }
 
+variable "daily_run_limit" {
+  description = "Runs each user may start per UTC day. Every run spends model tokens, so this bounds what one user, or one stolen token, can cost in a day."
+  type        = number
+  default     = 20
+}
+
 variable "log_retention_days" {
   type    = number
   default = 14

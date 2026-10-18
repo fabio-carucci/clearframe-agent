@@ -40,6 +40,7 @@ function harness(runResult: RunResult = result) {
     end: async () => void (sink.ended = true),
   };
   const save = vi.fn(async () => ({}) as never);
+  const consume = vi.fn(async () => true);
   const deps: ComposeDeps = {
     verifier: async () => ({
       verify: async (token) => {
@@ -60,11 +61,12 @@ function harness(runResult: RunResult = result) {
       runDeps.onEvent?.({ type: "completed", result: runResult });
       return runResult;
     },
+    quota: { consume },
     store: { save },
     log: () => {},
     now: () => new Date("2026-10-18T10:00:00Z"),
   };
-  return { sink, responseSink, deps, save };
+  return { sink, responseSink, deps, save, consume };
 }
 
 describe("compose", () => {
@@ -83,10 +85,22 @@ describe("compose", () => {
     expect(save).not.toHaveBeenCalled();
   });
 
-  it("rejects an invalid body with 400", async () => {
-    const { sink, responseSink, deps } = harness();
+  it("rejects an invalid body with 400, without spending the user's quota", async () => {
+    const { sink, responseSink, deps, consume } = harness();
     await compose(event({ body: { prompt: "surf", territory: "Spain" } }), deps, responseSink);
     expect(sink.status).toBe(400);
+    expect(consume).not.toHaveBeenCalled();
+  });
+
+  it("answers 429 without loading anything once the user's daily quota is used up", async () => {
+    const { sink, responseSink, deps, consume, save } = harness();
+    consume.mockResolvedValueOnce(false);
+    const catalog = vi.spyOn(deps, "catalog");
+    await compose(event({}), deps, responseSink);
+    expect(sink.status).toBe(429);
+    expect(consume).toHaveBeenCalledWith("user-1", new Date("2026-10-18T10:00:00Z"));
+    expect(catalog).not.toHaveBeenCalled();
+    expect(save).not.toHaveBeenCalled();
   });
 
   it("answers with one JSON body when the client does not ask for a stream", async () => {

@@ -53,6 +53,12 @@ data "aws_iam_policy_document" "agent" {
   }
 
   statement {
+    sid       = "CountDailyRuns"
+    actions   = ["dynamodb:UpdateItem"]
+    resources = [aws_dynamodb_table.quotas.arn]
+  }
+
+  statement {
     sid       = "ReadSecrets"
     actions   = ["ssm:GetParameters"]
     resources = local.ssm_parameter_arns

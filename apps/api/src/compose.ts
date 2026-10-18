@@ -5,6 +5,7 @@ import type { CatalogData } from "@clearframe/core/catalog/load";
 import type { LanguageModel } from "ai";
 import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { type AccessTokenVerifier, authenticate } from "./auth";
+import type { RunQuota } from "./quota";
 import { parseRunRequest } from "./request";
 import type { RunStore } from "./run-store";
 
@@ -24,6 +25,7 @@ export interface ComposeDeps {
   catalog: () => Promise<CatalogData>;
   embedQuery: RunDeps["embedQuery"];
   runAgent: typeof runClipAgent;
+  quota: RunQuota;
   store: RunStore;
   log: (event: string, fields?: Record<string, unknown>) => void;
   now: () => Date;
@@ -72,6 +74,11 @@ export async function compose(
   const request = parseRunRequest(parseJsonBody(event), createdAt.toISOString().slice(0, 10));
   if (!request.ok) {
     return sendJson(400, { error: request.error, issues: request.issues });
+  }
+
+  if (!(await deps.quota.consume(principal.userId, createdAt))) {
+    deps.log("quota_exceeded", { userId: principal.userId });
+    return sendJson(429, { error: "Daily run limit reached. It resets at midnight UTC." });
   }
 
   // Load before the status line goes out: once a stream has started, a failure can no longer

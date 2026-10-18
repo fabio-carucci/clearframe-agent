@@ -28,6 +28,8 @@ resource "aws_lambda_function" "agent" {
     variables = {
       DATA_BUCKET         = aws_s3_bucket.data.id
       RUNS_TABLE          = aws_dynamodb_table.runs.name
+      QUOTAS_TABLE        = aws_dynamodb_table.quotas.name
+      DAILY_RUN_LIMIT     = tostring(var.daily_run_limit)
       ANTHROPIC_KEY_PARAM = var.anthropic_key_param
       AUTH_CONFIG_PARAM   = var.auth_config_param
       NODE_OPTIONS        = "--enable-source-maps"
