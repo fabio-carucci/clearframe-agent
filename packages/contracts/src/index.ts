@@ -124,6 +124,36 @@ export const ComposeResponseSchema = z.object({
   decisions: z.array(ClipDecisionSchema),
 });
 
+/** One past run in GET /api/runs, newest first. */
+export const RunSummarySchema = z.object({
+  runId: z.uuid(),
+  createdAt: z.iso.datetime(),
+  prompt: z.string(),
+  territory: TerritorySchema,
+  date: IsoDateSchema,
+  stopReason: StopReasonSchema,
+  clipCount: z.number().int().nonnegative(),
+  rejectedCount: z.number().int().nonnegative(),
+  costUsd: z.number().nonnegative(),
+});
+
+export const RunListResponseSchema = z.object({ runs: z.array(RunSummarySchema) });
+
+/**
+ * GET /api/runs/:id. The manifest is the version the run wrote to S3, read back by its version id
+ * and checked against the SHA-256 recorded with the run. Decisions come from the manifest, so a
+ * clip the agent checked but did not propose is not among them.
+ */
+export const RunDetailResponseSchema = ComposeResponseSchema.extend({
+  createdAt: z.iso.datetime(),
+  audit: z.object({
+    manifestVersionId: z.string().nullable(),
+    manifestSha256: z.string().nullable(),
+    /** S3 returned the recorded checksum for the recorded version. */
+    verified: z.boolean(),
+  }),
+});
+
 const SearchFiltersSchema = z.object({
   language: LanguageSchema.optional(),
   genre: GenreSchema.optional(),
@@ -161,3 +191,6 @@ export type Step = z.infer<typeof StepSchema>;
 export type ClipDecision = z.infer<typeof ClipDecisionSchema>;
 export type ComposeResponse = z.infer<typeof ComposeResponseSchema>;
 export type RunEvent = z.infer<typeof RunEventSchema>;
+export type RunSummary = z.infer<typeof RunSummarySchema>;
+export type RunListResponse = z.infer<typeof RunListResponseSchema>;
+export type RunDetailResponse = z.infer<typeof RunDetailResponseSchema>;

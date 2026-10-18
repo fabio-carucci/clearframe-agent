@@ -1,5 +1,5 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { describe, expect, it } from "vitest";
 import type { RunResult } from "@clearframe/core/agent/run";
 import { RUN_TTL_DAYS } from "./run-record";
@@ -121,5 +121,73 @@ describe("AwsRunStore", () => {
     const { store, sent } = recordingStore();
     await store.save(result, createdAt, "user-123");
     expect((sent[1] as PutCommand).input.ConditionExpression).toBe("attribute_not_exists(runId)");
+  });
+
+  it("lists a user's runs from the byUser index, newest first, dropping unreadable items", async () => {
+    const sent: unknown[] = [];
+    const item = {
+      runId: result.manifest.runId,
+      userId: "user-123",
+      createdAt: createdAt.toISOString(),
+      prompt: "surf",
+      territory: "ES",
+      date: "2026-10-17",
+      stopReason: "error",
+      clipCount: 0,
+      rejectedCount: 1,
+      costUsd: 0.00002,
+    };
+    const dynamo = {
+      send: async (command: unknown) => {
+        sent.push(command);
+        return { Items: [item, { runId: "not-a-run" }] };
+      },
+    };
+    const store = new AwsRunStore({
+      tableName: "runs",
+      bucket: "b",
+      s3: dynamo as never,
+      dynamo: dynamo as never,
+    });
+    const runs = await store.listRuns("user-123", 20);
+    expect(runs).toHaveLength(1);
+    expect((sent[0] as QueryCommand).input).toMatchObject({
+      IndexName: "byUser",
+      ExpressionAttributeValues: { ":userId": "user-123" },
+      ScanIndexForward: false,
+      Limit: 20,
+    });
+  });
+
+  it("reads back the recorded manifest version with checksum validation on", async () => {
+    const sent: unknown[] = [];
+    const s3 = {
+      send: async (command: unknown) => {
+        sent.push(command);
+        return {
+          ChecksumSHA256: stored.ChecksumSHA256,
+          Body: { transformToString: async () => JSON.stringify(result.manifest) },
+        };
+      },
+    };
+    const store = new AwsRunStore({
+      tableName: "runs",
+      bucket: "b",
+      s3: s3 as never,
+      dynamo: s3 as never,
+    });
+    const record = {
+      manifestKey: "manifests/k.json",
+      manifestVersionId: stored.VersionId,
+      manifestSha256: stored.ChecksumSHA256,
+    } as never;
+    expect(await store.readManifest(record)).toMatchObject({ verified: true });
+    expect((sent[0] as GetObjectCommand).input).toMatchObject({
+      Key: "manifests/k.json",
+      VersionId: stored.VersionId,
+      ChecksumMode: "ENABLED",
+    });
+    const unverifiable = { manifestKey: "manifests/k.json" } as never;
+    expect(await store.readManifest(unverifiable)).toMatchObject({ verified: false });
   });
 });

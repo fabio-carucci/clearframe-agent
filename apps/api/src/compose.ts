@@ -7,6 +7,7 @@ import type { LambdaFunctionURLEvent } from "aws-lambda";
 import { type AccessTokenVerifier, authenticate } from "./auth";
 import type { RunQuota } from "./quota";
 import { parseRunRequest } from "./request";
+import { sendJson as respond } from "./respond";
 import type { RunStore } from "./run-store";
 
 export const NDJSON = "application/x-ndjson";
@@ -54,11 +55,7 @@ export async function compose(
   deps: ComposeDeps,
   sink: ResponseSink,
 ): Promise<void> {
-  const sendJson = async (statusCode: number, body: unknown) => {
-    sink.start(statusCode, "application/json");
-    sink.write(JSON.stringify(body));
-    await sink.end();
-  };
+  const sendJson = (statusCode: number, body: unknown) => respond(sink, statusCode, body);
 
   if (event.requestContext.http.method !== "POST") {
     return sendJson(405, { error: "Use POST with a JSON body" });
