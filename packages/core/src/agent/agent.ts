@@ -19,7 +19,7 @@ export const RUN_TIMEOUT_MS = 45_000;
 export function createClipAgent(run: RunContext, model: LanguageModel = anthropic(MODEL_ID)) {
   return new ToolLoopAgent({
     model,
-    instructions: buildInstructions(run.draft.usage),
+    instructions: buildInstructions(run.draft.usage, run.draft.enforcesRights),
     tools: {
       searchClips: createSearchClipsTool(run),
       getRights: createGetRightsTool(run),

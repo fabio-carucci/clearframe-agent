@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Manifest } from "@clearframe/contracts";
+import { toManifestEntry } from "@clearframe/core/agent/manifest";
 import type { Clip } from "@clearframe/core/catalog/schema";
 import type { EvalCase } from "./cases";
 import {
@@ -34,13 +35,13 @@ const catalog = [
 ];
 const clipsById = new Map(catalog.map((c) => [c.id, c]));
 
+const usage = { territory: "ES", date: "2026-10-17" };
+
 const manifestWith = (clipIds: string[]): Manifest => ({
   runId: "00000000-0000-4000-8000-000000000000",
-  request: { prompt: "p", territory: "ES", date: "2026-10-17" },
-  clips: clipIds.map((clipId) => {
-    const { title, genre, language, durationSec } = clipsById.get(clipId)!;
-    return { clipId, title, genre, language, durationSec, reason: "r" };
-  }),
+  request: { prompt: "p", ...usage },
+  catalogVersion: "0".repeat(64),
+  clips: clipIds.map((clipId) => toManifestEntry(clipsById.get(clipId)!, usage, "r")),
   rejected: [],
   stopReason: "completed",
   summary: "",
@@ -107,14 +108,7 @@ describe("recall", () => {
   const eligible = new Set(["a", "b", "c", "d"]);
   const found = (ids: string[]): Manifest => ({
     ...manifestWith([]),
-    clips: ids.map((clipId) => ({
-      clipId,
-      title: "",
-      genre: "cooking",
-      language: "es",
-      durationSec: 1,
-      reason: "r",
-    })),
+    clips: ids.map((clipId) => toManifestEntry(clip(clipId), usage, "r")),
   });
 
   it("is the share of eligible clips that were returned", () => {

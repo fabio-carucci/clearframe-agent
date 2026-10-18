@@ -11,6 +11,7 @@ const result: RunResult = {
   manifest: {
     runId: "11111111-1111-4111-8111-111111111111",
     request: { prompt: "surf", territory: "ES", date: "2026-10-18" },
+    catalogVersion: "ae337fe9b6fb3434c13d8a6de17a56298b3b6908599774d835066eac4e17f0bc",
     clips: [],
     rejected: [],
     stopReason: "completed",

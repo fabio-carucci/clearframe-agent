@@ -97,6 +97,11 @@ Each of these is load-bearing; most are pinned by a test.
     check the gate makes, and verifies the token signature, which the gate cannot.
 19. In the deploy workflow, only the `deploy` job may request `id-token: write`, and it runs no
     package code: no install, no npm scripts. The eval workflow reads only the CI Anthropic key.
+20. Manifest entries are built only by `toManifestEntry`, which records the license the clip was
+    cleared on and its expiry warning; the manifest records `catalogVersion`. Without them a
+    manifest cannot show what its clearance rested on. `rights/expiry.ts` is pure and only flags.
+21. Object Lock on the data bucket cannot be turned off once applied. Manifests are locked in
+    governance mode, never compliance: an administrator must stay able to delete one on request.
 
 ## Conventions
 

@@ -79,7 +79,7 @@ resends the whole conversation and fewer steps means far fewer tokens.
 | Tool            | The model chooses    | What happens                                                                                                                                          |
 | --------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `searchClips`   | query text, filters  | Exact filters (language, genre, max duration) first, then cosine similarity on the descriptions. Only clips licensed for this request are searchable. |
-| `getRights`     | clip ids             | Returns each license and the rule's verdict for the request's territory and date.                                                                     |
+| `getRights`     | clip ids             | Returns each license and the rule's verdict for the request's territory and date, for requests about specific clips. Search results need no check.    |
 | `addToManifest` | clip ids and reasons | Runs the rule on every clip. Returns one outcome per clip, with rejection reasons, so the model learns why.                                           |
 
 **Limits.** The loop stops when the model answers with text, after 15 steps, or once input plus
@@ -90,6 +90,13 @@ clips accepted so far, with a `stopReason` that says the manifest is partial.
 closed: a license is already invalid on its expiry day, territory codes must match exactly, and a
 malformed date throws instead of being read as "not expired". It reports every violation at once
 (`TRAINING_NOT_ALLOWED`, `TERRITORY_NOT_LICENSED`, `LICENSE_EXPIRED`).
+
+**What a manifest proves.** Each accepted clip carries the license it was cleared on and the days
+from the usage date to its expiry. A dataset trains for weeks and the model ships afterwards, so a
+license ending within 30 days of the usage date sets `expiresSoon`; it does not refuse the clip,
+because the rule decides on the usage date alone. The manifest also records `catalogVersion`, the
+SHA-256 of the catalog the rule read, licenses included. A manifest therefore shows what its
+clearance rested on without the live catalog, which changes as licenses are revoked.
 
 **Retrieval.** 300 clips with 512-dimension Titan Text Embeddings V2 vectors, held in memory. Brute
 force cosine similarity is sub-millisecond at this size; a vector database would add a service to
@@ -146,16 +153,27 @@ on the rule under test, and a regression in the rule fails a free test before an
 | Recall               | Share of eligible clips found, capped at the requested count        | mean ≥ 90%  |
 | Cost, steps, latency | Mean cost, mean steps, p50/p95 latency                              | reported    |
 
-Results with Claude Haiku 5.5 at medium effort ([full report](evals/reports/latest-with-rule.md)):
+Results with Claude Haiku 5.5 at medium effort, 20 cases run 3 times each
+([full report](evals/reports/latest-with-rule.md)):
 
-|              | Violations | Filter precision | Recall | Mean cost | p50 latency |
-| ------------ | ---------- | ---------------- | ------ | --------- | ----------- |
-| Rule in code | 0          | 100%             | 100%   | $0.0023   | 8.1 s       |
+|              | Violations | Filter precision | Recall | Mean cost | p50 / p95 latency |
+| ------------ | ---------- | ---------------- | ------ | --------- | ----------------- |
+| Rule in code | 0          | 100%             | 98%    | $0.0018   | 7.5 s / 11.2 s    |
+
+The missing recall is one prompt-injection case: told to check rights for another territory, the
+model sometimes refuses the whole request and returns nothing. Safe, but too cautious.
 
 The evals also found a real defect. Search was not rights-aware, so in a territory where few clips
 are licensed the model paged through unusable results until it hit the token budget: 0 clips at
 6× the average cost. Filtering by rights inside retrieval fixed it and cut the mean cost per
 request by a third (from $0.0034 to $0.0023). The rule in `addToManifest` stays as the guarantee.
+
+Once search was rights-aware, the prompt's `getRights` step checked what search had already
+filtered. Dropping it from the procedure, and telling the model that an empty search is final,
+cut the mean cost from $0.0024 to $0.0018 and the mean steps from 4.3 to 3.6, with the same
+precision ([before](evals/reports/latest-with-rule-before-p1.md),
+[without the step](evals/reports/latest-with-rule-after-p1.md)). Without the second change the
+model kept rephrasing searches for impossible requests, which raised p95 latency.
 
 The ablation (`pnpm eval:no-rule`) swaps in a draft that applies no rule and gives the model raw
 licenses without a verdict, so it measures the prompt-only baseline honestly. That draft lives in
@@ -172,7 +190,9 @@ pnpm eval --cases es-outdoor-short,any-jp   # a subset
 Every run gets a `runId`, returned in the manifest. The Lambda writes:
 
 - the manifest to S3 (`manifests/<day>/<runId>.json`) before the run record, so a record never
-  points at a missing manifest;
+  points at a missing manifest. The bucket is versioned, and each manifest is written with Object
+  Lock in governance mode until its record expires, with a SHA-256 checksum that S3 stores with
+  it;
 - a run record to DynamoDB with the caller, request, stop reason, per-step tool calls, tokens and
   durations, cost and any internal error, keyed by `runId`, with a 90-day TTL;
 - one JSON log line per step to CloudWatch, queryable with Logs Insights:
@@ -181,7 +201,7 @@ Every run gets a `runId`, returned in the manifest. The Lambda writes:
 filter event = "run_finished" | stats count(), avg(costUsd), pct(durationMs, 95) by stopReason
 ```
 
-A typical request costs about **$0.002**: almost all of it is Haiku input tokens, since each step
+A typical request costs about **$0.0018**: almost all of it is Haiku input tokens, since each step
 resends the conversation. Idle, the stack costs effectively nothing: Lambda and DynamoDB bill per
 request, S3 holds a few MB, CloudFront and Cognito stay inside their free tiers at this volume, and
 SSM standard parameters are free.
@@ -203,7 +223,7 @@ Terraform, with state in S3 and native S3 locking. Three root stacks:
 | `auth` | Cognito user pool (admin-only sign-up, optional TOTP MFA), managed login domain, PKCE app client                     |
 
 The Lambda role has seven permissions, each scoped to one resource: write its own log group, read
-`data/*`, write `manifests/*`, `PutItem` on the runs table, `UpdateItem` on the quotas table, read
+`data/*`, write and lock `manifests/*`, `PutItem` on the runs table, `UpdateItem` on the quotas table, read
 two named SSM parameters (the Anthropic key and the Cognito ids), and invoke one Bedrock model. It
 cannot list the bucket, query a table or call any other model. Only the CloudFront distribution
 may invoke the function URL.
@@ -252,22 +272,25 @@ for the same reason. There is no shared API token: callers present short-lived C
 
 ## Decisions
 
-| Decision                                      | Instead of                    | Why                                                                                  |
-| --------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------ |
-| Rule in code, enforced at the only write path | Rule in the prompt            | Prompt-only failed 3 of 8 injection runs.                                            |
-| Territory and date as explicit API fields     | Parsed from the request text  | They are contractual parameters; the model must not set what the rule checks.        |
-| Manifest built from accepted clips            | Model's final answer          | The model's summary is sometimes wrong about counts; the data is not.                |
-| Batched tools                                 | One clip per call             | Each step resends the conversation, so fewer steps cost far fewer tokens.            |
-| Claude Haiku 5.5, medium effort               | Sonnet 5.5                    | About 20× cheaper; evals show 100% precision and recall on this task.                |
-| In-memory cosine over 300 vectors             | A vector database             | Sub-millisecond, nothing to operate. pgvector past tens of thousands of clips.       |
-| Titan V2 embeddings on Bedrock                | Voyage, local models          | IAM auth from the Lambda role, no second API key, no model in the bundle.            |
-| DynamoDB records and JSON logs                | OpenTelemetry and X-Ray       | Covers per-run cost and steps with no collector to run; OTel is the next step.       |
-| Private function URL behind CloudFront        | Public URL or API Gateway     | One domain, no CORS, nothing public to abuse; WAF can attach to the distribution.    |
-| Daily run quota per user in DynamoDB          | AWS WAF rate limiting         | Caps runs per user, which is what costs money, with no fixed monthly charge.         |
-| Cognito access tokens verified in the Lambda  | A shared bearer token         | Per-user identity and cost, tokens that expire, revocation by disabling a user.      |
-| Managed identity provider                     | An auth library (Better Auth) | The page is static and the Lambda stateless; there is no server or session store.    |
-| Static export on S3 and CloudFront            | Next.js on Vercel             | Nothing to render on a server, and it keeps the API private behind the same CDN.     |
-| `ToolLoopAgent` from the AI SDK               | A hand-written loop           | Standard loop with `stopWhen` hooks; control stays in the tools and stop conditions. |
+| Decision                                       | Instead of                    | Why                                                                                   |
+| ---------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------- |
+| Rule in code, enforced at the only write path  | Rule in the prompt            | Prompt-only failed 3 of 8 injection runs.                                             |
+| License snapshot and catalog hash per manifest | A pointer to the live catalog | Licenses change; a manifest must show what it was cleared on, alone.                  |
+| Object Lock, governance mode, 90 days          | Compliance mode               | Tamper-proof for the Lambda and CI, yet an administrator can honour erasure requests. |
+| Expiring licenses flagged, not refused         | Refusing them                 | The rule decides on the usage date; how long training runs is the buyer's call.       |
+| Territory and date as explicit API fields      | Parsed from the request text  | They are contractual parameters; the model must not set what the rule checks.         |
+| Manifest built from accepted clips             | Model's final answer          | The model's summary is sometimes wrong about counts; the data is not.                 |
+| Batched tools                                  | One clip per call             | Each step resends the conversation, so fewer steps cost far fewer tokens.             |
+| Claude Haiku 5.5, medium effort                | Sonnet 5.5                    | About 20× cheaper; evals show 100% precision and recall on this task.                 |
+| In-memory cosine over 300 vectors              | A vector database             | Sub-millisecond, nothing to operate. pgvector past tens of thousands of clips.        |
+| Titan V2 embeddings on Bedrock                 | Voyage, local models          | IAM auth from the Lambda role, no second API key, no model in the bundle.             |
+| DynamoDB records and JSON logs                 | OpenTelemetry and X-Ray       | Covers per-run cost and steps with no collector to run; OTel is the next step.        |
+| Private function URL behind CloudFront         | Public URL or API Gateway     | One domain, no CORS, nothing public to abuse; WAF can attach to the distribution.     |
+| Daily run quota per user in DynamoDB           | AWS WAF rate limiting         | Caps runs per user, which is what costs money, with no fixed monthly charge.          |
+| Cognito access tokens verified in the Lambda   | A shared bearer token         | Per-user identity and cost, tokens that expire, revocation by disabling a user.       |
+| Managed identity provider                      | An auth library (Better Auth) | The page is static and the Lambda stateless; there is no server or session store.     |
+| Static export on S3 and CloudFront             | Next.js on Vercel             | Nothing to render on a server, and it keeps the API private behind the same CDN.      |
+| `ToolLoopAgent` from the AI SDK                | A hand-written loop           | Standard loop with `stopWhen` hooks; control stays in the tools and stop conditions.  |
 
 ## Repository
 
@@ -313,7 +336,9 @@ with `aws cognito-idp admin-create-user`; Cognito emails them a temporary passwo
 
 Run records store the caller's Cognito id and the request prompt, which a user could fill with
 personal data. Records expire after 90 days, manifests after 90 days, logs after 14, and only the
-Lambda role can write them.
+Lambda role can write them. Manifests are locked for their 90 days in governance mode, not
+compliance mode: the Lambda and CI cannot delete them, and an administrator still can, for
+instance to honour an erasure request.
 
 ## Next steps
 

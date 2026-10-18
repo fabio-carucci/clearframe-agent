@@ -5,6 +5,7 @@ export const SAMPLE_RUN: ComposeResponse = {
   manifest: {
     runId: "b5d3b05b-527e-4b65-9107-61b33eb15cfc",
     request: { prompt: "5 clip di natura in inglese", territory: "ES", date: "2026-10-17" },
+    catalogVersion: "ae337fe9b6fb3434c13d8a6de17a56298b3b6908599774d835066eac4e17f0bc",
     clips: [
       {
         clipId: "clip_0133",
@@ -14,6 +15,13 @@ export const SAMPLE_RUN: ComposeResponse = {
         durationSec: 44,
         reason:
           "Nature/wildlife clip in English showing a wolf pack moving through a snowy forest, licensed for training in ES.",
+        license: {
+          trainingAllowed: true,
+          territories: ["ES", "IT", "FR", "DE", "PT", "MX", "AR", "CO", "GB"],
+          expiresAt: "2029-07-28",
+        },
+        daysUntilExpiry: 1015,
+        expiresSoon: false,
       },
       {
         clipId: "clip_0020",
@@ -23,6 +31,13 @@ export const SAMPLE_RUN: ComposeResponse = {
         durationSec: 31,
         reason:
           "Nature/wildlife clip in English of wild horses resting at a quiet clearing at first light, licensed for ES (license expires 2026-11-02, still valid on the request date).",
+        license: {
+          trainingAllowed: true,
+          territories: ["ES", "IT", "FR", "DE", "PT", "US", "CA", "MX", "AR", "CO"],
+          expiresAt: "2026-11-02",
+        },
+        daysUntilExpiry: 16,
+        expiresSoon: true,
       },
       {
         clipId: "clip_0247",
@@ -32,6 +47,13 @@ export const SAMPLE_RUN: ComposeResponse = {
         durationSec: 85,
         reason:
           "Nature/wildlife clip in English of a lone fox feeding in a misty valley, licensed for training in ES.",
+        license: {
+          trainingAllowed: true,
+          territories: ["ES", "IT", "FR", "DE", "PT", "GB"],
+          expiresAt: null,
+        },
+        daysUntilExpiry: null,
+        expiresSoon: false,
       },
       {
         clipId: "clip_0287",
@@ -41,6 +63,13 @@ export const SAMPLE_RUN: ComposeResponse = {
         durationSec: 50,
         reason:
           "Nature/wildlife clip in English of ibex crossing a frozen lake in heavy fog, licensed for training in ES.",
+        license: {
+          trainingAllowed: true,
+          territories: ["ES", "IT", "FR", "DE", "PT", "US", "CA", "MX", "AR", "CO"],
+          expiresAt: null,
+        },
+        daysUntilExpiry: null,
+        expiresSoon: false,
       },
       {
         clipId: "clip_0120",
@@ -50,6 +79,13 @@ export const SAMPLE_RUN: ComposeResponse = {
         durationSec: 34,
         reason:
           "Nature/wildlife clip in English of wild horses feeding in an alpine meadow, licensed for training in ES.",
+        license: {
+          trainingAllowed: true,
+          territories: ["ES", "IT", "FR", "DE", "PT", "US", "CA", "GB"],
+          expiresAt: null,
+        },
+        daysUntilExpiry: null,
+        expiresSoon: false,
       },
     ],
     rejected: [],

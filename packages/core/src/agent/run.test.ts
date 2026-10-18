@@ -41,7 +41,7 @@ const deps = {
     clips: [clip],
     clipsById: new Map([[clip.id, clip]]),
     index: {} as EmbeddingIndex,
-    version: "test",
+    version: "0".repeat(64),
   },
   embedQuery: async () => ({ embedding: [], tokens: 0 }),
 };

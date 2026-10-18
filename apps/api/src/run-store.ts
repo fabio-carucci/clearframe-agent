@@ -28,6 +28,13 @@ export class AwsRunStore implements RunStore {
         Key: record.manifestKey,
         Body: JSON.stringify(result.manifest),
         ContentType: "application/json",
+        // Kept unchanged as long as its run record. Governance mode, not compliance: an
+        // administrator can still delete it early, for instance to honour an erasure request.
+        ObjectLockMode: "GOVERNANCE",
+        ObjectLockRetainUntilDate: new Date(record.expiresAt * 1000),
+        // Required on any upload with a retention period, and stored with the object, so the
+        // manifest can later be checked against the hash S3 recorded.
+        ChecksumAlgorithm: "SHA256",
       }),
     );
     await dynamo.send(

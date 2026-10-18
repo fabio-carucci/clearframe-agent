@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "agent" {
 
   statement {
     sid       = "WriteManifests"
-    actions   = ["s3:PutObject"]
+    actions   = ["s3:PutObject", "s3:PutObjectRetention"]
     resources = ["${aws_s3_bucket.data.arn}/manifests/*"]
   }
 

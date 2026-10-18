@@ -1,5 +1,9 @@
 import type { ManifestEntry, Rejection } from "@clearframe/contracts";
-import type { ManifestWriter, ProposalOutcome } from "@clearframe/core/agent/manifest";
+import {
+  type ManifestWriter,
+  type ProposalOutcome,
+  toManifestEntry,
+} from "@clearframe/core/agent/manifest";
 import type { Clip } from "@clearframe/core/catalog/schema";
 import type { UsageRequest } from "@clearframe/core/rights/check-training-rights";
 
@@ -39,8 +43,7 @@ export class UncheckedManifestDraft implements ManifestWriter {
       return { clipId, status: "rejected", reasons: ["UNKNOWN_CLIP"] };
     }
     if (this.#entries.has(clipId)) return { clipId, status: "rejected", reasons: ["DUPLICATE"] };
-    const { id, title, genre, language, durationSec } = clip;
-    this.#entries.set(clipId, { clipId: id, title, genre, language, durationSec, reason });
+    this.#entries.set(clipId, toManifestEntry(clip, this.usage, reason));
     return { clipId, status: "accepted" };
   }
 }

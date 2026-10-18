@@ -9,6 +9,7 @@ const result: RunResult = {
   manifest: {
     runId: "11111111-1111-4111-8111-111111111111",
     request: { prompt: "surf", territory: "ES", date: "2026-10-17" },
+    catalogVersion: "ae337fe9b6fb3434c13d8a6de17a56298b3b6908599774d835066eac4e17f0bc",
     clips: [],
     rejected: [{ clipId: "clip_0002", reasons: ["LICENSE_EXPIRED"] }],
     stopReason: "error",
@@ -73,6 +74,18 @@ describe("AwsRunStore", () => {
       expiresAt: createdAt.getTime() / 1000 + RUN_TTL_DAYS * 86_400,
     });
     expect((sent[1] as PutCommand).input.Item).toEqual(record);
+  });
+
+  it("locks the manifest in governance mode until the run record expires", async () => {
+    const { store, sent } = recordingStore();
+    const record = await store.save(result, createdAt, "user-123");
+
+    expect((sent[0] as PutObjectCommand).input).toMatchObject({
+      ObjectLockMode: "GOVERNANCE",
+      ObjectLockRetainUntilDate: new Date(record.expiresAt * 1000),
+      ChecksumAlgorithm: "SHA256",
+    });
+    expect(record.catalogVersion).toBe(result.manifest.catalogVersion);
   });
 
   it("never overwrites an existing run", async () => {

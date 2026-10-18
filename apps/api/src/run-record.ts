@@ -17,6 +17,8 @@ export interface RunRecord {
   prompt: string;
   territory: string;
   date: string;
+  /** SHA-256 of the catalog, licenses included, that the run's clips were cleared against. */
+  catalogVersion: string;
   stopReason: string;
   clipCount: number;
   rejectedCount: number;
@@ -45,6 +47,7 @@ export function toRunRecord(result: RunResult, createdAt: Date, userId: string):
     userId,
     model: MODEL_ID,
     ...manifest.request,
+    catalogVersion: manifest.catalogVersion,
     stopReason: manifest.stopReason,
     clipCount: manifest.clips.length,
     rejectedCount: manifest.rejected.length,
