@@ -117,19 +117,24 @@ resource "aws_cloudfront_distribution" "this" {
     compress                   = true
   }
 
-  ordered_cache_behavior {
-    path_pattern               = "/api"
-    target_origin_id           = "api"
-    viewer_protocol_policy     = "https-only"
-    allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods             = ["GET", "HEAD"]
-    cache_policy_id            = local.cache_policy_disabled
-    origin_request_policy_id   = local.origin_request_all_except_host
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
+  # POST /api runs the agent; GET /api/runs and /api/runs/:id read the history.
+  dynamic "ordered_cache_behavior" {
+    for_each = ["/api", "/api/*"]
 
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.api_gate.arn
+    content {
+      path_pattern               = ordered_cache_behavior.value
+      target_origin_id           = "api"
+      viewer_protocol_policy     = "https-only"
+      allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+      cached_methods             = ["GET", "HEAD"]
+      cache_policy_id            = local.cache_policy_disabled
+      origin_request_policy_id   = local.origin_request_all_except_host
+      response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
+
+      function_association {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.api_gate.arn
+      }
     }
   }
 
