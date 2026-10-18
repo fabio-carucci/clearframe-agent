@@ -12,13 +12,13 @@ page and Cognito sign-in.
 | Task                                    | Command                                                 |
 | --------------------------------------- | ------------------------------------------------------- |
 | Install                                 | `pnpm install`                                          |
-| Typecheck, unit tests, formatting       | `pnpm typecheck`, `pnpm test`, `pnpm format:check`      |
+| Typecheck every package, tests, format  | `pnpm typecheck`, `pnpm test`, `pnpm format:check`      |
 | Run the agent once                      | `pnpm agent --territory ES "10 Spanish cooking clips"`  |
 | Eval suite (with the rule)              | `pnpm eval [--repeat N] [--cases id,id] [--label name]` |
 | Eval suite without the rule (ablation)  | `pnpm eval:no-rule [...]`                               |
 | Regenerate catalog, then its embeddings | `pnpm catalog:generate && pnpm catalog:embed`           |
-| Lambda bundle                           | `pnpm build:lambda`                                     |
-| Web app: dev server, typecheck, build   | `pnpm web:dev`, `pnpm web:typecheck`, `pnpm web:build`  |
+| Lambda bundle (`apps/api/dist`)         | `pnpm build:lambda`                                     |
+| Web app: dev server, static export      | `pnpm web:dev`, `pnpm web:build`                        |
 
 `pnpm agent`, `pnpm eval` and `pnpm catalog:embed` call Anthropic and Amazon Bedrock and cost real
 money (an eval run is about $0.05). They read `.env` (see `.env.example`) and an AWS profile. Ask
@@ -31,19 +31,29 @@ Never run `terraform apply`. `infra/bootstrap` and `infra/github` are applied by
 
 ## Layout
 
-| Path             | Contents                                                                    |
-| ---------------- | --------------------------------------------------------------------------- |
-| `src/rights/`    | `checkTrainingRights`, the pure rule                                        |
-| `src/agent/`     | Agent loop, tools, `ManifestDraft`, run orchestration, cost, error mapping  |
-| `src/catalog/`   | Zod schemas, deterministic generator, local and S3 loaders                  |
-| `src/retrieval/` | Titan embeddings, filtered cosine ranking                                   |
-| `src/tracing/`   | Run records, DynamoDB/S3 store, JSON logs                                   |
-| `src/lambda/`    | Function URL handler, Cognito token check, request validation               |
-| `evals/`         | Cases, metrics, no-rule ablation draft, runner, committed reports           |
-| `web/`           | Static Next.js page: sign-in, compose form, result view                     |
-| `infra/`         | `bootstrap`, `github` (OIDC roles), modules `api`, `web`, `auth`, `env/dev` |
-| `scripts/`       | CLIs for generation, embedding, local runs and the Lambda build             |
-| `data/`          | Generated catalog and its embedding index, both committed                   |
+A pnpm workspace. These are the only allowed dependencies between packages:
+
+```
+apps/web            -> packages/contracts
+apps/api            -> packages/core, packages/contracts
+evals               -> packages/core, packages/contracts
+packages/core       -> packages/contracts
+packages/contracts  -> zod only
+```
+
+| Path                  | Contents                                                                                  |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| `packages/contracts/` | Zod schemas of the HTTP API: request, manifest, steps, response. Depends only on Zod.     |
+| `packages/core/`      | Catalog, rights rule, retrieval, agent loop, cost; scripts for the catalog and local runs |
+| `apps/api/`           | Lambda handler, Cognito token check, request validation, DynamoDB and S3 adapters, bundle |
+| `apps/web/`           | Static Next.js page: sign-in, compose form, result view                                   |
+| `evals/`              | Cases, metrics, no-rule ablation draft, runner, committed reports                         |
+| `infra/`              | `bootstrap`, `github` (OIDC roles), modules `api`, `web`, `auth`, `env/dev`               |
+| `data/`               | Generated catalog and its embedding index, both committed                                 |
+
+Workspace packages export TypeScript source (`@clearframe/core/agent/run` maps to
+`packages/core/src/agent/run.ts`). esbuild, Next.js (`transpilePackages`), tsx and Vitest compile it
+where it is used, so there is no build step between packages.
 
 ## Invariants
 
@@ -57,7 +67,8 @@ Each of these is load-bearing; most are pinned by a test.
 4. `checkTrainingRights` stays pure (no clock, no I/O) and fails closed: a license is invalid on
    its expiry day, and a malformed date throws.
 5. The API rejects usage dates in the past, which would revive expired licenses.
-6. Code under `src/` never imports from `evals/`. The rule-free draft exists only there.
+6. Nothing under `apps/` or `packages/` imports from `evals/`. The rule-free draft exists only
+   there.
 7. Raw provider error messages never reach API callers; callers get `RunError.code`.
 8. Secrets never pass through Terraform: the Anthropic key parameter and Cognito users are created
    with the AWS CLI. Non-secret runtime settings, such as the Cognito ids, may.
@@ -73,6 +84,8 @@ Each of these is load-bearing; most are pinned by a test.
 14. Per-environment settings (Cognito ids) reach the Lambda through SSM and the page through
     `config.json` at runtime. Baking them into a build would bring back the dependency cycle between
     the `api`, `web` and `auth` modules.
+15. `packages/contracts` depends only on Zod, because it ships to the browser. `packages/core` holds
+    no storage or HTTP adapters; those live in `apps/api`.
 
 ## Conventions
 
