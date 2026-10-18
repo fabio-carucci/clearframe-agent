@@ -4,7 +4,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   ssm_parameter_arns = [
-    for name in [var.anthropic_key_param, var.api_token_param] :
+    for name in [var.anthropic_key_param, var.auth_config_param] :
     "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter${name}"
   ]
   embedding_model_arn = "arn:aws:bedrock:${data.aws_region.current.region}::foundation-model/${var.embedding_model_id}"

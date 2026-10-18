@@ -29,7 +29,7 @@ resource "aws_lambda_function" "agent" {
       DATA_BUCKET         = aws_s3_bucket.data.id
       RUNS_TABLE          = aws_dynamodb_table.runs.name
       ANTHROPIC_KEY_PARAM = var.anthropic_key_param
-      API_TOKEN_PARAM     = var.api_token_param
+      AUTH_CONFIG_PARAM   = var.auth_config_param
       NODE_OPTIONS        = "--enable-source-maps"
     }
   }
@@ -42,32 +42,9 @@ resource "aws_lambda_function" "agent" {
   depends_on = [aws_iam_role_policy.agent]
 }
 
+# Private: only principals granted lambda:InvokeFunctionUrl can call it. The web module grants
+# that to this stack's CloudFront distribution and to nobody else.
 resource "aws_lambda_function_url" "agent" {
   function_name      = aws_lambda_function.agent.function_name
-  authorization_type = "NONE"
-
-  cors {
-    allow_origins  = var.cors_allow_origins
-    allow_methods  = ["POST"]
-    allow_headers  = ["authorization", "content-type"]
-    expose_headers = []
-    max_age        = 3600
-  }
-}
-
-# A NONE-auth URL needs both statements; the bearer token check happens in the handler.
-resource "aws_lambda_permission" "url_invoke" {
-  statement_id           = "AllowPublicFunctionUrl"
-  action                 = "lambda:InvokeFunctionUrl"
-  function_name          = aws_lambda_function.agent.function_name
-  principal              = "*"
-  function_url_auth_type = "NONE"
-}
-
-resource "aws_lambda_permission" "url_invoke_function" {
-  statement_id             = "AllowInvokeOnlyThroughFunctionUrl"
-  action                   = "lambda:InvokeFunction"
-  function_name            = aws_lambda_function.agent.function_name
-  principal                = "*"
-  invoked_via_function_url = true
+  authorization_type = "AWS_IAM"
 }
