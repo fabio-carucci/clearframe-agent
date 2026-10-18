@@ -4,3 +4,23 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # A compromised release is usually caught and pulled within days; a week of waiting keeps it
+    # out of the lockfile. Longer than pnpm's own minimumReleaseAge, which Dependabot may ignore.
+    cooldown:
+      default-days: 7
+    groups:
+      # The agent loop depends on these together; the evals job runs on any lockfile change.
+      ai-sdk:
+        patterns: ["ai", "@ai-sdk/*"]
+      aws-sdk:
+        patterns: ["@aws-sdk/*"]
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]

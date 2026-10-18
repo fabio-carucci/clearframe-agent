@@ -132,15 +132,18 @@ with sign-in and live runs turned off.
 ## Evals
 
 Twenty cases with ground truth written by hand: ordinary requests, other territories, future
-dates, requested counts, impossible requests and prompt injections. The clips a perfect agent could
-return are computed from the catalog, so recall needs no hand-written answer keys.
+dates, requested counts, impossible requests and prompt injections. For most cases the clips a
+perfect agent could return are computed from the catalog with the expected filters and the rights
+rule. Three cases list them instead, read off `data/catalog.json` by a person, and a unit test
+checks that the rule and filters select exactly those clips. Grading those cases does not depend
+on the rule under test, and a regression in the rule fails a free test before any model runs.
 
 | Metric               | Meaning                                                             | Gate in CI  |
 | -------------------- | ------------------------------------------------------------------- | ----------- |
 | Rights violations    | Manifest clips whose license fails the rule, including partial runs | must be `0` |
-| Errors               | Runs that failed                                                    | must be `0` |
-| Filter precision     | Share of returned clips that meet the requested constraints         | reported    |
-| Recall               | Share of eligible clips found, capped at the requested count        | reported    |
+| Errors               | Runs that failed, after one retry of provider errors (429, 5xx)     | must be `0` |
+| Filter precision     | Share of returned clips that meet the requested constraints         | mean ≥ 95%  |
+| Recall               | Share of eligible clips found, capped at the requested count        | mean ≥ 90%  |
 | Cost, steps, latency | Mean cost, mean steps, p50/p95 latency                              | reported    |
 
 Results with Claude Haiku 5.5 at medium effort ([full report](evals/reports/latest-with-rule.md)):
@@ -159,7 +162,7 @@ licenses without a verdict, so it measures the prompt-only baseline honestly. Th
 `evals/` and production code cannot import it.
 
 ```bash
-pnpm eval                                   # gates on violations and errors
+pnpm eval --min-recall 0.9 --min-precision 0.95   # the CI gate
 pnpm eval:no-rule --repeat 3                # prompt-only baseline
 pnpm eval --cases es-outdoor-short,any-jp   # a subset
 ```
@@ -193,30 +196,55 @@ Terraform, with state in S3 and native S3 locking. Three root stacks:
 | `infra/github`    | an administrator | GitHub OIDC provider, CI roles, the workload permissions boundary       |
 | `infra/env/dev`   | CI, on `main`    | The `api`, `web` and `auth` modules, wired together                     |
 
-| Module | Contents                                                                                         |
-| ------ | ------------------------------------------------------------------------------------------------ |
-| `api`  | Lambda, private function URL, data bucket, runs table, log group, the Lambda role                |
-| `web`  | Private site bucket, CloudFront distribution with two origin access controls, security headers   |
-| `auth` | Cognito user pool (admin-only sign-up, optional TOTP MFA), managed login domain, PKCE app client |
+| Module | Contents                                                                                                             |
+| ------ | -------------------------------------------------------------------------------------------------------------------- |
+| `api`  | Lambda, private function URL, data bucket, runs and quotas tables, log group, the Lambda role                        |
+| `web`  | Private site bucket, CloudFront distribution with two origin access controls, security headers, the `/api` edge gate |
+| `auth` | Cognito user pool (admin-only sign-up, optional TOTP MFA), managed login domain, PKCE app client                     |
 
-The Lambda role has six permissions, each scoped to one resource: write its own log group, read
-`data/*`, write `manifests/*`, `PutItem` on the runs table, read two named SSM parameters (the
-Anthropic key and the Cognito ids), and invoke one Bedrock model. It cannot list the bucket, query
-the table or call any other model. Only the CloudFront distribution may invoke the function URL.
+The Lambda role has seven permissions, each scoped to one resource: write its own log group, read
+`data/*`, write `manifests/*`, `PutItem` on the runs table, `UpdateItem` on the quotas table, read
+two named SSM parameters (the Anthropic key and the Cognito ids), and invoke one Bedrock model. It
+cannot list the bucket, query a table or call any other model. Only the CloudFront distribution
+may invoke the function URL.
+
+**Spend limits.** Every run costs model tokens, so spend is capped in layers:
+
+- A CloudFront Function on `/api` rejects requests the Lambda would refuse anyway (not a POST, no
+  body hash, a missing, malformed, expired or non-access token) before they invoke it. It cannot
+  check signatures, so the Lambda still verifies every token.
+- Each user may start 20 runs per UTC day (`daily_run_limit`). The Lambda counts them with one
+  conditional, atomic DynamoDB update before it loads anything. Over the limit the answer is `429`;
+  if the update fails, the request fails instead of running uncounted.
+- Each run stops at 15 steps, 150,000 tokens or 45 seconds.
+- Reserved concurrency would keep a flood from starving the account, but this account's limit is
+  10 concurrent executions and AWS keeps 10 unreserved, so none can be reserved until the quota is
+  raised (Service Quotas, code `L-B99A9384`).
 
 **CI.** GitHub Actions assume AWS roles through OIDC, so no AWS keys live in GitHub. The trust
 policies match GitHub's immutable subject, which carries the owner and repository ids, so a
 re-created repository with the same name cannot assume them.
 
 - `clearframe-ci-eval` can be assumed only by pull requests of this repository. It can embed
-  queries and read the Anthropic key from SSM, nothing else.
+  queries and read the CI Anthropic key, nothing else. A pull request can rewrite the workflow and
+  print that key, so it is a separate key in an Anthropic workspace with a low spend limit, never
+  the key the Lambda uses.
 - `clearframe-ci-deploy` can be assumed only from `main`. It manages `clearframe-dev-*` resources
-  and the `env/dev` state, and can create IAM roles only with a permissions boundary attached, so
-  it cannot mint a role more powerful than the boundary.
+  and the `env/dev` state. It can change one IAM role, `clearframe-dev-agent`, only with the
+  permissions boundary attached, and is denied changing who may assume a role: the boundary limits
+  what a role can do, not who can use it, so trust changes are applied by an administrator. IAM
+  Access Analyzer reports any resource in the account that is shared outside it.
 
-Pull requests run format, typecheck, tests, the Lambda and web builds, `terraform validate` and the
-eval suite. Merges to `main` deploy `dev`. Every action is pinned to a commit SHA, and pnpm refuses
-packages published less than a day ago.
+Pull requests run format, typecheck, tests, the Lambda and web builds and `terraform validate`,
+and the eval suite when they touch the agent, the evals, the data or the dependencies. Merges to
+`main` deploy `dev` in two jobs: `build` runs package code with no way to reach AWS, and `deploy`
+holds the OIDC token and runs only Terraform on the built artifacts. A malicious dependency
+therefore cannot assume the deploy role, though it could still tamper with what it builds.
+
+Every action is pinned to a commit SHA, and pnpm refuses packages published less than a day ago.
+Dependabot proposes updates weekly, grouped, a week after release. Its pull requests run like
+pull requests from a fork, without Actions secrets; if they cannot assume the eval role, the evals
+check fails and a maintainer runs the evals before merging.
 
 **Secrets.** The Anthropic key is an SSM `SecureString` parameter created with the AWS CLI, never
 through Terraform, whose state would hold it in plain text; Cognito users are created with the CLI
@@ -235,6 +263,7 @@ for the same reason. There is no shared API token: callers present short-lived C
 | Titan V2 embeddings on Bedrock                | Voyage, local models          | IAM auth from the Lambda role, no second API key, no model in the bundle.            |
 | DynamoDB records and JSON logs                | OpenTelemetry and X-Ray       | Covers per-run cost and steps with no collector to run; OTel is the next step.       |
 | Private function URL behind CloudFront        | Public URL or API Gateway     | One domain, no CORS, nothing public to abuse; WAF can attach to the distribution.    |
+| Daily run quota per user in DynamoDB          | AWS WAF rate limiting         | Caps runs per user, which is what costs money, with no fixed monthly charge.         |
 | Cognito access tokens verified in the Lambda  | A shared bearer token         | Per-user identity and cost, tokens that expire, revocation by disabling a user.      |
 | Managed identity provider                     | An auth library (Better Auth) | The page is static and the Lambda stateless; there is no server or session store.    |
 | Static export on S3 and CloudFront            | Next.js on Vercel             | Nothing to render on a server, and it keeps the API private behind the same CDN.     |
@@ -290,7 +319,10 @@ Lambda role can write them.
 
 - OpenTelemetry traces from the AI SDK, exported to X-Ray or a vendor, alongside the run records.
 - Separate AWS accounts per environment under AWS Organizations, with `staging` and `prod` stacks.
-- AWS WAF on the distribution, with per-user rate limits and a monthly cost cap per user.
+- AWS WAF rate-based rules on the distribution, once traffic justifies its fixed monthly cost.
+- Reserved concurrency for the Lambda, once the account's concurrency quota is raised.
+- Tag conditions (`aws:ResourceTag/Project`) on the deploy role's CloudFront and Cognito
+  permissions, which today cover every distribution and user pool in the account.
 - SSO for customer organizations through Cognito SAML or OIDC federation.
 - Prompt caching for the instructions and tool definitions, the largest repeated input.
 - Real ingest: scene-level metadata extracted from video, and licenses from a rights system of record.

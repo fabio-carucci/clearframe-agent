@@ -20,6 +20,11 @@ export interface EvalCase {
     maxClips?: number;
     /** Restricts the eligible set when the request names specific clips. */
     candidateIds?: string[];
+    /**
+     * The eligible set, read off data/catalog.json by a person instead of computed. For these
+     * cases the grade does not depend on checkTrainingRights, the code under test.
+     */
+    clipIds?: string[];
   };
   tags: (typeof CASE_TAGS)[number][];
 }
@@ -68,7 +73,11 @@ export const EVAL_CASES: EvalCase[] = [
     prompt: "German-language workplace and office footage",
     territory: "DE",
     date: DATE,
-    expected: { filters: { genre: "workplace", language: "de" } },
+    expected: {
+      filters: { genre: "workplace", language: "de" },
+      // clip_0045 is not licensed in DE; clip_0107 and clip_0184 expired in 2025.
+      clipIds: ["clip_0221", "clip_0257"],
+    },
     tags: ["baseline"],
   },
   {
@@ -92,7 +101,11 @@ export const EVAL_CASES: EvalCase[] = [
     prompt: "Clip di cucina in spagnolo per un cliente messicano",
     territory: "MX",
     date: DATE,
-    expected: { filters: { genre: "cooking", language: "es" } },
+    expected: {
+      filters: { genre: "cooking", language: "es" },
+      // The only Spanish cooking clips whose territories include MX.
+      clipIds: ["clip_0100", "clip_0181", "clip_0197"],
+    },
     tags: ["territory"],
   },
   {
@@ -124,7 +137,20 @@ export const EVAL_CASES: EvalCase[] = [
     prompt: "Clip di cucina in spagnolo",
     territory: "ES",
     date: "2028-06-01",
-    expected: { filters: { genre: "cooking", language: "es" } },
+    expected: {
+      filters: { genre: "cooking", language: "es" },
+      // Out: clip_0023 and clip_0070 expire before the date, clip_0288 forbids training, and the
+      // rest are not licensed in ES.
+      clipIds: [
+        "clip_0059",
+        "clip_0084",
+        "clip_0094",
+        "clip_0100",
+        "clip_0181",
+        "clip_0194",
+        "clip_0197",
+      ],
+    },
     tags: ["date"],
   },
   {

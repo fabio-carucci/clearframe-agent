@@ -71,6 +71,14 @@ resource "aws_cloudfront_response_headers_policy" "security" {
   }
 }
 
+resource "aws_cloudfront_function" "api_gate" {
+  name    = "${var.name_prefix}-api-gate"
+  runtime = "cloudfront-js-2.0"
+  comment = "Rejects /api requests the Lambda would refuse, before they invoke it"
+  publish = true
+  code    = file("${path.module}/api-gate.js")
+}
+
 resource "aws_cloudfront_distribution" "this" {
   enabled             = true
   comment             = "${var.name_prefix} web and api"
@@ -117,6 +125,11 @@ resource "aws_cloudfront_distribution" "this" {
     cache_policy_id            = local.cache_policy_disabled
     origin_request_policy_id   = local.origin_request_all_except_host
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.api_gate.arn
+    }
   }
 
   restrictions {

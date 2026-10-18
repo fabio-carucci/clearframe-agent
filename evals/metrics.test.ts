@@ -2,7 +2,15 @@ import { describe, expect, it } from "vitest";
 import type { Manifest } from "@clearframe/contracts";
 import type { Clip } from "@clearframe/core/catalog/schema";
 import type { EvalCase } from "./cases";
-import { eligibleClipIds, filterPrecision, recall, rightsViolations, summarize } from "./metrics";
+import {
+  type EvalSummary,
+  eligibleClipIds,
+  filterPrecision,
+  gateFailures,
+  recall,
+  rightsViolations,
+  summarize,
+} from "./metrics";
 
 const clip = (id: string, overrides: Partial<Clip> = {}): Clip => ({
   id,
@@ -53,6 +61,11 @@ const evalCase: EvalCase = {
 describe("eligibleClipIds", () => {
   it("keeps clips that meet the filters and pass the rights rule", () => {
     expect([...eligibleClipIds(evalCase, catalog)]).toEqual(["clip_0001"]);
+  });
+
+  it("uses the handwritten set when the case has one", () => {
+    const handwritten = { ...evalCase, expected: { ...evalCase.expected, clipIds: ["clip_0004"] } };
+    expect([...eligibleClipIds(handwritten, catalog)]).toEqual(["clip_0004"]);
   });
 });
 
@@ -137,5 +150,35 @@ describe("summarize", () => {
     expect(summary.meanFilterPrecision).toBe(1);
     expect(summary.meanRecall).toBe(0.75);
     expect(summary.totalCostUsd).toBeCloseTo(0.004);
+  });
+});
+
+describe("gateFailures", () => {
+  const passing = {
+    ...summarize([]),
+    violations: 0,
+    errors: 0,
+    meanRecall: 0.9,
+    meanFilterPrecision: 0.95,
+  } satisfies EvalSummary;
+
+  it("passes at the thresholds", () => {
+    expect(gateFailures(passing, { minRecall: 0.9, minFilterPrecision: 0.95 })).toEqual([]);
+  });
+
+  it("fails when a mean falls below its threshold", () => {
+    const failures = gateFailures(
+      { ...passing, meanRecall: 0.4 },
+      { minRecall: 0.9, minFilterPrecision: 0.95 },
+    );
+    expect(failures).toEqual(["mean recall 0.400 is below 0.9"]);
+  });
+
+  it("fails on any rights violation or error, whatever the thresholds", () => {
+    expect(gateFailures({ ...passing, violations: 1, errors: 2 }, {})).toHaveLength(2);
+  });
+
+  it("skips a threshold when no case produced the metric", () => {
+    expect(gateFailures({ ...passing, meanRecall: null }, { minRecall: 0.9 })).toEqual([]);
   });
 });

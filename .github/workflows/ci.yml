@@ -11,6 +11,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      agent: ${{ steps.diff.outputs.agent }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+      # A pull_request checkout is a merge commit whose first parent is the base branch, so this
+      # diff is exactly what the pull request changes.
+      - id: diff
+        run: |
+          if git diff --name-only HEAD^1 HEAD | grep -v '^evals/reports/' \
+            | grep -qE '^(packages|evals|data)/|^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|\.github/workflows/ci\.yml)$'; then
+            echo "agent=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "agent=false" >> "$GITHUB_OUTPUT"
+          fi
+
   checks:
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +58,10 @@ jobs:
           done
 
   evals:
-    needs: checks
+    needs: [checks, changes]
+    # Skipped by this condition, the job reports success and can stay a required check. A
+    # workflow-level paths filter would leave the check pending and block the merge instead.
+    if: needs.changes.outputs.agent == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -57,15 +79,15 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_EVAL_ROLE_ARN }}
           aws-region: eu-west-1
-      - name: Load the Anthropic key from SSM
+      - name: Load the CI Anthropic key from SSM
         run: |
-          key=$(aws ssm get-parameter --name /clearframe/dev/anthropic-api-key \
+          key=$(aws ssm get-parameter --name /clearframe/ci/anthropic-api-key \
             --with-decryption --query Parameter.Value --output text)
           echo "::add-mask::$key"
           echo "ANTHROPIC_API_KEY=$key" >> "$GITHUB_ENV"
 
-      - name: Run evals (fails on any rights violation or error)
-        run: pnpm eval
+      - name: Run evals (fails on a rights violation, an error, or a metric below its threshold)
+        run: pnpm eval --min-recall 0.9 --min-precision 0.95
       - name: Publish the report
         if: always()
         run: cat evals/reports/latest-with-rule.md >> "$GITHUB_STEP_SUMMARY"

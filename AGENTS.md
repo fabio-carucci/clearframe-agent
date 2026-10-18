@@ -15,6 +15,7 @@ page and Cognito sign-in.
 | Typecheck every package, tests, format  | `pnpm typecheck`, `pnpm test`, `pnpm format:check`      |
 | Run the agent once                      | `pnpm agent --territory ES "10 Spanish cooking clips"`  |
 | Eval suite (with the rule)              | `pnpm eval [--repeat N] [--cases id,id] [--label name]` |
+| Eval suite with the CI quality gate     | `pnpm eval --min-recall 0.9 --min-precision 0.95`       |
 | Eval suite without the rule (ablation)  | `pnpm eval:no-rule [...]`                               |
 | Regenerate catalog, then its embeddings | `pnpm catalog:generate && pnpm catalog:embed`           |
 | Lambda bundle (`apps/api/dist`)         | `pnpm build:lambda`                                     |
@@ -73,9 +74,11 @@ Each of these is load-bearing; most are pinned by a test.
 8. Secrets never pass through Terraform: the Anthropic key parameter and Cognito users are created
    with the AWS CLI. Non-secret runtime settings, such as the Cognito ids, may.
 9. Every IAM permission names a specific resource, except actions AWS cannot scope to one. The CI
-   deploy role can create roles only with the workload permissions boundary attached.
+   deploy role can change only the agent role, only with the workload permissions boundary
+   attached, and can never change who may assume a role.
 10. After changing `data/catalog.json`, rerun `pnpm catalog:embed`; a fingerprint test fails
-    otherwise.
+    otherwise. Then fix the handwritten `clipIds` in `evals/cases.ts` by reading the catalog;
+    never fill them in by running the rule, or the eval grades the rule with itself.
 11. Changing `MODEL_ID` needs a matching `PRICING` entry; the typecheck fails otherwise.
 12. The function URL stays `AWS_IAM`, invocable only by the CloudFront distribution through origin
     access control. Never grant it to `*`.
@@ -88,6 +91,12 @@ Each of these is load-bearing; most are pinned by a test.
     no storage or HTTP adapters; those live in `apps/api`.
 16. Run events are emitted by the tools through `RunContext.emit`, and `emit` never throws into the
     run: a client that disconnects must not stop a run from finishing and being recorded.
+17. A run is counted against the user's daily quota after the request is validated and before
+    anything is loaded, and a quota that cannot be read refuses the run.
+18. The CloudFront gate (`infra/modules/web/api-gate.js`) only filters early. The Lambda keeps every
+    check the gate makes, and verifies the token signature, which the gate cannot.
+19. In the deploy workflow, only the `deploy` job may request `id-token: write`, and it runs no
+    package code: no install, no npm scripts. The eval workflow reads only the CI Anthropic key.
 
 ## Conventions
 

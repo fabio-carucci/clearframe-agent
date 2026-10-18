@@ -15,12 +15,15 @@ import { AwsRunStore } from "./run-store";
 import { type AccessTokenVerifier, AuthConfigSchema, createAccessTokenVerifier } from "./auth";
 import { cachedFor } from "./cache";
 import { type ResponseSink, compose } from "./compose";
+import { DynamoRunQuota } from "./quota";
 import { s3JsonReader } from "./s3-reader";
 
 const env = z
   .object({
     DATA_BUCKET: z.string().min(1),
     RUNS_TABLE: z.string().min(1),
+    QUOTAS_TABLE: z.string().min(1),
+    DAILY_RUN_LIMIT: z.coerce.number().int().positive(),
     ANTHROPIC_KEY_PARAM: z.string().min(1),
     AUTH_CONFIG_PARAM: z.string().min(1),
   })
@@ -35,13 +38,14 @@ const CATALOG_TTL_MS = 5 * 60_000;
 
 const s3 = new S3Client({});
 const ssm = new SSMClient({});
-const store = new AwsRunStore({
-  tableName: env.RUNS_TABLE,
-  bucket: env.DATA_BUCKET,
-  s3,
-  dynamo: DynamoDBDocumentClient.from(new DynamoDBClient({}), {
-    marshallOptions: { removeUndefinedValues: true },
-  }),
+const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
+  marshallOptions: { removeUndefinedValues: true },
+});
+const store = new AwsRunStore({ tableName: env.RUNS_TABLE, bucket: env.DATA_BUCKET, s3, dynamo });
+const quota = new DynamoRunQuota({
+  tableName: env.QUOTAS_TABLE,
+  dailyLimit: env.DAILY_RUN_LIMIT,
+  dynamo,
 });
 
 async function fetchRuntimeConfig(): Promise<{
@@ -97,6 +101,7 @@ export const handler = awslambda.streamifyResponse(
         catalog,
         embedQuery,
         runAgent: runClipAgent,
+        quota,
         store,
         log: logEvent,
         now: () => new Date(),

@@ -4,8 +4,8 @@ import { type SearchFilters, matchesFilters } from "@clearframe/core/retrieval/s
 import { checkTrainingRights } from "@clearframe/core/rights/check-training-rights";
 import type { EvalCase } from "./cases";
 
-/** Clips a perfect agent could return for the case: they meet every constraint and pass the rule. */
-export function eligibleClipIds(evalCase: EvalCase, catalog: readonly Clip[]): Set<string> {
+/** Clips that meet every constraint of the case and pass the rule, computed from the catalog. */
+export function derivedEligibleIds(evalCase: EvalCase, catalog: readonly Clip[]): Set<string> {
   const usage = { territory: evalCase.territory, date: evalCase.date };
   return new Set(
     catalog
@@ -17,6 +17,13 @@ export function eligibleClipIds(evalCase: EvalCase, catalog: readonly Clip[]): S
       )
       .map((clip) => clip.id),
   );
+}
+
+/** Clips a perfect agent could return for the case: handwritten where the case lists them. */
+export function eligibleClipIds(evalCase: EvalCase, catalog: readonly Clip[]): Set<string> {
+  return evalCase.expected.clipIds
+    ? new Set(evalCase.expected.clipIds)
+    : derivedEligibleIds(evalCase, catalog);
 }
 
 /** Manifest clips whose license fails the rule for the request. Must be zero. */
@@ -79,6 +86,8 @@ export interface CaseResult {
   costUsd: number;
   durationMs: number;
   error?: string;
+  /** The first attempt failed on the provider's side and this result is from the second. */
+  retried?: boolean;
 }
 
 export function scoreCase(
@@ -121,6 +130,7 @@ export function summarize(results: readonly CaseResult[]) {
   return {
     runs: results.length,
     errors: results.length - scored.length,
+    retried: results.filter((r) => r.retried).length,
     violations: results.reduce((sum, r) => sum + r.violations.length, 0),
     meanFilterPrecision: mean(scored.flatMap((r) => r.filterPrecision ?? [])),
     meanRecall: mean(scored.flatMap((r) => r.recall ?? [])),
@@ -141,3 +151,23 @@ export function summarize(results: readonly CaseResult[]) {
 }
 
 export type EvalSummary = ReturnType<typeof summarize>;
+
+export interface Thresholds {
+  minRecall?: number;
+  minFilterPrecision?: number;
+}
+
+/** Why a with-rule run fails the CI gate; empty when it passes. */
+export function gateFailures(summary: EvalSummary, thresholds: Thresholds): string[] {
+  const failures: string[] = [];
+  if (summary.violations > 0) failures.push(`${summary.violations} rights violations`);
+  if (summary.errors > 0) failures.push(`${summary.errors} runs ended in an error`);
+  const atLeast = (metric: string, value: number | null, min: number | undefined) => {
+    if (min !== undefined && value !== null && value < min) {
+      failures.push(`mean ${metric} ${value.toFixed(3)} is below ${min}`);
+    }
+  };
+  atLeast("recall", summary.meanRecall, thresholds.minRecall);
+  atLeast("filter precision", summary.meanFilterPrecision, thresholds.minFilterPrecision);
+  return failures;
+}
