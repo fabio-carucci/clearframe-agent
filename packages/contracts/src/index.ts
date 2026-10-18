@@ -38,6 +38,13 @@ export const ComposeRequestSchema = z.object({
   date: IsoDateSchema.optional(),
 });
 
+export const LicenseSchema = z.object({
+  trainingAllowed: z.boolean(),
+  territories: z.array(TerritorySchema).min(1),
+  /** Day the license expires (YYYY-MM-DD), already invalid on that day; null for a perpetual license. */
+  expiresAt: IsoDateSchema.nullable(),
+});
+
 export const ManifestEntrySchema = z.object({
   clipId: z.string(),
   title: z.string(),
@@ -45,6 +52,12 @@ export const ManifestEntrySchema = z.object({
   language: LanguageSchema,
   durationSec: z.number().int().positive(),
   reason: z.string().min(1),
+  /** The license the rule cleared the clip on, kept so the manifest proves the clearance alone. */
+  license: LicenseSchema,
+  /** Days from the usage date to the expiry day; null for a perpetual license. */
+  daysUntilExpiry: z.number().int().nullable(),
+  /** The license ends soon after the usage date (core's EXPIRY_WARNING_DAYS). */
+  expiresSoon: z.boolean(),
 });
 
 export const RejectionSchema = z.object({
@@ -61,6 +74,8 @@ export const ManifestSchema = z.object({
     territory: TerritorySchema,
     date: IsoDateSchema,
   }),
+  /** SHA-256 of the catalog the rule read, licenses included. */
+  catalogVersion: z.string().regex(/^[0-9a-f]{64}$/),
   clips: z.array(ManifestEntrySchema),
   rejected: z.array(RejectionSchema),
   stopReason: StopReasonSchema,
@@ -134,6 +149,7 @@ export type Language = z.infer<typeof LanguageSchema>;
 export type RightsViolation = (typeof RIGHTS_VIOLATIONS)[number];
 export type ProposalRejection = (typeof PROPOSAL_REJECTIONS)[number];
 export type ComposeRequest = z.infer<typeof ComposeRequestSchema>;
+export type License = z.infer<typeof LicenseSchema>;
 export type ManifestEntry = z.infer<typeof ManifestEntrySchema>;
 export type Rejection = z.infer<typeof RejectionSchema>;
 export type StopReason = z.infer<typeof StopReasonSchema>;

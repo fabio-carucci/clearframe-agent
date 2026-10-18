@@ -131,6 +131,7 @@ export async function runClipAgent(request: RunRequest, deps: RunDeps): Promise<
   const manifest = ManifestSchema.parse({
     runId,
     request: { prompt, territory, date },
+    catalogVersion: deps.data.version,
     clips: run.draft.entries,
     rejected: run.draft.rejections,
     stopReason,

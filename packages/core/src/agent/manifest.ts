@@ -5,6 +5,7 @@ import {
   type UsageRequest,
   checkTrainingRights,
 } from "../rights/check-training-rights";
+import { daysUntilExpiry, expiresSoon } from "../rights/expiry";
 
 export type ProposalOutcome =
   | { clipId: string; status: "accepted" }
@@ -18,6 +19,26 @@ export interface ManifestWriter {
   /** The rule's verdict for this draft's territory and date, or null when it applies no rule. */
   assess(clip: Clip): RightsDecision | null;
   propose(clipId: string, reason: string): ProposalOutcome;
+}
+
+/** A clip as it enters a manifest, with the license it was cleared on. */
+export function toManifestEntry(
+  clip: Clip,
+  usage: Readonly<UsageRequest>,
+  reason: string,
+): ManifestEntry {
+  const days = daysUntilExpiry(clip.license, usage.date);
+  return {
+    clipId: clip.id,
+    title: clip.title,
+    genre: clip.genre,
+    language: clip.language,
+    durationSec: clip.durationSec,
+    reason,
+    license: clip.license,
+    daysUntilExpiry: days,
+    expiresSoon: expiresSoon(days),
+  };
 }
 
 /**
@@ -61,14 +82,7 @@ export class ManifestDraft implements ManifestWriter {
     const decision = this.assess(clip);
     if (!decision.allowed) return this.#reject(clipId, decision.reasons);
 
-    this.#entries.set(clipId, {
-      clipId,
-      title: clip.title,
-      genre: clip.genre,
-      language: clip.language,
-      durationSec: clip.durationSec,
-      reason,
-    });
+    this.#entries.set(clipId, toManifestEntry(clip, this.#usage, reason));
     return { clipId, status: "accepted" };
   }
 

@@ -13,7 +13,11 @@ const clip = (id: string, license: Partial<Clip["license"]> = {}): Clip => ({
   license: { trainingAllowed: true, territories: ["ES"], expiresAt: null, ...license },
 });
 
-const clips = [clip("clip_0001"), clip("clip_0002", { trainingAllowed: false })];
+const clips = [
+  clip("clip_0001"),
+  clip("clip_0002", { trainingAllowed: false }),
+  clip("clip_0003", { expiresAt: "2026-10-17" }),
+];
 const clipsById = new Map(clips.map((c) => [c.id, c]));
 const usage = { territory: "ES", date: "2026-10-01" };
 
@@ -32,8 +36,17 @@ describe("ManifestDraft", () => {
         language: "es",
         durationSec: 20,
         reason: "Spanish surf clip",
+        license: { trainingAllowed: true, territories: ["ES"], expiresAt: null },
+        daysUntilExpiry: null,
+        expiresSoon: false,
       },
     ]);
+  });
+
+  it("flags an accepted clip whose license ends soon after the usage date", () => {
+    const draft = new ManifestDraft(clipsById, usage);
+    draft.propose("clip_0003", "expires in 16 days");
+    expect(draft.entries[0]).toMatchObject({ daysUntilExpiry: 16, expiresSoon: true });
   });
 
   it("rejects a clip that fails the rights rule and records why", () => {
