@@ -47,7 +47,7 @@ packages/contracts  -> zod only
 | `packages/contracts/` | Zod schemas of the HTTP API: request, manifest, steps, response. Depends only on Zod.     |
 | `packages/core/`      | Catalog, rights rule, retrieval, agent loop, cost; scripts for the catalog and local runs |
 | `apps/api/`           | Lambda handler, Cognito token check, request validation, DynamoDB and S3 adapters, bundle |
-| `apps/web/`           | Static Next.js page: sign-in, compose form, result view                                   |
+| `apps/web/`           | Static Next.js page; `features/` holds auth, compose (NDJSON client), run, workspace      |
 | `evals/`              | Cases, metrics, no-rule ablation draft, runner, committed reports                         |
 | `infra/`              | `bootstrap`, `github` (OIDC roles), modules `api`, `web`, `auth`, `env/dev`               |
 | `data/`               | Generated catalog and its embedding index, both committed                                 |
@@ -102,6 +102,10 @@ Each of these is load-bearing; most are pinned by a test.
     manifest cannot show what its clearance rested on. `rights/expiry.ts` is pure and only flags.
 21. Object Lock on the data bucket cannot be turned off once applied. Manifests are locked in
     governance mode, never compliance: an administrator must stay able to delete one on request.
+22. The page validates every stream event with `RunEventSchema` and fails on one it does not
+    understand; skipping it would hide drift between the API and the page.
+23. `features/run/sample-run.json` is a stream recorded from the deployed agent. Re-record it,
+    never edit or invent events; `sample.test.ts` checks it against the contract.
 
 ## Conventions
 
