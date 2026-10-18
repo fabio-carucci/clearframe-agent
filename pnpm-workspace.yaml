@@ -1,5 +1,7 @@
 packages:
-  - web
+  - apps/*
+  - packages/*
+  - evals
 
 allowBuilds:
   esbuild: true

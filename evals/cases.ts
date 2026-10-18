@@ -1,4 +1,4 @@
-import type { SearchFilters } from "../src/retrieval/search";
+import type { SearchFilters } from "@clearframe/core/retrieval/search";
 
 export const CASE_TAGS = [
   "baseline",

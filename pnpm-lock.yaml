@@ -7,47 +7,10 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@ai-sdk/amazon-bedrock':
-        specifier: ^5.0.117
-        version: 5.0.117(zod@4.6.7)
-      '@ai-sdk/anthropic':
-        specifier: ^4.0.81
-        version: 4.0.81(zod@4.6.7)
-      '@aws-sdk/client-dynamodb':
-        specifier: ^3.1152.0
-        version: 3.1152.0
-      '@aws-sdk/client-s3':
-        specifier: ^3.1152.0
-        version: 3.1152.0
-      '@aws-sdk/client-ssm':
-        specifier: ^3.1152.0
-        version: 3.1152.0
-      '@aws-sdk/credential-providers':
-        specifier: ^3.1152.0
-        version: 3.1152.0
-      '@aws-sdk/lib-dynamodb':
-        specifier: ^3.1152.0
-        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
-      ai:
-        specifier: ^7.0.142
-        version: 7.0.142(zod@4.6.7)
-      aws-jwt-verify:
-        specifier: 5.2.1
-        version: 5.2.1
-      zod:
-        specifier: ^4.6.7
-        version: 4.6.7
     devDependencies:
-      '@types/aws-lambda':
-        specifier: ^8.10.164
-        version: 8.10.164
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       prettier:
         specifier: ^3.9.10
         version: 3.9.10
@@ -61,8 +24,45 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5(@types/node@26.6.5)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
 
-  web:
+  apps/api:
     dependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-s3':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-ssm':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@clearframe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@clearframe/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      aws-jwt-verify:
+        specifier: 5.2.1
+        version: 5.2.1
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
+
+  apps/web:
+    dependencies:
+      '@clearframe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@tanstack/react-query':
         specifier: 5.104.3
         version: 5.104.3(react@19.3.1)
@@ -100,6 +100,42 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
+
+  evals:
+    dependencies:
+      '@clearframe/contracts':
+        specifier: workspace:*
+        version: link:../packages/contracts
+      '@clearframe/core':
+        specifier: workspace:*
+        version: link:../packages/core
+
+  packages/contracts:
+    dependencies:
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+
+  packages/core:
+    dependencies:
+      '@ai-sdk/amazon-bedrock':
+        specifier: ^5.0.117
+        version: 5.0.117(zod@4.6.7)
+      '@ai-sdk/anthropic':
+        specifier: ^4.0.81
+        version: 4.0.81(zod@4.6.7)
+      '@aws-sdk/credential-providers':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@clearframe/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      ai:
+        specifier: ^7.0.142
+        version: 7.0.142(zod@4.6.7)
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
 
 packages:
 

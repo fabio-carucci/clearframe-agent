@@ -24,7 +24,7 @@ module "api" {
   name_prefix         = local.name_prefix
   data_bucket_name    = "clearframe-dev-data-6iit7"
   data_dir            = "${path.root}/../../../data"
-  lambda_dist_dir     = "${path.root}/../../../dist/lambda"
+  lambda_dist_dir     = "${path.root}/../../../apps/api/dist"
   anthropic_key_param = "/clearframe/dev/anthropic-api-key"
   auth_config_param   = local.auth_config_param
 }
@@ -34,7 +34,7 @@ module "web" {
 
   name_prefix             = local.name_prefix
   bucket_name             = "clearframe-dev-web-6iit7"
-  site_dir                = "${path.root}/../../../web/out"
+  site_dir                = "${path.root}/../../../apps/web/out"
   api_function_name       = module.api.function_name
   api_function_url_domain = module.api.function_url_domain
   auth_domain             = local.auth_domain

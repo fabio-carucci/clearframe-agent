@@ -1,7 +1,7 @@
-import type { Manifest, StopReason } from "../src/agent/manifest";
-import type { Clip } from "../src/catalog/schema";
-import { type SearchFilters, matchesFilters } from "../src/retrieval/search";
-import { checkTrainingRights } from "../src/rights/check-training-rights";
+import type { Manifest, StopReason } from "@clearframe/contracts";
+import type { Clip } from "@clearframe/core/catalog/schema";
+import { type SearchFilters, matchesFilters } from "@clearframe/core/retrieval/search";
+import { checkTrainingRights } from "@clearframe/core/rights/check-training-rights";
 import type { EvalCase } from "./cases";
 
 /** Clips a perfect agent could return for the case: they meet every constraint and pass the rule. */

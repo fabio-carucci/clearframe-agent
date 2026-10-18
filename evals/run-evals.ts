@@ -1,9 +1,9 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
-import { MODEL_ID } from "../src/agent/agent";
-import { type RunDeps, runClipAgent } from "../src/agent/run";
-import { loadCatalogData } from "../src/catalog/load";
-import { embedQuery } from "../src/retrieval/embeddings";
+import { MODEL_ID } from "@clearframe/core/agent/agent";
+import { type RunDeps, runClipAgent } from "@clearframe/core/agent/run";
+import { loadCatalogData } from "@clearframe/core/catalog/load";
+import { embedQuery } from "@clearframe/core/retrieval/embeddings";
 import { EVAL_CASES, type EvalCase } from "./cases";
 import { type CaseResult, eligibleClipIds, scoreCase, summarize } from "./metrics";
 import { type ReportMeta, renderMarkdown } from "./report";
