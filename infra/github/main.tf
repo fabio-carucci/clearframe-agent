@@ -12,6 +12,14 @@ locals {
   ssm_parameters      = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.ssm_prefix}*"
   eval_key_param      = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.eval_key_param}"
   auth_config_param   = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.ssm_prefix}auth-config"
+
+  # Written out rather than read from the resources: a policy document that references a resource
+  # with pending changes is only read at apply time, so every plan would show the deploy role's
+  # policy as changing.
+  workload_boundary = "arn:aws:iam::${local.account_id}:policy/${var.workload_prefix}-boundary"
+  notary_function   = "arn:aws:lambda:${local.region}:${local.account_id}:function:${var.notary_name}"
+  notary_role       = "arn:aws:iam::${local.account_id}:role/${var.notary_name}"
+  notary_log_group  = "arn:aws:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/${var.notary_name}"
 }
 
 resource "aws_iam_openid_connect_provider" "github" {
@@ -20,8 +28,9 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 # Signs the clearance certificate of every manifest the API issues. An asymmetric KMS key never
-# leaves KMS, so whoever may call kms:Sign on it is what a certificate vouches for: an
-# administrator manages it, only the agent role may sign with it, and CI may only read it.
+# leaves KMS, so whoever may call kms:Sign on it is what a certificate vouches for: only the
+# notary (notary.tf), which checks each manifest against the rule first. CI deploys the agent and
+# so controls whatever the agent role may do; neither may sign.
 resource "aws_kms_key" "manifest_signing" {
   description              = "Signs Clearframe clearance certificates"
   customer_master_key_spec = "ECC_NIST_P256"
@@ -74,10 +83,11 @@ data "aws_iam_policy_document" "workload_boundary" {
     resources = [local.ssm_parameters]
   }
 
+  # Never kms:Sign: the agent role runs code CI deploys. It may only ask the notary.
   statement {
-    sid       = "SignManifests"
-    actions   = ["kms:Sign"]
-    resources = [aws_kms_key.manifest_signing.arn]
+    sid       = "AskTheNotary"
+    actions   = ["lambda:InvokeFunction"]
+    resources = [local.notary_function]
   }
 
   statement {
@@ -236,7 +246,7 @@ data "aws_iam_policy_document" "ci_deploy" {
       "iam:GetPolicy",
       "iam:GetPolicyVersion",
     ]
-    resources = [local.agent_role, aws_iam_policy.workload_boundary.arn]
+    resources = [local.agent_role, local.workload_boundary]
   }
 
   statement {
@@ -254,7 +264,7 @@ data "aws_iam_policy_document" "ci_deploy" {
     condition {
       test     = "StringEquals"
       variable = "iam:PermissionsBoundary"
-      values   = [aws_iam_policy.workload_boundary.arn]
+      values   = [local.workload_boundary]
     }
   }
 
@@ -345,15 +355,9 @@ data "aws_iam_policy_document" "ci_deploy" {
     resources = ["*"]
   }
 
-  # Manifests are locked in governance mode; without this, s3:* would let CI delete them or
-  # shorten their retention.
-  statement {
-    sid       = "ReadSigningKey"
-    actions   = ["kms:DescribeKey", "kms:GetPublicKey"]
-    resources = [aws_kms_key.manifest_signing.arn]
-  }
-
-  # A stolen CI credential must not be able to mint certificates, or change who can.
+  # CI can deploy code that asks the notary for a certificate, through the agent role, and the
+  # notary signs only what the rule would issue. CI must not sign itself, change the key's
+  # policy or grants, or change the notary, its role or its log of what it signed.
   statement {
     sid    = "NeverSignOrChangeWhoSigns"
     effect = "Deny"
@@ -367,6 +371,38 @@ data "aws_iam_policy_document" "ci_deploy" {
     resources = ["*"]
   }
 
+  statement {
+    sid     = "NeverTouchTheNotary"
+    effect  = "Deny"
+    actions = ["lambda:*", "iam:*", "logs:*"]
+    resources = [
+      local.notary_function,
+      "${local.notary_function}:*",
+      local.notary_role,
+      local.notary_log_group,
+      "${local.notary_log_group}:*",
+    ]
+  }
+
+  # Terraform manages the user pool, its client and its domain, never users. Without this,
+  # cognito-idp:* on the pool would let CI create accounts, set their passwords and sign in as
+  # them, past the per-user quota. Users are created by an administrator with the AWS CLI.
+  # UpdateUserPool can still turn on self sign-up; that stays a reviewed change in modules/auth.
+  statement {
+    sid    = "NeverManageUsers"
+    effect = "Deny"
+    actions = [
+      "cognito-idp:Admin*",
+      "cognito-idp:CreateUserImportJob",
+      "cognito-idp:StartUserImportJob",
+      "cognito-idp:CreateIdentityProvider",
+      "cognito-idp:UpdateIdentityProvider",
+    ]
+    resources = ["*"]
+  }
+
+  # Manifests are locked in governance mode; without this, s3:* would let CI delete them or
+  # shorten their retention.
   statement {
     sid       = "NeverBypassManifestRetention"
     effect    = "Deny"

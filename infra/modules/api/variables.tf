@@ -28,13 +28,13 @@ variable "auth_config_param" {
   type        = string
 }
 
-variable "signing_key_arn" {
-  description = "KMS key (ECC_NIST_P256, SIGN_VERIFY) that signs every manifest's clearance certificate."
+variable "notary_function_arn" {
+  description = "The notary Lambda that signs each manifest's clearance certificate. The agent may only invoke it."
   type        = string
 
   validation {
-    condition     = can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[0-9a-f-]{36}$", var.signing_key_arn))
-    error_message = "signing_key_arn must be a KMS key ARN, not an alias."
+    condition     = can(regex("^arn:aws:lambda:[a-z0-9-]+:[0-9]{12}:function:[A-Za-z0-9_-]+$", var.notary_function_arn))
+    error_message = "notary_function_arn must be an unqualified Lambda function ARN."
   }
 }
 

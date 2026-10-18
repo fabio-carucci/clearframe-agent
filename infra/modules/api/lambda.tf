@@ -36,7 +36,7 @@ resource "aws_lambda_function" "agent" {
       DAILY_RUN_LIMIT     = tostring(var.daily_run_limit)
       ANTHROPIC_KEY_PARAM = var.anthropic_key_param
       AUTH_CONFIG_PARAM   = var.auth_config_param
-      SIGNING_KEY_ARN     = var.signing_key_arn
+      NOTARY_FUNCTION     = var.notary_function_arn
       NODE_OPTIONS        = "--enable-source-maps"
     }
   }

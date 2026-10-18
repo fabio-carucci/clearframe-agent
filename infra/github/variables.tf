@@ -10,6 +10,17 @@ variable "workload_prefix" {
   default     = "clearframe-dev"
 }
 
+variable "notary_name" {
+  description = "The notary Lambda and its role. Outside workload_prefix, so no grant to the deploy role can match it."
+  type        = string
+  default     = "clearframe-notary"
+
+  validation {
+    condition     = !startswith(var.notary_name, var.workload_prefix)
+    error_message = "notary_name must not start with workload_prefix, or CI's grants on that prefix would cover the notary."
+  }
+}
+
 variable "state_bucket" {
   type    = string
   default = "clearframe-tfstate-6iit7"
