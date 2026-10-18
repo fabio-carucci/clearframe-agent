@@ -31,14 +31,17 @@ data "aws_iam_policy_document" "workload_boundary" {
 
   statement {
     sid       = "DataBucketObjects"
-    actions   = ["s3:GetObject", "s3:PutObject", "s3:PutObjectRetention"]
+    actions   = ["s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:PutObjectRetention"]
     resources = ["arn:aws:s3:::${var.data_bucket}/*"]
   }
 
   statement {
-    sid       = "Tables"
-    actions   = ["dynamodb:PutItem", "dynamodb:UpdateItem"]
-    resources = ["arn:aws:dynamodb:${local.region}:${local.account_id}:table/${var.workload_prefix}-*"]
+    sid     = "Tables"
+    actions = ["dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:GetItem", "dynamodb:Query"]
+    resources = [
+      "arn:aws:dynamodb:${local.region}:${local.account_id}:table/${var.workload_prefix}-*",
+      "arn:aws:dynamodb:${local.region}:${local.account_id}:table/${var.workload_prefix}-*/index/*",
+    ]
   }
 
   statement {
