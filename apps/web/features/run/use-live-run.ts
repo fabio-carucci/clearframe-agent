@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComposeResponse, Manifest, RunEvent } from "@clearframe/contracts";
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { type LiveRun, applyEvent, failRun, finishedRun, startRun } from "./live-run";
 
 type Action =
@@ -15,48 +15,56 @@ function reduce(run: LiveRun | null, action: Action): LiveRun | null {
   return action.type === "event" ? applyEvent(run, action.event) : failRun(run, action.message);
 }
 
-/** Runs a dataset composition and tracks its events; `execute` streams them from any source. */
+type Execute = (onEvent: (event: RunEvent) => void, signal: AbortSignal) => Promise<unknown>;
+
+/**
+ * Runs a dataset composition and tracks its events; `execute` streams them from any source. A new
+ * run, or leaving the page, aborts the one before, which then changes nothing: its failure must
+ * not mark the new run failed.
+ */
 export function useLiveRun(recorded?: ComposeResponse) {
   const [run, dispatch] = useReducer(reduce, recorded ? finishedRun(recorded, 0) : null);
+  const current = useRef<AbortController | null>(null);
+  useEffect(() => () => current.current?.abort(), []);
 
-  const start = useCallback(
-    async (
-      request: Manifest["request"],
-      execute: (onEvent: (event: RunEvent) => void) => Promise<unknown>,
-    ) => {
-      dispatch({ type: "start", request, at: Date.now() });
-      try {
-        await execute((event) => dispatch({ type: "event", event }));
-      } catch (error) {
-        dispatch({ type: "fail", message: error instanceof Error ? error.message : String(error) });
-      }
-    },
-    [],
-  );
+  const start = useCallback(async (request: Manifest["request"], execute: Execute) => {
+    current.current?.abort();
+    const controller = new AbortController();
+    current.current = controller;
+    dispatch({ type: "start", request, at: Date.now() });
+    try {
+      await execute((event) => {
+        if (!controller.signal.aborted) dispatch({ type: "event", event });
+      }, controller.signal);
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      dispatch({ type: "fail", message: error instanceof Error ? error.message : String(error) });
+    }
+  }, []);
 
   return { run, start };
 }
 
+/** The run-time readout shows tenths of a second, so ten ticks a second are enough. */
+const TICK_MS = 100;
+
 /**
  * Milliseconds since the run started, ticking while it runs; the server's figure once it ends.
- * Never less than the steps already finished, since animation frames pause in background tabs.
+ * Never less than the steps already finished, since timers slow down in background tabs. Use it
+ * only in the components that show time, so the rest of the page does not re-render each tick.
  */
 export function useElapsed(run: LiveRun | null): number {
   const running = run?.status === "running";
-  const startedAt = run?.startedAt ?? 0;
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     if (!running) return;
-    let frame = requestAnimationFrame(function tick() {
-      setNow(Date.now());
-      frame = requestAnimationFrame(tick);
-    });
-    return () => cancelAnimationFrame(frame);
+    const timer = setInterval(() => setNow(Date.now()), TICK_MS);
+    return () => clearInterval(timer);
   }, [running]);
 
   if (!run) return 0;
   if (run.result) return run.result.manifest.durationMs;
   const finishedMs = run.steps.reduce((total, step) => total + step.durationMs, 0);
-  return running ? Math.max(finishedMs, now - startedAt) : finishedMs;
+  return running ? Math.max(finishedMs, now - run.startedAt) : finishedMs;
 }

@@ -80,31 +80,43 @@ export function RunSummary({ run }: { run: LiveRun | null }) {
               Written by the model. The clips and verdicts come from the rule, not from this text.
             </p>
           </section>
-
-          <section aria-labelledby="audit-heading" className="space-y-1">
-            <h4 id="audit-heading" className="font-medium">
-              Audit
-            </h4>
-            <p className="text-muted-foreground">
-              Run <span className="font-mono text-foreground">{manifest.runId}</span>
-            </p>
-            <p className="text-muted-foreground" title={manifest.catalogVersion}>
-              Catalog{" "}
-              <span className="font-mono text-foreground">
-                {manifest.catalogVersion.slice(0, 12)}
-              </span>
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={() => downloadManifest(manifest)}
-            >
-              <Download aria-hidden />
-              Download manifest
-            </Button>
-          </section>
         </>
+      )}
+
+      {run.runId && (
+        <section aria-labelledby="audit-heading" className="space-y-1">
+          <h4 id="audit-heading" className="font-medium">
+            Audit
+          </h4>
+          <p className="text-muted-foreground">
+            Run <span className="font-mono text-foreground">{run.runId}</span>
+          </p>
+          {manifest ? (
+            <>
+              <p className="text-muted-foreground" title={manifest.catalogVersion}>
+                Catalog{" "}
+                <span className="font-mono text-foreground">
+                  {manifest.catalogVersion.slice(0, 12)}
+                </span>
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() => downloadManifest(manifest)}
+              >
+                <Download aria-hidden />
+                Download manifest
+              </Button>
+            </>
+          ) : (
+            run.status === "failed" && (
+              <p className="text-muted-foreground">
+                Quote this id to look the run up: it may have been recorded after the page lost it.
+              </p>
+            )
+          )}
+        </section>
       )}
     </div>
   );

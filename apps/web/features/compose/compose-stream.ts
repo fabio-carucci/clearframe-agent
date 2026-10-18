@@ -39,13 +39,23 @@ export async function* ndjsonLines(body: ReadableStream<Uint8Array>): AsyncGener
   if (buffer.trim()) yield buffer.trim();
 }
 
-function parseEvent(line: string): RunEvent {
+const KNOWN_TYPES: ReadonlySet<string> = new Set(
+  RunEventSchema.options.map((option) => option.shape.type.value),
+);
+
+/**
+ * A known event must match the contract exactly. An event type this page does not know is skipped:
+ * a tab opened before a deploy that adds one must not fail a run the server recorded.
+ */
+function parseEvent(line: string): RunEvent | null {
   let json: unknown;
   try {
     json = JSON.parse(line);
   } catch {
     throw new ApiError("The API sent a line this page cannot read.");
   }
+  const type = (json as { type?: unknown } | null)?.type;
+  if (typeof type !== "string" || !KNOWN_TYPES.has(type)) return null;
   const parsed = RunEventSchema.safeParse(json);
   if (!parsed.success) throw new ApiError("The API sent an event this page does not understand.");
   return parsed.data;
@@ -73,6 +83,7 @@ export async function composeLive(
   accessToken: string,
   input: ComposeInput,
   onEvent: (event: RunEvent) => void,
+  signal?: AbortSignal,
 ): Promise<ComposeResponse> {
   const body = JSON.stringify(input);
   const response = await fetch("/api", {
@@ -85,6 +96,7 @@ export async function composeLive(
       "x-amz-content-sha256": await sha256Hex(body),
     },
     body,
+    signal,
   });
   if (!response.ok) throw await refusal(response);
   if (!response.body || !response.headers.get("content-type")?.includes(NDJSON)) {
@@ -93,6 +105,7 @@ export async function composeLive(
 
   for await (const line of ndjsonLines(response.body)) {
     const event = parseEvent(line);
+    if (!event) continue;
     onEvent(event);
     if (event.type === "completed") return event.result;
     if (event.type === "failed") throw new ApiError(event.error);

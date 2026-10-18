@@ -3,21 +3,21 @@ import { Panel } from "@/components/panel";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClipDetails } from "./clip-details";
-import { type LiveRun, binClips } from "./live-run";
+import type { BinClip, LiveRun } from "./live-run";
 import { RunSummary } from "./run-summary";
 
 export type DetailsTab = "clip" | "run";
 
 interface DetailsPanelProps {
   run: LiveRun | null;
-  selectedId: string | null;
+  /** The selected clip, if any. */
+  clip: BinClip | undefined;
   tab: DetailsTab;
   onTabChange: (tab: DetailsTab) => void;
   className?: string;
 }
 
-export function DetailsPanel({ run, selectedId, tab, onTabChange, className }: DetailsPanelProps) {
-  const clip = run && selectedId ? binClips(run).find((c) => c.clipId === selectedId) : undefined;
+export function DetailsPanel({ run, clip, tab, onTabChange, className }: DetailsPanelProps) {
   return (
     <Tabs
       value={tab}

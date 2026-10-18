@@ -20,6 +20,7 @@ page and Cognito sign-in.
 | Regenerate catalog, then its embeddings | `pnpm catalog:generate && pnpm catalog:embed`           |
 | Lambda bundle (`apps/api/dist`)         | `pnpm build:lambda`                                     |
 | Web app: dev server, static export      | `pnpm web:dev`, `pnpm web:build`                        |
+| Add a shadcn/ui component (in apps/web) | `pnpm dlx shadcn@4.22.0 add <name>`                     |
 
 `pnpm agent`, `pnpm eval` and `pnpm catalog:embed` call Anthropic and Amazon Bedrock and cost real
 money (an eval run is about $0.05). They read `.env` (see `.env.example`) and an AWS profile. Ask
@@ -110,15 +111,19 @@ Each of these is load-bearing; most are pinned by a test.
     manifest cannot show what its clearance rested on. `rights/expiry.ts` is pure and only flags.
 21. Object Lock on the data bucket cannot be turned off once applied. Manifests are locked in
     governance mode, never compliance: an administrator must stay able to delete one on request.
-22. The page validates every stream event with `RunEventSchema` and fails on one it does not
-    understand; skipping it would hide drift between the API and the page.
-23. `features/run/sample-run.json` is a stream recorded from the deployed agent. Re-record it,
+22. The page validates every known stream event with `RunEventSchema` and fails on one that breaks
+    it; an event type it does not know is skipped, so a deploy that adds one does not fail runs in
+    tabs opened before it.
+23. The page calls a clip cleared only once its run is recorded (`completed`). Before that the
+    rule's verdicts are provisional, and after a `failed` run they issued no manifest.
+24. `features/run/sample-run.json` is a stream recorded from the deployed agent. Re-record it,
     never edit or invent events; `sample.test.ts` checks it against the contract.
 
 ## Conventions
 
 - TypeScript strict, ESM, Zod schemas as the single source of types (`z.infer`).
-- Tests sit next to the code as `*.test.ts`.
+- Tests sit next to the code as `*.test.ts`; the page's critical states (live, failed, partial)
+  have render tests with Testing Library in a `happy-dom` environment.
 - Prettier with a 100-column width.
 - Comments state what the code cannot: a non-obvious constraint and what breaks if it is removed.
   No comments that restate the code.

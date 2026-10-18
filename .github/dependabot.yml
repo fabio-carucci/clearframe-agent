@@ -12,7 +12,8 @@ updates:
     schedule:
       interval: weekly
     # A compromised release is usually caught and pulled within days; a week of waiting keeps it
-    # out of the lockfile. Longer than pnpm's own minimumReleaseAge, which Dependabot may ignore.
+    # out of the lockfile. Longer than minimumReleaseAge in pnpm-workspace.yaml, which Dependabot
+    # may not apply.
     cooldown:
       default-days: 7
     groups:

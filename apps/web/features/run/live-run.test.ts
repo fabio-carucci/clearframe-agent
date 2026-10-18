@@ -96,6 +96,19 @@ describe("applyEvent", () => {
 });
 
 describe("binClips", () => {
+  it("does not call a clip cleared before the run is recorded, nor after it fails to be", () => {
+    const running = applyEvent(startRun(request, 0), {
+      type: "clips",
+      decisions: [decision("clip_0001", "accepted")],
+    });
+    expect(binClips(running)[0]?.standing).toBe("recording");
+
+    const failed = applyEvent(running, { type: "failed", error: "Not recorded" });
+    expect(binClips(failed)[0]).toMatchObject({ outcome: "accepted", standing: "unrecorded" });
+
+    expect(binClips(applyEvent(running, { type: "completed", result }))[0]?.standing).toBe("final");
+  });
+
   it("attaches the manifest entry, with its license, to accepted clips", () => {
     const clips = binClips(finishedRun(result, 0));
     expect(clips[0]?.entry?.license.territories).toEqual(["ES"]);

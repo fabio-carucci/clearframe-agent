@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import styles from "./clip-frame.module.css";
 import { formatClipDuration, outcomeLabel } from "./format";
+import type { Standing } from "./live-run";
 
 const GENRE_ICONS: Record<Genre, LucideIcon> = {
   nature_wildlife: Trees,
@@ -34,6 +35,8 @@ interface ClipFrameProps {
   language: Language | null;
   durationSec: number | null;
   outcome: ClipDecision["outcome"];
+  /** Whether the decision is on record; an accepted clip is cleared only once it is. */
+  standing?: Standing;
   /** Why the rule refused the clip, shown on its offline frame. */
   refusal?: string;
   /** Days until the license ends, when that is soon after the usage date. */
@@ -47,6 +50,7 @@ export function ClipFrame({
   language,
   durationSec,
   outcome,
+  standing = "final",
   refusal,
   endsInDays,
   large,
@@ -60,6 +64,7 @@ export function ClipFrame({
       className={cn(styles.frame, large && styles.large, className)}
       data-genre={genre ?? undefined}
       data-outcome={outcome}
+      data-standing={standing}
     >
       {refused ? (
         <div className={styles.offline}>
@@ -73,8 +78,10 @@ export function ClipFrame({
         <>
           <Icon className={styles.icon} aria-hidden />
           <span className={cn(styles.corner, styles.status)}>
-            {outcome === "accepted" && <Check className="size-3" aria-hidden />}
-            {outcomeLabel(outcome)}
+            {outcome === "accepted" && standing === "final" && (
+              <Check className="size-3" aria-hidden />
+            )}
+            {outcomeLabel(outcome, standing)}
           </span>
         </>
       )}

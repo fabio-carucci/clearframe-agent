@@ -30,7 +30,13 @@ function Filmstrip() {
   );
 }
 
-export function SignInScreen({ onSignIn }: { onSignIn: () => void }) {
+export function SignInScreen({
+  onSignIn,
+  notice,
+}: {
+  onSignIn: () => void;
+  notice: string | null;
+}) {
   return (
     <main className="mx-auto flex min-h-dvh max-w-4xl flex-col justify-center gap-10 px-4 py-12 sm:px-6">
       <div className="flex items-center gap-2.5">
@@ -46,6 +52,11 @@ export function SignInScreen({ onSignIn }: { onSignIn: () => void }) {
           Describe the footage you need. An agent searches the catalog and proposes clips, and a
           license rule decides which ones enter the dataset. You watch it happen.
         </p>
+        {notice && (
+          <p role="status" className="mt-6 text-[15px] text-warning">
+            {notice}
+          </p>
+        )}
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <Button size="lg" className="h-10 px-5" onClick={onSignIn}>
             <LogIn aria-hidden />

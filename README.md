@@ -110,7 +110,9 @@ happens:
 
 - **Clips.** Every clip the agent touches appears as a frame marked with the rule's decision:
   cleared, not cleared (shown as offline media, with the reason), or checked and left out. A clip
-  whose license ends within 30 days of the usage date carries an expiry flag.
+  the rule accepted reads "accepted" until the run is recorded, and "not recorded" if it never
+  is: only a recorded run issues a manifest. A clip whose license ends within 30 days of the
+  usage date carries an expiry flag.
 - **Details.** The selected clip with the license snapshot the rule decided on, and the run's
   cost, tokens, steps, audit ids and manifest download. The agent's own note is labelled as
   written by the model, because the clips and verdicts come from the rule, not from that text.
@@ -119,7 +121,9 @@ happens:
   current step grows at the end of the track, labelled with what the agent is doing.
 
 The page reads the API's NDJSON stream with `fetch`, validates each event against the shared Zod
-contract, and folds it into the run's state with a pure reducer (`features/run/live-run.ts`). It
+contract, and folds it into the run's state with a pure reducer (`features/run/live-run.ts`). A
+new run or leaving the page aborts the stream, and the run id stays in view if the connection
+drops. It
 works from phone to desktop: three panes on a desktop, two columns on a tablet, one on a phone,
 with clip details in a side sheet below desktop width.
 

@@ -53,6 +53,19 @@ describe("replay", () => {
     vi.useRealTimers();
   });
 
+  it("stops emitting and rejects once aborted", async () => {
+    vi.useFakeTimers();
+    const seen: string[] = [];
+    const controller = new AbortController();
+    const done = replay(events, (event) => seen.push(event.type), controller.signal);
+    await vi.advanceTimersByTimeAsync(1500);
+    controller.abort();
+    await expect(done).rejects.toBeDefined();
+    await vi.runAllTimersAsync();
+    expect(seen).not.toContain("completed");
+    vi.useRealTimers();
+  });
+
   it("refuses a recording that never completed", async () => {
     await expect(replay(events.slice(0, 3), () => {})).rejects.toThrow("completed");
   });

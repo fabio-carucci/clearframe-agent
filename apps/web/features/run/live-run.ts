@@ -97,15 +97,28 @@ export const failRun = (run: LiveRun, error: string): LiveRun => ({
   error,
 });
 
-/** A clip in the bin: the rule's decision, plus the manifest entry once the run has ended. */
+/**
+ * Whether a decision is on record. The rule's verdicts stream in before the run is recorded, and
+ * only a recorded run issues a manifest: until then an accepted clip is not cleared.
+ */
+export type Standing = "final" | "recording" | "unrecorded";
+
+/** A clip in the bin: the rule's decision, plus the manifest entry once the run is recorded. */
 export interface BinClip extends ClipDecision {
+  standing: Standing;
   entry: ManifestEntry | null;
 }
 
 export function binClips(run: LiveRun): BinClip[] {
   const entries = new Map(run.result?.manifest.clips.map((entry) => [entry.clipId, entry]));
+  const standing: Standing = run.result
+    ? "final"
+    : run.status === "failed"
+      ? "unrecorded"
+      : "recording";
   return run.decisions.map((decision) => ({
     ...decision,
+    standing,
     entry: entries.get(decision.clipId) ?? null,
   }));
 }

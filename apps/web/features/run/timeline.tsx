@@ -3,6 +3,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { formatCount, formatSeconds } from "./format";
 import type { LiveRun } from "./live-run";
 import { type BlockKind, kindLabel, rulerTicks, timelineBlocks } from "./timeline-model";
+import { useElapsed } from "./use-live-run";
 import styles from "./timeline.module.css";
 
 /** Ten seconds of empty ruler before a run, and room to grow while one is live. */
@@ -34,11 +35,11 @@ function Legend() {
 
 interface TimelineProps {
   run: LiveRun | null;
-  elapsedMs: number;
   className?: string;
 }
 
-export function Timeline({ run, elapsedMs, className }: TimelineProps) {
+export function Timeline({ run, className }: TimelineProps) {
+  const elapsedMs = useElapsed(run);
   const steps = run?.steps ?? [];
   const blocks = timelineBlocks(steps, run?.activity ?? null, elapsedMs);
   const endMs = blocks.reduce((end, block) => Math.max(end, block.startMs + block.durationMs), 0);

@@ -95,7 +95,25 @@ describe("composeLive", () => {
     await expect(composeLive("token", input, () => {})).rejects.toThrow("closed before");
   });
 
-  it("rejects an event outside the contract instead of skipping it", async () => {
+  it("skips an event type it does not know, so a newer API does not fail an older page", async () => {
+    respondWith(
+      new Response(
+        streamOf([
+          `${JSON.stringify(started)}\n`,
+          '{"type":"cost_update","usd":0.001}\n',
+          `${JSON.stringify({ type: "completed", result })}\n`,
+        ]),
+        { headers: { "content-type": "application/x-ndjson" } },
+      ),
+    );
+    const types: string[] = [];
+    await expect(composeLive("token", input, (event) => types.push(event.type))).resolves.toEqual(
+      result,
+    );
+    expect(types).toEqual(["started", "completed"]);
+  });
+
+  it("rejects a known event that breaks the contract instead of skipping it", async () => {
     respondWith(
       new Response(streamOf(['{"type":"started","runId":"not-a-uuid"}\n']), {
         headers: { "content-type": "application/x-ndjson" },

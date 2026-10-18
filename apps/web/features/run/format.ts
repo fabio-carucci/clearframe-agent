@@ -1,4 +1,5 @@
 import type { ClipDecision, Manifest } from "@clearframe/contracts";
+import type { Standing } from "./live-run";
 
 const GENRES: Record<string, string> = {
   sports_outdoor: "Outdoor sports",
@@ -23,10 +24,14 @@ const LANGUAGES: Record<string, string> = {
 export const genreLabel = (genre: string) => GENRES[genre] ?? genre;
 export const languageLabel = (language: string) => LANGUAGES[language] ?? language;
 
-export function outcomeLabel(outcome: ClipDecision["outcome"]): string {
+export function outcomeLabel(outcome: ClipDecision["outcome"], standing: Standing): string {
   switch (outcome) {
     case "accepted":
-      return "Cleared";
+      return standing === "final"
+        ? "Cleared"
+        : standing === "recording"
+          ? "Accepted"
+          : "Not recorded";
     case "refused":
       return "Not cleared";
     case "checked":
