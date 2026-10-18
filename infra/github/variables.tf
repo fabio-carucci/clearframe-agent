@@ -31,6 +31,12 @@ variable "ssm_prefix" {
   default     = "/clearframe/dev/"
 }
 
+variable "eval_key_param" {
+  description = "SecureString with the Anthropic key the eval workflow uses. It belongs to a workspace with a low spend limit: any pull request can read it, so it must never be the key the Lambda uses."
+  type        = string
+  default     = "/clearframe/ci/anthropic-api-key"
+}
+
 variable "embedding_model_id" {
   type    = string
   default = "amazon.titan-embed-text-v2:0"

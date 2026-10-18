@@ -7,10 +7,10 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
 
   github_oidc_host    = "token.actions.githubusercontent.com"
-  workload_roles      = "arn:aws:iam::${local.account_id}:role/${var.workload_prefix}-*"
+  agent_role          = "arn:aws:iam::${local.account_id}:role/${var.workload_prefix}-agent"
   embedding_model_arn = "arn:aws:bedrock:${local.region}::foundation-model/${var.embedding_model_id}"
   ssm_parameters      = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.ssm_prefix}*"
-  anthropic_key_param = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.ssm_prefix}anthropic-api-key"
+  eval_key_param      = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.eval_key_param}"
   auth_config_param   = "arn:aws:ssm:${local.region}:${local.account_id}:parameter${var.ssm_prefix}auth-config"
 }
 
@@ -36,8 +36,8 @@ data "aws_iam_policy_document" "workload_boundary" {
   }
 
   statement {
-    sid       = "RunsTable"
-    actions   = ["dynamodb:PutItem"]
+    sid       = "Tables"
+    actions   = ["dynamodb:PutItem", "dynamodb:UpdateItem"]
     resources = ["arn:aws:dynamodb:${local.region}:${local.account_id}:table/${var.workload_prefix}-*"]
   }
 
@@ -96,9 +96,9 @@ data "aws_iam_policy_document" "ci_eval" {
   }
 
   statement {
-    sid       = "ReadAnthropicKey"
+    sid       = "ReadEvalAnthropicKey"
     actions   = ["ssm:GetParameter"]
-    resources = [local.anthropic_key_param]
+    resources = [local.eval_key_param]
   }
 }
 
@@ -193,7 +193,7 @@ data "aws_iam_policy_document" "ci_deploy" {
   }
 
   statement {
-    sid = "ReadWorkloadRolesAndBoundary"
+    sid = "ReadAgentRoleAndBoundary"
     actions = [
       "iam:GetRole",
       "iam:GetRolePolicy",
@@ -203,11 +203,11 @@ data "aws_iam_policy_document" "ci_deploy" {
       "iam:GetPolicy",
       "iam:GetPolicyVersion",
     ]
-    resources = [local.workload_roles, aws_iam_policy.workload_boundary.arn]
+    resources = [local.agent_role, aws_iam_policy.workload_boundary.arn]
   }
 
   statement {
-    sid = "ChangeWorkloadRolesOnlyWithBoundary"
+    sid = "ChangeAgentRoleOnlyWithBoundary"
     actions = [
       "iam:CreateRole",
       "iam:PutRolePolicy",
@@ -216,7 +216,7 @@ data "aws_iam_policy_document" "ci_deploy" {
       "iam:DetachRolePolicy",
       "iam:PutRolePermissionsBoundary",
     ]
-    resources = [local.workload_roles]
+    resources = [local.agent_role]
 
     condition {
       test     = "StringEquals"
@@ -226,21 +226,15 @@ data "aws_iam_policy_document" "ci_deploy" {
   }
 
   statement {
-    sid = "MaintainWorkloadRoles"
-    actions = [
-      "iam:DeleteRole",
-      "iam:UpdateAssumeRolePolicy",
-      "iam:UpdateRole",
-      "iam:TagRole",
-      "iam:UntagRole",
-    ]
-    resources = [local.workload_roles]
+    sid       = "MaintainAgentRole"
+    actions   = ["iam:UpdateRole", "iam:TagRole", "iam:UntagRole"]
+    resources = [local.agent_role]
   }
 
   statement {
-    sid       = "PassWorkloadRolesToLambdaOnly"
+    sid       = "PassAgentRoleToLambdaOnly"
     actions   = ["iam:PassRole"]
-    resources = [local.workload_roles]
+    resources = [local.agent_role]
 
     condition {
       test     = "StringEquals"
@@ -262,6 +256,7 @@ data "aws_iam_policy_document" "ci_deploy" {
       "arn:aws:cloudfront::${local.account_id}:distribution/*",
       "arn:aws:cloudfront::${local.account_id}:origin-access-control/*",
       "arn:aws:cloudfront::${local.account_id}:response-headers-policy/*",
+      "arn:aws:cloudfront::${local.account_id}:function/${var.workload_prefix}-*",
     ]
   }
 
@@ -303,10 +298,27 @@ data "aws_iam_policy_document" "ci_deploy" {
     actions   = ["iam:DeleteRolePermissionsBoundary"]
     resources = ["*"]
   }
+
+  # The boundary limits what the agent role can do, not who can assume it. Without these, code
+  # merged to main could make the role assumable from another account and keep that access
+  # outside the pipeline. Trust changes are applied by an admin, never by CI.
+  statement {
+    sid       = "NeverChangeWhoAssumesRoles"
+    effect    = "Deny"
+    actions   = ["iam:UpdateAssumeRolePolicy", "iam:DeleteRole"]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "ci_deploy" {
   name   = "deploy"
   role   = aws_iam_role.ci_deploy.id
   policy = data.aws_iam_policy_document.ci_deploy.json
+}
+
+# Reports any role trust, bucket or key policy in the account that grants access to a principal
+# outside it, including changes made outside Terraform.
+resource "aws_accessanalyzer_analyzer" "account" {
+  analyzer_name = "clearframe-account"
+  type          = "ACCOUNT"
 }
