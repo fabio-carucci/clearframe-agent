@@ -1,2 +1,4 @@
 pnpm-lock.yaml
 data/
+web/.next/
+web/out/
