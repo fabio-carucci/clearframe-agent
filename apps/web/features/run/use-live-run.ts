@@ -1,15 +1,17 @@
 "use client";
 
-import type { ComposeResponse, Manifest, RunEvent } from "@clearframe/contracts";
+import type { ComposeResponse, Manifest, RunDetailResponse, RunEvent } from "@clearframe/contracts";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { type LiveRun, applyEvent, failRun, finishedRun, startRun } from "./live-run";
 
 type Action =
+  | { type: "show"; run: LiveRun }
   | { type: "start"; request: Manifest["request"]; at: number }
   | { type: "event"; event: RunEvent }
   | { type: "fail"; message: string };
 
 function reduce(run: LiveRun | null, action: Action): LiveRun | null {
+  if (action.type === "show") return action.run;
   if (action.type === "start") return startRun(action.request, action.at);
   if (!run) return run;
   return action.type === "event" ? applyEvent(run, action.event) : failRun(run, action.message);
@@ -42,7 +44,13 @@ export function useLiveRun(recorded?: ComposeResponse) {
     }
   }, []);
 
-  return { run, start };
+  /** Shows a recorded run from the history, abandoning any run in progress on this page. */
+  const show = useCallback((detail: RunDetailResponse) => {
+    current.current?.abort();
+    dispatch({ type: "show", run: finishedRun(detail, 0, detail.audit) });
+  }, []);
+
+  return { run, start, show };
 }
 
 /** The run-time readout shows tenths of a second, so ten ticks a second are enough. */

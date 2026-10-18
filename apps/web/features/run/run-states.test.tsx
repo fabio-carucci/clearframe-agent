@@ -4,7 +4,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { ClipBin } from "./clip-bin";
 import { ClipDetails } from "./clip-details";
-import { type LiveRun, applyEvent, binClips, startRun } from "./live-run";
+import { type LiveRun, applyEvent, binClips, finishedRun, startRun } from "./live-run";
 import { RunSummary } from "./run-summary";
 
 const request = { prompt: "5 nature clips in English", territory: "ES", date: "2026-10-18" };
@@ -96,5 +96,19 @@ describe("a run as the user sees it", () => {
     render(<RunSummary run={applyEvent(live(), { type: "failed", error: "Connection lost." })} />);
     expect(screen.getByText(runId)).toBeTruthy();
     expect(screen.getByText(/Quote this id/)).toBeTruthy();
+  });
+
+  it("says whether a run opened from the history matched its recorded checksum", () => {
+    const audit = {
+      manifestVersionId: "3HL4kqtJlcpXroDTDmJ",
+      manifestSha256: "abc=",
+      verified: true,
+    };
+    render(<RunSummary run={finishedRun(result, 0, audit)} />);
+    expect(screen.getByText(/matches the SHA-256 recorded with the run/)).toBeTruthy();
+    cleanup();
+
+    render(<RunSummary run={finishedRun(result, 0, { ...audit, verified: false })} />);
+    expect(screen.getByText(/cannot be verified/)).toBeTruthy();
   });
 });

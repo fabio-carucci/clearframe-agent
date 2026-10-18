@@ -1,5 +1,5 @@
 import type { Manifest } from "@clearframe/contracts";
-import { Download, TriangleAlert } from "lucide-react";
+import { Download, ShieldCheck, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCount, formatRunTime, formatUsd, stopReasonLabel } from "./format";
 import type { LiveRun } from "./live-run";
@@ -91,6 +91,18 @@ export function RunSummary({ run }: { run: LiveRun | null }) {
           <p className="text-muted-foreground">
             Run <span className="font-mono text-foreground">{run.runId}</span>
           </p>
+          {run.audit && (
+            <p
+              className={
+                run.audit.verified ? "flex items-start gap-2 text-cleared" : "text-muted-foreground"
+              }
+            >
+              {run.audit.verified && <ShieldCheck className="mt-px size-4 shrink-0" aria-hidden />}
+              {run.audit.verified
+                ? `Read back from S3: the locked version ${run.audit.manifestVersionId?.slice(0, 10)}… matches the SHA-256 recorded with the run.`
+                : "Recorded before manifests carried a version and checksum, so this copy cannot be verified."}
+            </p>
+          )}
           {manifest ? (
             <>
               <p className="text-muted-foreground" title={manifest.catalogVersion}>
