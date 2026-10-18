@@ -3,9 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import type { User, UserManager } from "oidc-client-ts";
 import { useEffect, useMemo, useState } from "react";
-import { ApiError } from "@/lib/api";
-import { cognitoLogoutUrl, createUserManager, isSignInCallback } from "@/lib/auth";
-import { type WebConfig, loadWebConfig } from "@/lib/config";
+import { ApiError } from "@/lib/api-error";
+import { type WebConfig, loadWebConfig } from "./config";
+import { cognitoLogoutUrl, createUserManager, isSignInCallback } from "./oidc";
 
 export type Session =
   | { status: "loading" }
