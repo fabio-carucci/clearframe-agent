@@ -77,7 +77,9 @@ Each of these is load-bearing; most are pinned by a test.
    with the AWS CLI. Non-secret runtime settings, such as the Cognito ids, may.
 9. Every IAM permission names a specific resource, except actions AWS cannot scope to one. The CI
    deploy role can change only the agent role, only with the workload permissions boundary
-   attached, and can never change who may assume a role.
+   attached, and can never change who may assume a role. Its CloudFront, Cognito and certificate
+   permissions name resources by id, since the account hosts other projects; never widen them to
+   `*` to let CI create or replace those resources.
 10. After changing `data/catalog.json`, rerun `pnpm catalog:embed`; a fingerprint test fails
     otherwise. Then fix the handwritten `clipIds` in `evals/cases.ts` by reading the catalog;
     never fill them in by running the rule, or the eval grades the rule with itself.

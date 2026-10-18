@@ -283,8 +283,10 @@ re-created repository with the same name cannot assume them.
 - `clearframe-ci-deploy` can be assumed only from `main`. It manages `clearframe-dev-*` resources
   and the `env/dev` state. It can change one IAM role, `clearframe-dev-agent`, only with the
   permissions boundary attached, and is denied changing who may assume a role: the boundary limits
-  what a role can do, not who can use it, so trust changes are applied by an administrator. IAM
-  Access Analyzer reports any resource in the account that is shared outside it.
+  what a role can do, not who can use it, so trust changes are applied by an administrator. Its
+  CloudFront, Cognito and certificate permissions name this stack's resources by id, because the
+  account hosts other projects; creating or replacing one of them is an administrator's job too.
+  IAM Access Analyzer reports any resource in the account that is shared outside it.
 
 Pull requests run format, typecheck, tests, the Lambda and web builds and `terraform validate`,
 and the eval suite when they touch the agent, the evals, the data or the dependencies. Merges to
@@ -360,16 +362,17 @@ something to refuse.
 
 Deploying from scratch: apply `infra/bootstrap`, create the Anthropic key parameter, apply
 `infra/github`, set the `AWS_EVAL_ROLE_ARN` and `AWS_DEPLOY_ROLE_ARN` repository variables, then
-run `pnpm build:lambda && pnpm web:build` and apply `infra/env/dev` (or merge to `main`). Create users
-with `aws cognito-idp admin-create-user`; Cognito emails them a temporary password.
+run `pnpm build:lambda && pnpm web:build` and apply `infra/env/dev` as an administrator: the deploy
+role manages the CloudFront, Cognito and certificate resources only by id, so it cannot create
+them. Set those ids in `infra/github/variables.tf` and apply it again; from then on, merges to
+`main` deploy. Create users with `aws cognito-idp admin-create-user`; Cognito emails them a
+temporary password.
 
 The custom domain's DNS is hosted at Squarespace, outside Terraform, so two CNAME records are kept
 there by hand. The first is the certificate's validation record (`terraform output
 certificate_validation_record` in `infra/env/dev`): the first apply waits up to 30 minutes for it,
 and ACM needs it to renew the certificate, so it must stay. The second points the domain at the
-distribution (`terraform output cloudfront_domain`). The domain name appears in `infra/env/dev` and,
-as the only domain the deploy role may request a certificate for, in `infra/github`; a test keeps
-the two equal.
+distribution (`terraform output cloudfront_domain`).
 
 ## Privacy
 
@@ -389,8 +392,9 @@ instance to honour an erasure request.
 - Licenses read from the rights system of record, which can invalidate the cached catalog itself:
   today a revocation is a change to `data/catalog.json` and a deploy, picked up within five
   minutes.
-- Tag conditions (`aws:ResourceTag/Project`) on the deploy role's CloudFront and Cognito
-  permissions, which today cover every distribution and user pool in the account.
+- Tag conditions (`aws:ResourceTag/Project`) instead of resource ids on the deploy role, once the
+  CloudFront and Cognito actions it uses are confirmed to support them, so a replaced resource no
+  longer needs an administrator.
 - SSO for customer organizations through Cognito SAML or OIDC federation.
 - Prompt caching for the instructions and tool definitions, the largest repeated input.
 - Real ingest: scene-level metadata extracted from video, and licenses from a rights system of record.
