@@ -8,7 +8,7 @@ import type { RunErrorCode } from "@clearframe/core/agent/errors";
 import { type RunDeps, runClipAgent } from "@clearframe/core/agent/run";
 import { loadCatalogData } from "@clearframe/core/catalog/load";
 import { embedQuery } from "@clearframe/core/retrieval/embeddings";
-import { EVAL_CASES, type EvalCase } from "./cases";
+import { EVAL_CASES, type EvalCase, ON_DEMAND_TAG } from "./cases";
 import { type CaseResult, eligibleClipIds, gateFailures, scoreCase, summarize } from "./metrics";
 import { type ReportMeta, renderMarkdown } from "./report";
 import { UncheckedManifestDraft } from "./unchecked-draft";
@@ -42,7 +42,9 @@ const repeat = Number(values.repeat);
 const concurrency = Number(values.concurrency);
 const ablation = values["no-rule"];
 const caseIds = values.cases?.split(",");
-const selected = caseIds ? EVAL_CASES.filter((c) => caseIds.includes(c.id)) : EVAL_CASES;
+const selected = caseIds
+  ? EVAL_CASES.filter((c) => caseIds.includes(c.id))
+  : EVAL_CASES.filter((c) => !c.tags.includes(ON_DEMAND_TAG));
 
 const data = await loadCatalogData();
 const deps: RunDeps = {
