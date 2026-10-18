@@ -11,6 +11,7 @@ import {
   recall,
   rightsViolations,
   summarize,
+  summaryLanguage,
 } from "./metrics";
 
 const clip = (id: string, overrides: Partial<Clip> = {}): Clip => ({
@@ -53,6 +54,7 @@ const manifestWith = (clipIds: string[]): Manifest => ({
 const evalCase: EvalCase = {
   id: "case",
   prompt: "p",
+  language: "en",
   territory: "ES",
   date: "2026-10-17",
   expected: { filters: { language: "es", maxDurationSec: 30 } },
@@ -131,6 +133,7 @@ describe("summarize", () => {
       eligible: 1,
       clips: 1,
       countRespected: true,
+      summaryLanguageOk: null,
       stopReason: "completed" as const,
       steps: 2,
       costUsd: 0.002,
@@ -144,6 +147,42 @@ describe("summarize", () => {
     expect(summary.meanFilterPrecision).toBe(1);
     expect(summary.meanRecall).toBe(0.75);
     expect(summary.totalCostUsd).toBeCloseTo(0.004);
+  });
+});
+
+describe("summaryLanguage", () => {
+  it("reads the language of the agent's summary", () => {
+    // The summary of the recorded sample run, written in Spanish for an English request.
+    const spanish =
+      "Resumen:\n- **clip_0060:** no lo añadí. Su licencia caducó el 2026-04-19, así que no está " +
+      "permitido usarlo para entrenamiento en ES.\n- **Clips añadidos:** 8 de 8.\nEl manifiesto " +
+      "tiene 8 clips, así que no hay déficit.";
+    expect(summaryLanguage(spanish, [])).toBe("es");
+    expect(
+      summaryLanguage(
+        "Ho aggiunto 5 clip di natura in inglese. Le altre non sono state aggiunte perché la " +
+          "licenza è scaduta.",
+        [],
+      ),
+    ).toBe("it");
+    expect(
+      summaryLanguage(
+        "Added 8 of the 8 clips requested. clip_0060 was not added: its license expired.",
+        [],
+      ),
+    ).toBe("en");
+  });
+
+  it("ignores the English clip titles a summary quotes", () => {
+    const titles = ["The chef and the market of Valencia", "Paella for the family"];
+    const italian =
+      "Aggiunte 2 clip: The chef and the market of Valencia, Paella for the family. Nessuna è stata " +
+      "rifiutata.";
+    expect(summaryLanguage(italian, titles)).toBe("it");
+  });
+
+  it("returns null when no language leads", () => {
+    expect(summaryLanguage("clip_0001, clip_0002: 2 clips.", [])).toBeNull();
   });
 });
 
