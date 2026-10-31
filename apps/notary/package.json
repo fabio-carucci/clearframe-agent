@@ -9,7 +9,7 @@
     "sign-check": "tsx scripts/sign-check.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-kms": "^3.1152.0",
+    "@aws-sdk/client-kms": "^3.1156.0",
     "@clearframe/contracts": "workspace:*",
     "@clearframe/core": "workspace:*"
   },
